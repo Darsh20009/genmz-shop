@@ -1,3 +1,4 @@
+import logoImg from "@assets/Gen_M&Z_LOGO_1766644527859.png";
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { ShoppingBag, User, Menu, LogOut, Sun, Moon } from "lucide-react";
@@ -47,7 +48,7 @@ export function Layout({ children }: { children: ReactNode }) {
             </Sheet>
 
             <Link href="/" className="flex items-center">
-              <span className="font-display text-xl md:text-2xl font-bold tracking-tight text-primary">Gen M & Z</span>
+              <img src={logoImg} alt="Gen M & Z" className="h-10 w-auto md:h-12" />
             </Link>
 
             <div className="hidden md:flex items-center gap-6 text-sm font-bold">
@@ -115,7 +116,9 @@ export function Layout({ children }: { children: ReactNode }) {
       <footer className="border-t bg-card py-16 mt-24">
         <div className="container grid grid-cols-1 md:grid-cols-4 gap-12 px-4">
           <div className="space-y-4">
-            <span className="font-display text-2xl font-bold text-primary">Gen M & Z</span>
+            <Link href="/" className="flex items-center">
+              <img src={logoImg} alt="Gen M & Z" className="h-10 w-auto" />
+            </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
               الفخامة العصرية للجيل الجديد. تصميم سعودي بأعلى معايير الجودة والتفرد.
             </p>
@@ -149,6 +152,12 @@ export function Layout({ children }: { children: ReactNode }) {
         </div>
         <div className="container mt-16 pt-8 border-t text-center text-sm text-muted-foreground px-4">
           © 2024 Gen M & Z. جميع الحقوق محفوظة.
+          <div className="flex justify-center gap-6 mt-4">
+            <a href="https://www.instagram.com/genmz.sa/" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">انستجرام</a>
+            <a href="https://x.com/GenMZsa" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">تويتر (X)</a>
+            <a href="https://www.snapchat.com/@genmz.sa" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">سناب شات</a>
+            <a href="https://www.tiktok.com/@genmz.sa" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">تيك توك</a>
+          </div>
         </div>
       </footer>
     </div>

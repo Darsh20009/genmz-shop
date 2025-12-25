@@ -1,3 +1,4 @@
+import logoImg from "@assets/Gen_M&Z_LOGO_1766644527859.png";
 import { useAuth } from "@/hooks/use-auth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,7 +42,7 @@ export default function Login() {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <Link href="/">
-             <h1 className="font-display text-4xl font-bold text-primary mb-2 cursor-pointer">Gen M & Z</h1>
+             <img src={logoImg} alt="Gen M & Z" className="h-16 w-auto mx-auto mb-4 cursor-pointer" />
           </Link>
           <p className="text-muted-foreground">سجل دخولك للمتابعة</p>
         </div>
