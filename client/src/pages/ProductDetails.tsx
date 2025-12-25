@@ -20,6 +20,16 @@ export default function ProductDetails() {
   const [selectedVariant, setSelectedVariant] = useState<any>(null);
   const [quantity, setQuantity] = useState(1);
 
+  // Ensure variants exist, otherwise provide default
+  const variants = product?.variants && product.variants.length > 0 ? product.variants : [{ sku: 'default', color: 'Default', size: 'One Size', stock: 10 }];
+  
+  // Auto select first variant if not selected
+  useEffect(() => {
+    if (!selectedVariant && variants.length > 0) {
+      setSelectedVariant(variants[0]);
+    }
+  }, [selectedVariant, variants]);
+
   if (isLoading) {
     return (
       <Layout>
@@ -47,16 +57,6 @@ export default function ProductDetails() {
       </Layout>
     );
   }
-
-  // Ensure variants exist, otherwise provide default
-  const variants = product.variants && product.variants.length > 0 ? product.variants : [{ sku: 'default', color: 'Default', size: 'One Size', stock: 10 }];
-  
-  // Auto select first variant if not selected
-  useEffect(() => {
-    if (!selectedVariant && variants.length > 0) {
-      setSelectedVariant(variants[0]);
-    }
-  }, [selectedVariant, variants]);
 
   const handleAddToCart = () => {
     if (!selectedVariant) return;
