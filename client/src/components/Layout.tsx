@@ -1,8 +1,8 @@
 import logoImg from "@assets/Gen_M&Z_LOGO_1766644527859.png";
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { ShoppingBag, User, Menu, LogOut, Sun, Moon, Phone, Mail, Instagram, Twitter, MessageCircle } from "lucide-react";
-import { SiTiktok, SiSnapchat } from "react-icons/si";
+import { ShoppingBag, User, Menu, LogOut, Sun, Moon, Phone, Mail, Instagram, Twitter } from "lucide-react";
+import { SiTiktok, SiSnapchat, SiWhatsapp } from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
@@ -121,7 +121,7 @@ export function Layout({ children }: { children: ReactNode }) {
         className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-[#25D366] text-white px-4 py-3 rounded-full shadow-lg hover:scale-110 transition-transform group"
       >
         <span className="font-bold whitespace-nowrap overflow-hidden max-w-0 group-hover:max-w-xs transition-all duration-500">تواصل معنا</span>
-        <MessageCircle className="h-6 w-6 fill-current" />
+        <SiWhatsapp className="h-6 w-6" />
       </a>
 
       {/* Footer */}
