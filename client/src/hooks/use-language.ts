@@ -223,10 +223,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (context === undefined) {
-    // If not within a provider, return the store directly to avoid crash
-    // but warn in console.
-    console.warn('useLanguage used outside of LanguageProvider');
-    return useLanguageStore();
+    throw new Error('useLanguage must be used within a LanguageProvider');
   }
   return context;
 };
