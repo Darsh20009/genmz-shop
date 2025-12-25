@@ -2,7 +2,6 @@ import { Layout } from "@/components/Layout";
 import { useAuth } from "@/hooks/use-auth";
 import { useProducts, useCreateProduct } from "@/hooks/use-products";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@shared/routes";
 import { useLocation } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,8 +14,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProductSchema, type InsertProduct } from "@shared/schema";
-import { Loader2, Plus, DollarSign, Package, Users, ShoppingCart, TrendingUp, BarChart3, ArrowUpRight, ArrowDownRight } from "lucide-react";
-import { z } from "zod";
+import { Loader2, Plus, DollarSign, ShoppingCart, TrendingUp, BarChart3, ArrowUpRight } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -40,131 +38,132 @@ function StatsCards() {
     }
   });
 
-  if (isLoading) return <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-    {[1, 2, 3, 4].map(i => <Card key={i} className="h-32 animate-pulse bg-secondary/20" />)}
-  </div>;
+  if (isLoading) return (
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      {[1, 2, 3, 4].map(i => <Card key={i} className="h-32 animate-pulse bg-secondary/20" />)}
+    </div>
+  );
 
   return (
     <>
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-      <Card className="hover-elevate border-black/5 bg-white shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">إجمالي المبيعات</CardTitle>
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <DollarSign className="h-4 w-4 text-primary" />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-black">{Number(stats?.totalSales || 0).toLocaleString()} <span className="text-xs">ر.س</span></div>
-          <div className="flex items-center gap-1 text-[10px] text-green-600 font-bold mt-1">
-            <ArrowUpRight className="h-3 w-3" />
-            <span>+12.5% نمو</span>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <Card className="hover-elevate border-black/5 bg-white shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">صافي الربح</CardTitle>
-          <div className="p-2 bg-green-50 rounded-lg">
-            <TrendingUp className="h-4 w-4 text-green-600" />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-black">{Number(stats?.netProfit || 0).toLocaleString()} <span className="text-xs">ر.س</span></div>
-          <div className="flex items-center gap-1 text-[10px] text-green-600 font-bold mt-1">
-            <ArrowUpRight className="h-3 w-3" />
-            <span>+8.2% أداء</span>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="hover-elevate border-black/5 bg-white shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">إجمالي الطلبات</CardTitle>
-          <div className="p-2 bg-blue-50 rounded-lg">
-            <ShoppingCart className="h-4 w-4 text-blue-600" />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-black">{stats?.totalOrders || 0}</div>
-          <p className="text-[10px] text-muted-foreground font-bold mt-1">
-            {stats?.orderStatusCounts?.new || 0} طلبات جديدة بانتظار المعالجة
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card className="hover-elevate border-black/5 bg-white shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">متوسط الطلب</CardTitle>
-          <div className="p-2 bg-orange-50 rounded-lg">
-            <BarChart3 className="h-4 w-4 text-orange-600" />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-black">
-            {stats?.totalOrders ? (stats.totalSales / stats.totalOrders).toFixed(2) : 0} <span className="text-xs">ر.س</span>
-          </div>
-          <p className="text-[10px] text-muted-foreground font-bold mt-1">لكل عملية شراء</p>
-        </CardContent>
-      </Card>
-    </div>
-
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-      <Card className="border-black/5 bg-white shadow-sm p-6">
-        <CardHeader className="px-0 pt-0 flex flex-row items-center justify-between mb-6">
-          <CardTitle className="text-sm font-black uppercase tracking-widest">أكثر المنتجات مبيعاً</CardTitle>
-        </CardHeader>
-        <div className="h-[300px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={stats?.topProducts || []} layout="vertical" margin={{ left: 20, right: 30 }}>
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
-              <XAxis type="number" hide />
-              <YAxis 
-                dataKey="name" 
-                type="category" 
-                tick={{ fontSize: 10, fontWeight: 'bold' }} 
-                width={80}
-              />
-              <Tooltip 
-                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                cursor={{ fill: '#f8f8f8' }}
-              />
-              <Bar dataKey="quantity" radius={[0, 4, 4, 0]}>
-                {(stats?.topProducts || []).map((_entry: any, index: number) => (
-                  <Cell key={`cell-${index}`} fill={index === 0 ? '#000' : '#888'} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
-
-      <Card className="border-black/5 bg-white shadow-sm p-6">
-        <CardHeader className="px-0 pt-0 mb-6">
-          <CardTitle className="text-sm font-black uppercase tracking-widest">حالات الطلبات</CardTitle>
-        </CardHeader>
-        <div className="space-y-4">
-          {Object.entries(stats?.orderStatusCounts || {}).map(([status, count]: [string, any]) => (
-            <div key={status} className="flex items-center justify-between p-4 bg-secondary/20 rounded-2xl">
-              <div className="flex items-center gap-3">
-                <div className={`w-2 h-2 rounded-full ${
-                  status === 'new' ? 'bg-primary' : 
-                  status === 'processing' ? 'bg-blue-500' : 
-                  status === 'shipped' ? 'bg-orange-500' : 'bg-green-500'
-                }`} />
-                <span className="text-sm font-bold uppercase tracking-widest">
-                  {status === 'new' ? 'جديد' : 
-                   status === 'processing' ? 'قيد التنفيذ' : 
-                   status === 'shipped' ? 'تم الشحن' : 'مكتمل'}
-                </span>
-              </div>
-              <span className="font-black">{count}</span>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <Card className="hover-elevate border-black/5 bg-white shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">إجمالي المبيعات</CardTitle>
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <DollarSign className="h-4 w-4 text-primary" />
             </div>
-          ))}
-        </div>
-      </Card>
-    </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-black">{Number(stats?.totalSales || 0).toLocaleString()} <span className="text-xs">ر.س</span></div>
+            <div className="flex items-center gap-1 text-[10px] text-green-600 font-bold mt-1">
+              <ArrowUpRight className="h-3 w-3" />
+              <span>+12.5% نمو</span>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="hover-elevate border-black/5 bg-white shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">صافي الربح</CardTitle>
+            <div className="p-2 bg-green-50 rounded-lg">
+              <TrendingUp className="h-4 w-4 text-green-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-black">{Number(stats?.netProfit || 0).toLocaleString()} <span className="text-xs">ر.س</span></div>
+            <div className="flex items-center gap-1 text-[10px] text-green-600 font-bold mt-1">
+              <ArrowUpRight className="h-3 w-3" />
+              <span>+8.2% أداء</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover-elevate border-black/5 bg-white shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">إجمالي الطلبات</CardTitle>
+            <div className="p-2 bg-blue-50 rounded-lg">
+              <ShoppingCart className="h-4 w-4 text-blue-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-black">{stats?.totalOrders || 0}</div>
+            <p className="text-[10px] text-muted-foreground font-bold mt-1">
+              {stats?.orderStatusCounts?.new || 0} طلبات جديدة
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="hover-elevate border-black/5 bg-white shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">متوسط الطلب</CardTitle>
+            <div className="p-2 bg-orange-50 rounded-lg">
+              <BarChart3 className="h-4 w-4 text-orange-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-black">
+              {stats?.totalOrders ? (stats.totalSales / stats.totalOrders).toFixed(2) : 0} <span className="text-xs">ر.س</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <Card className="border-black/5 bg-white shadow-sm p-6">
+          <CardHeader className="px-0 pt-0 flex flex-row items-center justify-between mb-6">
+            <CardTitle className="text-sm font-black uppercase tracking-widest">أكثر المنتجات مبيعاً</CardTitle>
+          </CardHeader>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={stats?.topProducts || []} layout="vertical" margin={{ left: 20, right: 30 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
+                <XAxis type="number" hide />
+                <YAxis 
+                  dataKey="name" 
+                  type="category" 
+                  tick={{ fontSize: 10, fontWeight: 'bold' }} 
+                  width={80}
+                />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                  cursor={{ fill: '#f8f8f8' }}
+                />
+                <Bar dataKey="quantity" radius={[0, 4, 4, 0]}>
+                  {(stats?.topProducts || []).map((_entry: any, index: number) => (
+                    <Cell key={`cell-${index}`} fill={index === 0 ? '#000' : '#888'} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        <Card className="border-black/5 bg-white shadow-sm p-6">
+          <CardHeader className="px-0 pt-0 mb-6">
+            <CardTitle className="text-sm font-black uppercase tracking-widest">حالات الطلبات</CardTitle>
+          </CardHeader>
+          <div className="space-y-4">
+            {Object.entries(stats?.orderStatusCounts || {}).map(([status, count]: [string, any]) => (
+              <div key={status} className="flex items-center justify-between p-4 bg-secondary/20 rounded-2xl">
+                <div className="flex items-center gap-3">
+                  <div className={`w-2 h-2 rounded-full ${
+                    status === 'new' ? 'bg-primary' : 
+                    status === 'processing' ? 'bg-blue-500' : 
+                    status === 'shipped' ? 'bg-orange-500' : 'bg-green-500'
+                  }`} />
+                  <span className="text-sm font-bold uppercase tracking-widest">
+                    {status === 'new' ? 'جديد' : 
+                     status === 'processing' ? 'قيد التنفيذ' : 
+                     status === 'shipped' ? 'تم الشحن' : 'مكتمل'}
+                  </span>
+                </div>
+                <span className="font-black">{count}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
     </>
   );
 }
@@ -263,7 +262,11 @@ export default function Admin() {
   const { user, isLoading } = useAuth();
   const [, setLocation] = useLocation();
 
-  if (isLoading) return <div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin" /></div>;
+  if (isLoading) return (
+    <div className="h-screen flex items-center justify-center">
+      <Loader2 className="animate-spin" />
+    </div>
+  );
   
   if (!user || user.role !== 'admin') {
     setLocation("/");
