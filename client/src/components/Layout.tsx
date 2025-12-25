@@ -1,7 +1,7 @@
 import logoImg from "@assets/Gen_M&Z_LOGO_1766644527859.png";
 import { ReactNode, useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { ShoppingBag, User, Menu, LogOut, Sun, Moon, Phone, Mail, Instagram, Twitter, Download, Globe, Check } from "lucide-react";
+import { ShoppingBag, User, Menu, LogOut, Sun, Moon, Phone, Mail, Instagram, Twitter, Download, Globe, Check, Wallet } from "lucide-react";
 import { SiTiktok, SiSnapchat, SiWhatsapp, SiX } from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -162,6 +162,14 @@ export function Layout({ children }: { children: ReactNode }) {
                   </div>
                   
                   <div className="space-y-1">
+                    <div className={`flex items-center justify-between p-3 mb-2 bg-primary/5 border border-primary/10 rounded-none ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+                      <div className={`flex items-center gap-2 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+                        <Wallet className="h-4 w-4 text-primary" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-black/40">{t('wallet') || 'المحفظة'}</span>
+                      </div>
+                      <span dir="ltr" className="text-sm font-black text-primary">{(user as any)?.walletBalance?.toLocaleString() || '0'} {t('currency')}</span>
+                    </div>
+
                     <Link href="/orders">
                       <DropdownMenuItem className={`cursor-pointer gap-3 p-3 text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all rounded-none ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
                         <ShoppingBag className="h-4 w-4 opacity-40" />
