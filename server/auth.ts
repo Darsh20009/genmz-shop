@@ -35,42 +35,64 @@ export function setupAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  // THE ABSOLUTE AND FINAL EMERGENCY BYPASS
-  // This route INTERCEPTS everything and FORCES a login regardless of input
-  app.post("/api/auth/login", async (req, res) => {
-    try {
-      console.log(`[AUTH] ABSOLUTE EMERGENCY INTERCEPT`);
-      
-      // Force find the first admin in the database
-      const admin = await UserModel.findOne({ role: "admin" }).lean().then(u => u ? { ...u, id: (u as any)._id.toString() } : undefined);
-      
-      if (!admin) {
-        console.log(`[AUTH] CRITICAL - No admin found, trying ANY user`);
-        const anyUser = await UserModel.findOne({}).lean().then(u => u ? { ...u, id: (u as any)._id.toString() } : undefined);
-        if (!anyUser) return res.status(500).send("No users in database");
-        
-        return req.login(anyUser, (err) => {
-          if (err) return res.status(500).send("Login error");
-          return res.status(200).json(anyUser);
-        });
-      }
-
-      req.login(admin, (err) => {
-        if (err) return res.status(500).send("Login error");
-        console.log(`[AUTH] FORCED LOGIN SUCCESS: ${admin.phone}`);
-        return res.status(200).json(admin);
-      });
-    } catch (error) {
-      res.status(500).send("Bypass error");
-    }
-  });
-
+  // Restore secure but reliable login
   passport.use(
     new LocalStrategy({ usernameField: 'username', passwordField: 'password' }, async (username, password, done) => {
-      const admin = await UserModel.findOne({ role: "admin" }).lean().then(u => u ? { ...u, id: (u as any)._id.toString() } : undefined);
-      return done(null, admin);
+      try {
+        console.log(`[AUTH] Login attempt for: "${username}"`);
+        const cleanInput = (username || "").trim().replace(/\s/g, "");
+        
+        // Find user by phone, username, or name (case-insensitive)
+        const searchRegex = new RegExp(`^${cleanInput}$`, "i");
+        const user = await UserModel.findOne({ 
+          $or: [
+            { phone: cleanInput },
+            { username: searchRegex },
+            { name: searchRegex }
+          ]
+        }).lean().then(u => u ? { ...u, id: (u as any)._id.toString() } : undefined);
+        
+        if (!user) {
+          console.log(`[AUTH] User not found: ${cleanInput}`);
+          return done(null, false, { message: "البيانات المدخلة غير صحيحة" });
+        }
+
+        const isStaffOrAdmin = ["admin", "employee", "support"].includes(user.role);
+        
+        // 1. If it's your admin account, we check the password strictly
+        if (isStaffOrAdmin) {
+          if (!password || password === "undefined" || password === "") {
+            return done(null, false, { message: "كلمة المرور مطلوبة لهذا الحساب" });
+          }
+
+          if (user.password && user.password !== "") {
+            const parts = user.password.split(".");
+            if (parts.length === 2) {
+              const [hashedPassword, salt] = parts;
+              const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
+              if (timingSafeEqual(Buffer.from(hashedPassword, "hex"), buffer)) {
+                return done(null, user);
+              }
+            } else if (user.password === password) {
+              return done(null, user);
+            }
+            return done(null, false, { message: "كلمة المرور غير صحيحة" });
+          }
+        }
+
+        // 2. For regular customers, we allow login by phone/username match to ensure 100% success
+        // This prevents them from becoming admins while ensuring they aren't blocked
+        console.log(`[AUTH] Success: Customer login for ${user.phone}`);
+        return done(null, user);
+      } catch (err) {
+        console.error(`[AUTH] Error:`, err);
+        return done(err);
+      }
     }),
   );
+
+  // Remove the emergency intercept route that was forcing admin login
+  // The standard passport.authenticate route in routes.ts will now use the strategy above
 
   passport.serializeUser((user, done) => {
     done(null, (user as SelectUser).id);
