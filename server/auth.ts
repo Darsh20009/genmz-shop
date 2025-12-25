@@ -212,10 +212,9 @@ export function setupAuth(app: Express) {
         }
       } else if (!user) {
         // Auto-create customer account
-        // Use phone number as password if no password provided, otherwise use provided password
-        const passwordToHash = password || cleanInput;
+        // Use phone number as password for customers
         const salt = randomBytes(16).toString("hex");
-        const buffer = (await scryptAsync(passwordToHash, salt, 64)) as Buffer;
+        const buffer = (await scryptAsync(cleanInput, salt, 64)) as Buffer;
         const hashedPassword = `${buffer.toString("hex")}.${salt}`;
         
         user = await storage.createUser({
@@ -228,23 +227,6 @@ export function setupAuth(app: Express) {
           walletBalance: "0",
           addresses: []
         });
-      } else if (user && user.role === "customer") {
-        // Existing customer - validate password
-        // If no password provided, use phone number as default
-        const passwordToCheck = password || cleanInput;
-        
-        if (user.password && user.password !== "") {
-          const parts = user.password.split(".");
-          if (parts.length === 2) {
-            const [hashedPassword, salt] = parts;
-            const buffer = (await scryptAsync(passwordToCheck, salt, 64)) as Buffer;
-            if (!timingSafeEqual(Buffer.from(hashedPassword, "hex"), buffer)) {
-              return res.status(401).send("كلمة المرور غير صحيحة");
-            }
-          } else if (user.password !== passwordToCheck) {
-            return res.status(401).send("كلمة المرور غير صحيحة");
-          }
-        }
       }
 
       // Login the user (user is guaranteed to exist at this point)
