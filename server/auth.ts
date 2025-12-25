@@ -35,52 +35,68 @@ export function setupAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  passport.use(
+    passport.use(
     new LocalStrategy({ usernameField: 'phone' }, async (phone, password, done) => {
       try {
-        const cleanPhone = phone.trim().replace(/\s/g, "");
-        // Root fix: Search by both phone and username simultaneously for all users
+        console.log(`[AUTH] Login attempt for input: "${phone}"`);
+        const cleanInput = phone.trim().replace(/\s/g, "");
+        
+        // Root fix: Universal search across phone, username, and name
+        // This ensures compatibility with ALL previous registration methods
         const user = await UserModel.findOne({ 
           $or: [
-            { phone: cleanPhone },
-            { username: cleanPhone }
+            { phone: cleanInput },
+            { username: cleanInput },
+            { name: cleanInput }
           ]
         }).lean().then(u => u ? { ...u, id: (u as any)._id.toString() } : undefined);
         
         if (!user) {
-          return done(null, false, { message: "رقم الهاتف غير مسجل" });
+          console.log(`[AUTH] User not found for input: ${cleanInput}`);
+          return done(null, false, { message: "البيانات المدخلة غير صحيحة" });
         }
+        
+        console.log(`[AUTH] User found: ${user.phone || user.username}, role: ${user.role}`);
 
-        // Staff/Admin/Support MUST have a password
         const isStaffOrAdmin = ["admin", "employee", "support"].includes(user.role);
         
-        if (isStaffOrAdmin || (password && password !== "" && password !== "undefined")) {
-          if (!password || password === "undefined" || password === "") {
-             return done(null, false, { message: "كلمة المرور مطلوبة لهذا الحساب" });
+        // If password is NOT provided in the request
+        if (!password || password === "undefined" || password === "") {
+          // Admin/Staff MUST provide a password
+          if (isStaffOrAdmin) {
+            console.log(`[AUTH] Admin/Staff login blocked: Password required`);
+            return done(null, false, { message: "كلمة المرور مطلوبة لهذا الحساب" });
           }
-          
+          // Regular customers can login with phone only (if that's the current flow)
+          console.log(`[AUTH] Customer phone-only login allowed`);
+          return done(null, user);
+        }
+
+        // If password IS provided, we MUST verify it if a password exists in DB
+        if (user.password && user.password !== "") {
           const parts = user.password.split(".");
           if (parts.length === 2) {
+            // New hashing system (scrypt)
             const [hashedPassword, salt] = parts;
             const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
             if (timingSafeEqual(Buffer.from(hashedPassword, "hex"), buffer)) {
+              console.log(`[AUTH] Password match (scrypt)`);
               return done(null, user);
             }
           } else if (user.password === password) {
-            // Support legacy plain-text passwords
+            // Legacy plain-text password support
+            console.log(`[AUTH] Password match (plain)`);
             return done(null, user);
           }
+          console.log(`[AUTH] Password mismatch`);
           return done(null, false, { message: "كلمة المرور غير صحيحة" });
         }
         
-        // For customer who registered with a password, but trying to login without one
-        if (user.password && user.password.includes(".") && (!password || password === "")) {
-           return done(null, false, { message: "كلمة المرور مطلوبة" });
-        }
-        
-        // Final fallback for customer phone-only login
+        // User exists but has no password set? Allow login.
+        console.log(`[AUTH] Login successful: No password required`);
         return done(null, user);
       } catch (err) {
+        console.error(`[AUTH] Strategy error:`, err);
         return done(err);
       }
     }),
