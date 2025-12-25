@@ -26,7 +26,7 @@ export default function Home() {
     }
   }, [user, setLocation]);
 
-  const featuredProducts = products?.filter(p => p.isFeatured).slice(0, 4) || [];
+  const featuredProducts = products?.slice(0, 8) || [];
 
   return (
     <Layout>
@@ -143,32 +143,39 @@ export default function Home() {
             </Link>
           </div>
           {isLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="aspect-square bg-muted animate-pulse rounded-md" />
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="aspect-square bg-muted animate-pulse rounded-lg"
+                />
               ))}
             </div>
           ) : featuredProducts.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-              {featuredProducts.map((product) => (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 auto-rows-max">
+              {featuredProducts.map((product, index) => (
                 <motion.div
                   key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.1 }}
+                  viewport={{ once: true, margin: "0px 0px -100px 0px" }}
+                  transition={{ delay: (index % 4) * 0.1, duration: 0.5 }}
                   data-testid={`card-product-${product.id}`}
+                  className="group"
                 >
                   <ProductCard product={product} />
                 </motion.div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-20">
-              <ShoppingBag className="w-16 h-16 text-muted-foreground mx-auto mb-6 opacity-30" />
-              <p className="text-lg text-muted-foreground mb-8">{language === 'ar' ? 'قريباً: منتجات جديدة قادمة' : 'Coming Soon: New Products Coming'}</p>
+            <div className="text-center py-24">
+              <ShoppingBag className="w-20 h-20 text-muted-foreground mx-auto mb-8 opacity-20" />
+              <p className="text-xl text-muted-foreground mb-10">{language === 'ar' ? 'لم نجد منتجات متاحة حالياً' : 'No products available at the moment'}</p>
               <Link href="/products">
-                <Button variant="outline" size="lg">{language === 'ar' ? 'استكشف جميع المنتجات' : 'Explore All Products'}</Button>
+                <Button size="lg" className="bg-black text-white">{language === 'ar' ? 'استكشف المتجر' : 'Explore Store'}</Button>
               </Link>
             </div>
           )}
