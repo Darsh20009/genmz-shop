@@ -140,17 +140,51 @@ export function Layout({ children }: { children: ReactNode }) {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="no-default-hover-elevate hover:text-primary">
-                    <User className="h-5 w-5" />
+                  <Button variant="ghost" className="h-10 px-4 flex items-center gap-3 border border-black/5 hover:border-black/20 transition-all rounded-none group no-default-hover-elevate">
+                    <div className="flex flex-col items-end">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-black/40 group-hover:text-black transition-colors">{t('myAccount') || 'حسابي'}</span>
+                      <span dir="ltr" className="text-[11px] font-bold text-black/60 truncate max-w-[100px]">{user.username}</span>
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-500">
+                      <User className="h-4 w-4" />
+                    </div>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align={language === 'ar' ? "end" : "start"} className="w-56 rounded-none border-black/5 shadow-2xl bg-white">
-                  <DropdownMenuLabel className={`${language === 'ar' ? 'text-right' : 'text-left'} font-black uppercase text-[10px] tracking-widest`}>{user.username}</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {user?.role === 'admin' && (
-                    <Link href="/admin"><DropdownMenuItem className={`justify-start text-xs font-bold uppercase text-primary ${language === 'en' ? 'tracking-wider' : ''}`}>{t('adminPanel')}</DropdownMenuItem></Link>
-                  )}
-                  <DropdownMenuItem onClick={() => logout()} className={`justify-start text-xs font-bold uppercase text-destructive ${language === 'en' ? 'tracking-wider' : ''}`}>{t('signOut')}</DropdownMenuItem>
+                <DropdownMenuContent align={language === 'ar' ? "end" : "start"} className="w-64 p-2 rounded-none border-black/5 shadow-2xl bg-white animate-in fade-in zoom-in-95 duration-200">
+                  <div className="px-3 py-4 mb-2 bg-black/5 flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center font-black text-xl">
+                      {user.username.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-black/40">{t('welcome') || 'مرحباً بك'}</span>
+                      <span dir="ltr" className="text-sm font-bold text-black truncate max-w-[140px]">{user.username}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <Link href="/orders">
+                      <DropdownMenuItem className={`cursor-pointer gap-3 p-3 text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all rounded-none ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+                        <ShoppingBag className="h-4 w-4 opacity-40" />
+                        {t('myOrders') || 'طلباتي'}
+                      </DropdownMenuItem>
+                    </Link>
+                    
+                    {user?.role === 'admin' && (
+                      <Link href="/admin">
+                        <DropdownMenuItem className={`cursor-pointer gap-3 p-3 text-[10px] font-black uppercase tracking-widest text-primary hover:bg-black hover:text-white transition-all rounded-none ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+                          <Check className="h-4 w-4" />
+                          {t('adminPanel')}
+                        </DropdownMenuItem>
+                      </Link>
+                    )}
+                    
+                    <DropdownMenuSeparator className="my-2 bg-black/5" />
+                    
+                    <DropdownMenuItem onClick={() => logout()} className={`cursor-pointer gap-3 p-3 text-[10px] font-black uppercase tracking-widest text-destructive hover:bg-destructive hover:text-white transition-all rounded-none ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+                      <User className="h-4 w-4 opacity-40" />
+                      {t('signOut')}
+                    </DropdownMenuItem>
+                  </div>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
