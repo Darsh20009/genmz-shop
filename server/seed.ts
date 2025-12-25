@@ -1,7 +1,7 @@
-import * as schema from "@shared/schema";
 import { storage } from "./storage";
 import { scrypt, randomBytes } from "crypto";
 import { promisify } from "util";
+import { CategoryModel } from "./models";
 
 const scryptAsync = promisify(scrypt);
 
@@ -28,7 +28,7 @@ export async function seed() {
 
   const categories = await storage.getCategories();
   if (categories.length === 0) {
-    await storage.db.insert(schema.categories).values([
+    await CategoryModel.insertMany([
       { name: "Men", slug: "men" },
       { name: "Women", slug: "women" },
       { name: "Kids", slug: "kids" },

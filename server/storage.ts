@@ -1,82 +1,80 @@
-import { db } from "./db";
-import { users, products, orders, categories, type User, type InsertUser, type Product, type InsertProduct, type Order, type InsertOrder, type Category } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { UserModel, ProductModel, OrderModel, CategoryModel } from "./models";
+import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory } from "@shared/schema";
 
 export interface IStorage {
-  // Expose db for seeding
-  db: typeof db;
-  
   // Users
-  getUser(id: number): Promise<User | undefined>;
+  getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   
   // Products
   getProducts(): Promise<Product[]>;
-  getProduct(id: number): Promise<Product | undefined>;
+  getProduct(id: string): Promise<Product | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
   
   // Orders
   getOrders(): Promise<Order[]>;
   createOrder(order: InsertOrder): Promise<Order>;
-  getOrdersByUser(userId: number): Promise<Order[]>;
+  getOrdersByUser(userId: string): Promise<Order[]>;
   
   // Categories
   getCategories(): Promise<Category[]>;
 }
 
-export class DatabaseStorage implements IStorage {
-  db = db;
-  
+export class MongoDBStorage implements IStorage {
   // Users
-  async getUser(id: number): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+  async getUser(id: string): Promise<User | undefined> {
+    const user = await UserModel.findById(id).lean();
+    return user ? { ...user, id: user._id.toString() } : undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user;
+    const user = await UserModel.findOne({ username }).lean();
+    return user ? { ...user, id: user._id.toString() } : undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db.insert(users).values(insertUser).returning();
-    return user;
+    const user = await UserModel.create(insertUser);
+    return { ...user.toObject(), id: user._id.toString() };
   }
 
   // Products
   async getProducts(): Promise<Product[]> {
-    return await db.select().from(products);
+    const products = await ProductModel.find().lean();
+    return products.map(p => ({ ...p, id: p._id.toString() }));
   }
 
-  async getProduct(id: number): Promise<Product | undefined> {
-    const [product] = await db.select().from(products).where(eq(products.id, id));
-    return product;
+  async getProduct(id: string): Promise<Product | undefined> {
+    const product = await ProductModel.findById(id).lean();
+    return product ? { ...product, id: product._id.toString() } : undefined;
   }
 
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
-    const [product] = await db.insert(products).values(insertProduct).returning();
-    return product;
+    const product = await ProductModel.create(insertProduct);
+    return { ...product.toObject(), id: product._id.toString() };
   }
 
   // Orders
   async getOrders(): Promise<Order[]> {
-    return await db.select().from(orders);
+    const orders = await OrderModel.find().lean();
+    return orders.map(o => ({ ...o, id: o._id.toString() }));
   }
 
   async createOrder(insertOrder: InsertOrder): Promise<Order> {
-    const [order] = await db.insert(orders).values(insertOrder).returning();
-    return order;
+    const order = await OrderModel.create(insertOrder);
+    return { ...order.toObject(), id: order._id.toString() };
   }
 
-  async getOrdersByUser(userId: number): Promise<Order[]> {
-    return await db.select().from(orders).where(eq(orders.userId, userId));
+  async getOrdersByUser(userId: string): Promise<Order[]> {
+    const orders = await OrderModel.find({ userId }).lean();
+    return orders.map(o => ({ ...o, id: o._id.toString() }));
   }
-  
+
   // Categories
   async getCategories(): Promise<Category[]> {
-    return await db.select().from(categories);
+    const categories = await CategoryModel.find().lean();
+    return categories.map(c => ({ ...c, id: c._id.toString() }));
   }
 }
 
-export const storage = new DatabaseStorage();
+export const storage = new MongoDBStorage();
