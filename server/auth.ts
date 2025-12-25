@@ -38,7 +38,10 @@ export function setupAuth(app: Express) {
   passport.use(
     new LocalStrategy({ usernameField: 'phone' }, async (phone, password, done) => {
       try {
-        const user = await storage.getUserByUsername(phone) || await UserModel.findOne({ phone }).lean().then(u => u ? { ...u, id: u._id.toString() } : undefined);
+        // Try searching by phone first, then username
+        const user = await UserModel.findOne({ phone }).lean().then(u => u ? { ...u, id: (u as any)._id.toString() } : undefined) || 
+                     await storage.getUserByUsername(phone);
+        
         if (!user) {
           return done(null, false, { message: "رقم الهاتف غير مسجل" });
         }
@@ -99,7 +102,12 @@ export function setupAuth(app: Express) {
 
   app.post("/api/auth/register", async (req, res, next) => {
     try {
-      const existingUser = await storage.getUserByUsername(req.body.phone);
+      const { phone, password, name } = req.body;
+      if (!phone || !password || !name) {
+        return res.status(400).send("جميع الحقول مطلوبة");
+      }
+
+      const existingUser = await UserModel.findOne({ phone }).lean() || await storage.getUserByUsername(phone);
       if (existingUser) {
         return res.status(400).send("رقم الهاتف مسجل مسبقاً");
       }
