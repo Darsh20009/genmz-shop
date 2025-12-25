@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Badge } from "@/components/ui/badge";
 import { MapPin, Truck, CreditCard, Building2, Apple, Landmark } from "lucide-react";
 
 export default function Checkout() {
@@ -20,7 +21,8 @@ export default function Checkout() {
   const [shippingMethod, setShippingMethod] = useState<"pickup" | "delivery">("delivery");
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "bank_transfer" | "apple_pay" | "card">("cod");
   const [pickupBranch, setPickupBranch] = useState("الرياض - الفرع الرئيسي");
-  
+  const [isStorageStationLoading, setIsStorageStationLoading] = useState(false);
+  const [deliveryDetails, setDeliveryDetails] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [receiptImage, setReceiptImage] = useState<string | null>(null);
 
@@ -38,6 +40,33 @@ export default function Checkout() {
       });
       setLocation("/login");
       return;
+    }
+
+    if (shippingMethod === "delivery" && !deliveryDetails) {
+      setIsStorageStationLoading(true);
+      try {
+        // Mocking Storage Station API call
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        setDeliveryDetails({
+          provider: "Storage Station",
+          trackingNumber: "SS-" + Math.random().toString(36).substring(2, 9).toUpperCase(),
+          estimatedDays: 3,
+        });
+        toast({
+          title: "تم ربط طلبك مع Storage Station",
+          description: "تم تجهيز تفاصيل التوصيل بنجاح",
+        });
+        setIsStorageStationLoading(false);
+        return; // Let user review delivery details before final confirmation
+      } catch (error) {
+        setIsStorageStationLoading(false);
+        toast({
+          title: "خطأ في الاتصال",
+          description: "لم نتمكن من الربط مع شركة التوصيل حالياً",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     setIsSubmitting(true);
@@ -65,7 +94,7 @@ export default function Checkout() {
       clearCart();
       toast({
         title: "تم استلام طلبك بنجاح",
-        description: "شكراً لتسوقك معنا. سيتم التواصل معك قريباً.",
+        description: `رقم تتبع الشحنة: ${deliveryDetails?.trackingNumber || "N/A"}`,
       });
       setLocation("/orders");
     } catch (error: any) {
@@ -103,6 +132,9 @@ export default function Checkout() {
                     <Truck className="h-5 w-5" />
                     <Label htmlFor="delivery" className="font-bold text-lg cursor-pointer">توصيل (Storage Station)</Label>
                   </div>
+                  {deliveryDetails && (
+                    <Badge className="bg-white text-black text-[8px] font-bold">متصل</Badge>
+                  )}
                 </div>
                 
                 <div className={`relative flex items-center justify-between p-6 border ${shippingMethod === "pickup" ? "border-black bg-black text-white" : "border-black/10 hover:border-black/30"} transition-all cursor-pointer`} onClick={() => setShippingMethod("pickup")}>
@@ -263,10 +295,12 @@ export default function Checkout() {
 
               <Button 
                 onClick={handleCheckout}
-                disabled={isSubmitting}
+                disabled={isSubmitting || isStorageStationLoading}
                 className="w-full font-bold h-16 uppercase tracking-[0.3em] rounded-none bg-white text-black hover:bg-primary hover:text-white border-none transition-all disabled:opacity-50"
               >
-                {isSubmitting ? "جاري تنفيذ الطلب..." : "تأكيد الطلب"}
+                {isSubmitting ? "جاري تنفيذ الطلب..." : 
+                 isStorageStationLoading ? "جاري الربط مع Storage Station..." :
+                 (shippingMethod === "delivery" && !deliveryDetails) ? "ربط الشحن والتوصيل" : "تأكيد الطلب"}
               </Button>
             </div>
           </div>
