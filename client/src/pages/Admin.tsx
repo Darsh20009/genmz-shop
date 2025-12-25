@@ -15,7 +15,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProductSchema, type InsertProduct, orderStatuses } from "@shared/schema";
 import { Loader2, Plus, DollarSign, ShoppingCart, TrendingUp, BarChart3, ArrowUpRight, Trash2, Search, Filter, ChevronDown, CheckCircle2, XCircle, Truck, PackageCheck, AlertCircle, LayoutGrid, Tag } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -196,7 +197,13 @@ const ProductsTable = memo(() => {
   };
 
   const onSubmit = (data: InsertProduct) => {
-    createProduct.mutate({ ...data, variants }, {
+    createProduct.mutate({ 
+      ...data, 
+      variants,
+      price: data.price.toString(),
+      cost: data.cost.toString(),
+      images: data.images || []
+    }, {
       onSuccess: () => {
         setOpen(false);
         setVariants([]);
@@ -293,8 +300,12 @@ const ProductsTable = memo(() => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 pt-4 border-t border-black/5">
-                <input type="checkbox" id="isFeatured" {...form.register("isFeatured")} className="w-4 h-4 accent-black" />
+              <div className="flex items-center space-x-2 space-x-reverse pt-4 border-t border-black/5">
+                <Switch 
+                  id="isFeatured" 
+                  checked={form.watch("isFeatured")} 
+                  onCheckedChange={(checked) => form.setValue("isFeatured", checked)}
+                />
                 <Label htmlFor="isFeatured" className="text-[10px] font-black uppercase tracking-widest cursor-pointer">عرض كمنتج مميز</Label>
               </div>
 
