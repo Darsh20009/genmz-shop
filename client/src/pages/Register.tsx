@@ -31,8 +31,12 @@ export default function Register() {
   });
 
   const onSubmit = (data: z.infer<typeof insertUserSchema>) => {
-    register({ ...data, username: data.phone }, {
-      onSuccess: () => setLocation("/login"),
+    register({
+      ...data,
+      email: `${data.phone}@example.com`,
+      username: data.phone,
+    }, {
+      onSuccess: () => setLocation("/"),
     });
   };
 

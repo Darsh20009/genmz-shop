@@ -101,6 +101,7 @@ export function setupAuth(app: Express) {
 
       const user = await storage.createUser({
         ...req.body,
+        email: req.body.email || `${req.body.phone}@example.com`,
         username: req.body.phone, // Use phone as username internally
         password: hashedPassword,
         role: req.body.role || "customer"
