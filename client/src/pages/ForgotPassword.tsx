@@ -12,8 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import logoImg from "@assets/Gen_M&Z_LOGO_1766644527859.png";
 
 const verifySchema = z.object({
-  username: z.string().min(1, "اسم المستخدم مطلوب"),
-  email: z.string().email("البريد الإلكتروني غير صالح"),
+  name: z.string().min(1, "الاسم مطلوب"),
   phone: z.string().min(10, "رقم الجوال يجب أن يكون 10 أرقام على الأقل"),
 });
 
@@ -35,7 +34,7 @@ export default function ForgotPassword() {
 
   const verifyForm = useForm<z.infer<typeof verifySchema>>({
     resolver: zodResolver(verifySchema),
-    defaultValues: { username: "", email: "", phone: "" },
+    defaultValues: { name: "", phone: "" },
   });
 
   const resetForm = useForm<z.infer<typeof resetSchema>>({
@@ -98,25 +97,12 @@ export default function ForgotPassword() {
               <form onSubmit={verifyForm.handleSubmit(onVerify)} className="space-y-6">
                 <FormField
                   control={verifyForm.control}
-                  name="username"
+                  name="name"
                   render={({ field }) => (
                     <FormItem className="text-right">
-                      <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">اسم المستخدم</FormLabel>
+                      <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">الاسم المسجل</FormLabel>
                       <FormControl>
-                        <Input placeholder="username" {...field} className="h-12 bg-white border-black/10 rounded-none focus-visible:ring-black" />
-                      </FormControl>
-                      <FormMessage className="text-[10px]" />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={verifyForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem className="text-right">
-                      <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">البريد الإلكتروني</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="email@example.com" {...field} className="h-12 bg-white border-black/10 rounded-none focus-visible:ring-black" />
+                        <Input placeholder="فلان الفلاني" {...field} className="h-12 bg-white border-black/10 rounded-none focus-visible:ring-black" />
                       </FormControl>
                       <FormMessage className="text-[10px]" />
                     </FormItem>

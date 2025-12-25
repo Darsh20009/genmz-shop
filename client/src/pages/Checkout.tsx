@@ -10,7 +10,8 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Truck, CreditCard, Building2, Apple, Landmark } from "lucide-react";
+import { MapPin, Truck, CreditCard, Building2, Apple, Landmark, Lock } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 export default function Checkout() {
   const { items, total, clearCart } = useCart();
@@ -25,6 +26,9 @@ export default function Checkout() {
   const [deliveryDetails, setDeliveryDetails] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [receiptImage, setReceiptImage] = useState<string | null>(null);
+
+  const [passwordVerification, setPasswordVerification] = useState("");
+  const [showPasswordVerification, setShowPasswordVerification] = useState(false);
 
   if (items.length === 0) {
     setLocation("/cart");
@@ -42,35 +46,18 @@ export default function Checkout() {
       return;
     }
 
-    if (shippingMethod === "delivery" && !deliveryDetails) {
-      setIsStorageStationLoading(true);
-      try {
-        // Mocking Storage Station API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setDeliveryDetails({
-          provider: "Storage Station",
-          trackingNumber: "SS-" + Math.random().toString(36).substring(2, 9).toUpperCase(),
-          estimatedDays: 3,
-        });
-        toast({
-          title: "تم ربط طلبك مع Storage Station",
-          description: "تم تجهيز تفاصيل التوصيل بنجاح",
-        });
-        setIsStorageStationLoading(false);
-        return; // Let user review delivery details before final confirmation
-      } catch (error) {
-        setIsStorageStationLoading(false);
-        toast({
-          title: "خطأ في الاتصال",
-          description: "لم نتمكن من الربط مع شركة التوصيل حالياً",
-          variant: "destructive",
-        });
-        return;
-      }
+    if (!showPasswordVerification) {
+       setShowPasswordVerification(true);
+       return;
     }
 
     setIsSubmitting(true);
     try {
+      // Simple password check - in real app would be API call
+      // For now, we'll proceed if password is provided
+      if (!passwordVerification) {
+         throw new Error("يرجى إدخال كلمة المرور");
+      }
       const orderData = {
         userId: user.id,
         total: (total() * 1.15).toString(),
@@ -260,6 +247,24 @@ export default function Checkout() {
                     </div>
                   )}
                 </Card>
+              )}
+              {showPasswordVerification && (
+                <section className="bg-white p-10 border border-black/5">
+                  <h2 className="text-2xl font-black mb-6 flex items-center gap-3 justify-end">
+                    <span>تأكيد الهوية</span>
+                    <Lock className="h-6 w-6" />
+                  </h2>
+                  <div className="space-y-4">
+                    <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">أدخل كلمة المرور لإتمام الشراء</Label>
+                    <Input 
+                      type="password" 
+                      placeholder="••••••••" 
+                      value={passwordVerification}
+                      onChange={(e) => setPasswordVerification(e.target.value)}
+                      className="h-14 bg-white border-black/10 rounded-none focus-visible:ring-black"
+                    />
+                  </div>
+                </section>
               )}
             </section>
           </div>

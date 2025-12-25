@@ -35,26 +35,40 @@ export function setupAuth(app: Express) {
   app.use(passport.session());
 
   passport.use(
-    new LocalStrategy(async (username, password, done) => {
+    new LocalStrategy({ usernameField: 'phone' }, async (phone, password, done) => {
       try {
-        const user = await storage.getUserByUsername(username);
+        const user = await storage.getUserByUsername(phone);
         if (!user) {
-          return done(null, false, { message: "Invalid username" });
+          return done(null, false, { message: "رقم الهاتف غير مسجل" });
         }
 
-        const parts = user.password.split(".");
-        if (parts.length !== 2) {
-          console.log("Invalid password format (expected hash.salt) for user:", username);
-          return done(null, false, { message: "Invalid password format" });
-        }
-        const [hashedPassword, salt] = parts;
+        // Special case for Manager/Staff or Checkout verification
+        // For regular customers logging in, we might allow phone-only if requested, 
+        // but the prompt says: "when registering asks for name, phone, password"
+        // "when logging in asks for phone only"
+        // "when completing purchase asks for password"
         
-        const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
-        if (timingSafeEqual(Buffer.from(hashedPassword, "hex"), buffer)) {
-          return done(null, user);
-        } else {
-          return done(null, false, { message: "Invalid password" });
+        // If it's a customer and no password provided in login, but we are in login flow:
+        // Passport LocalStrategy usually expects a password. 
+        // We'll adapt it to allow empty password for customers during initial login if needed,
+        // but it's safer to check if password matches if it's provided.
+        
+        if (user.role === "admin" || user.role === "employee" || password) {
+          const parts = user.password.split(".");
+          if (parts.length !== 2) {
+            return done(null, false, { message: "خطأ في تنسيق كلمة المرور" });
+          }
+          const [hashedPassword, salt] = parts;
+          const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
+          if (timingSafeEqual(Buffer.from(hashedPassword, "hex"), buffer)) {
+            return done(null, user);
+          } else {
+            return done(null, false, { message: "كلمة المرور غير صحيحة" });
+          }
         }
+        
+        // For customer phone-only login
+        return done(null, user);
       } catch (err) {
         return done(err);
       }
@@ -76,9 +90,9 @@ export function setupAuth(app: Express) {
 
   app.post("/api/auth/register", async (req, res, next) => {
     try {
-      const existingUser = await storage.getUserByUsername(req.body.username);
+      const existingUser = await storage.getUserByUsername(req.body.phone);
       if (existingUser) {
-        return res.status(400).send("Username already exists");
+        return res.status(400).send("رقم الهاتف مسجل مسبقاً");
       }
 
       const salt = randomBytes(16).toString("hex");
@@ -87,6 +101,7 @@ export function setupAuth(app: Express) {
 
       const user = await storage.createUser({
         ...req.body,
+        username: req.body.phone, // Use phone as username internally
         password: hashedPassword,
         role: req.body.role || "customer"
       });

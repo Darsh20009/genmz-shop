@@ -9,12 +9,12 @@ export type OrderStatus = typeof orderStatuses[number];
 
 // User Schema
 export const insertUserSchema = z.object({
-  username: z.string().min(1),
-  password: z.string().min(1),
+  name: z.string().min(1, "اسم العميل مطلوب"),
+  phone: z.string().min(10, "رقم الهاتف غير صحيح"),
+  password: z.string().min(1, "كلمة المرور مطلوبة"),
   role: z.enum(userRoles).default("customer"),
-  name: z.string().min(1),
-  email: z.string().email(),
-  phone: z.string().optional(),
+  username: z.string().optional(),
+  email: z.string().optional(),
   walletBalance: z.string().default("0"),
   addresses: z.array(z.object({
     id: z.string(),

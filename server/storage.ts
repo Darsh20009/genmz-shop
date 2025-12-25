@@ -6,7 +6,7 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   getUsers(): Promise<User[]>;
-  verifyUserForReset(username: string, email: string, phone: string): Promise<User | undefined>;
+  verifyUserForReset(phone: string, name: string): Promise<User | undefined>;
   updateUserPassword(id: string, password: string): Promise<void>;
   createUser(user: InsertUser): Promise<User>;
   updateUserAddresses(id: string, addresses: any[]): Promise<User>;
@@ -51,13 +51,12 @@ export class MongoDBStorage implements IStorage {
     return users.map(u => ({ ...u, id: u._id.toString() }));
   }
 
-  async verifyUserForReset(username: string, email: string, phone: string): Promise<User | undefined> {
+  async verifyUserForReset(phone: string, name: string): Promise<User | undefined> {
     const user = await UserModel.findOne({ 
-      username: username,
-      email: email.toLowerCase(),
-      phone: phone
+      phone: phone,
+      name: name
     }).lean();
-    return user ? { ...user, id: user._id.toString() } : undefined;
+    return user ? { ...user, id: (user as any)._id.toString() } : undefined;
   }
 
   async updateUserPassword(id: string, password: string): Promise<void> {

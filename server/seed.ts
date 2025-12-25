@@ -12,19 +12,20 @@ async function hashPassword(password: string) {
 }
 
 export async function seed() {
-  const users = await storage.getUserByUsername("admin");
+  const users = await storage.getUserByUsername("0532441566");
   if (!users) {
-    const password = await hashPassword("admin123");
+    const password = await hashPassword("182009");
     await storage.createUser({
-      username: "admin",
+      phone: "0532441566",
       password,
       role: "admin",
-      name: "Admin User",
-      email: "admin@genmz.com",
-      phone: "0500000000",
+      name: "Manager",
+      username: "0532441566",
+      email: "manager@genmz.com",
       walletBalance: "0",
+      addresses: [],
     });
-    console.log("Admin user created");
+    console.log("Manager user created");
   }
 
   const categories = await storage.getCategories();

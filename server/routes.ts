@@ -116,11 +116,11 @@ export async function registerRoutes(
 
   // Password Reset
   app.post("/api/verify-reset", async (req, res) => {
-    const { username, email, phone } = req.body;
-    if (!username || !email || !phone) {
+    const { phone, name } = req.body;
+    if (!phone || !name) {
       return res.status(400).json({ message: "جميع الحقول مطلوبة" });
     }
-    const user = await storage.verifyUserForReset(username, email, phone);
+    const user = await storage.verifyUserForReset(phone, name);
     if (!user) {
       return res.status(404).json({ message: "المعلومات غير متطابقة" });
     }

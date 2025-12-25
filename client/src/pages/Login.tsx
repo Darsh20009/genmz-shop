@@ -11,14 +11,15 @@ import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 
 const loginSchema = z.object({
-  username: z.string().min(1, "اسم المستخدم مطلوب"),
-  password: z.string().min(1, "كلمة المرور مطلوبة"),
+  phone: z.string().min(10, "رقم الهاتف مطلوب"),
+  password: z.string().optional(),
 });
 
 export default function Login() {
   const { login, isLoggingIn, user } = useAuth();
   const [, setLocation] = useLocation();
   const [showPassword, setShowPassword] = useState(false);
+  const [isStaff, setIsStaff] = useState(false);
 
   if (user) {
     setLocation("/");
@@ -28,15 +29,25 @@ export default function Login() {
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: "",
+      phone: "",
       password: "",
     },
   });
 
   const onSubmit = (data: z.infer<typeof loginSchema>) => {
-    login(data, {
+    login({ ...data, username: data.phone }, {
       onSuccess: () => setLocation("/"),
     });
+  };
+
+  const phoneValue = form.watch("phone");
+  const checkIsStaff = (val: string) => {
+    // Logic for manager or staff
+    if (val === "0532441566" || val.startsWith("staff_")) {
+       setIsStaff(true);
+    } else {
+       setIsStaff(false);
+    }
   };
 
   return (
@@ -46,7 +57,7 @@ export default function Login() {
           <Link href="/">
              <img src={logoImg} alt="Gen M & Z" className="h-24 w-auto mx-auto mb-6 cursor-pointer object-contain" />
           </Link>
-          <p className="text-muted-foreground">سجل دخولك للمتابعة</p>
+          <p className="text-muted-foreground">سجل دخولك برقم الهاتف للمتابعة</p>
         </div>
 
         <div className="bg-white border border-black/5 p-10 rounded-none shadow-2xl">
@@ -54,44 +65,55 @@ export default function Login() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
                 control={form.control}
-                name="username"
+                name="phone"
                 render={({ field }) => (
                   <FormItem className="text-right">
-                    <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">اسم المستخدم</FormLabel>
+                    <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">رقم الهاتف</FormLabel>
                     <FormControl>
-                      <Input placeholder="username" {...field} className="h-14 bg-white border-black/10 rounded-none focus-visible:ring-black" />
+                      <Input 
+                        placeholder="05xxxxxxxx" 
+                        {...field} 
+                        onChange={(e) => {
+                          field.onChange(e);
+                          checkIsStaff(e.target.value);
+                        }}
+                        className="h-14 bg-white border-black/10 rounded-none focus-visible:ring-black" 
+                      />
                     </FormControl>
                     <FormMessage className="text-[10px]" />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem className="text-right">
-                    <div className="flex justify-between items-center mb-1">
-                      <Link href="/forgot-password" className="text-[10px] font-bold uppercase tracking-widest text-black/40 hover:text-black">نسيت كلمة المرور؟</Link>
-                      <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">كلمة المرور</FormLabel>
-                    </div>
-                    <FormControl>
-                      <div className="relative">
-                        <Input type={showPassword ? "text" : "password"} placeholder="••••••••" {...field} className="h-14 bg-white border-black/10 rounded-none focus-visible:ring-black pr-12" />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 text-black/40 hover:text-black no-default-hover-elevate"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </Button>
+              
+              {isStaff && (
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem className="text-right">
+                      <div className="flex justify-between items-center mb-1">
+                        <Link href="/forgot-password" className="text-[10px] font-bold uppercase tracking-widest text-black/40 hover:text-black">نسيت كلمة المرور؟</Link>
+                        <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">كلمة المرور</FormLabel>
                       </div>
-                    </FormControl>
-                    <FormMessage className="text-[10px]" />
-                  </FormItem>
-                )}
-              />
+                      <FormControl>
+                        <div className="relative">
+                          <Input type={showPassword ? "text" : "password"} placeholder="••••••••" {...field} className="h-14 bg-white border-black/10 rounded-none focus-visible:ring-black pr-12" />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 text-black/40 hover:text-black no-default-hover-elevate"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage className="text-[10px]" />
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <Button type="submit" className="w-full h-16 font-bold uppercase tracking-[0.3em] text-xs rounded-none bg-black text-white hover-elevate active-elevate-2 border-none" disabled={isLoggingIn}>
                 {isLoggingIn ? <Loader2 className="animate-spin" /> : "تسجيل الدخول"}

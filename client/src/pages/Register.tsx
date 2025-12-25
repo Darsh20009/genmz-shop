@@ -23,17 +23,15 @@ export default function Register() {
   const form = useForm<z.infer<typeof insertUserSchema>>({
     resolver: zodResolver(insertUserSchema),
     defaultValues: {
-      username: "",
       password: "",
       name: "",
-      email: "",
       phone: "",
       role: "customer"
     },
   });
 
   const onSubmit = (data: z.infer<typeof insertUserSchema>) => {
-    register(data, {
+    register({ ...data, username: data.phone }, {
       onSuccess: () => setLocation("/login"),
     });
   };
@@ -59,32 +57,6 @@ export default function Register() {
                     <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">الاسم الكامل</FormLabel>
                     <FormControl>
                       <Input placeholder="فلان الفلاني" {...field} className="h-12 bg-white border-black/10 rounded-none focus-visible:ring-black" />
-                    </FormControl>
-                    <FormMessage className="text-[10px]" />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem className="text-right">
-                    <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">اسم المستخدم</FormLabel>
-                    <FormControl>
-                      <Input placeholder="username" {...field} className="h-12 bg-white border-black/10 rounded-none focus-visible:ring-black" />
-                    </FormControl>
-                    <FormMessage className="text-[10px]" />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem className="text-right">
-                    <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">البريد الإلكتروني</FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="email@example.com" {...field} className="h-12 bg-white border-black/10 rounded-none focus-visible:ring-black" />
                     </FormControl>
                     <FormMessage className="text-[10px]" />
                   </FormItem>
