@@ -99,7 +99,17 @@ export async function registerRoutes(
     if (!id || !password) {
       return res.status(400).json({ message: "بيانات غير مكتملة" });
     }
-    await storage.updateUserPassword(id, password);
+    
+    // Hash the new password before saving
+    const { scrypt, randomBytes } = await import("crypto");
+    const { promisify } = await import("util");
+    const scryptAsync = promisify(scrypt);
+    
+    const salt = randomBytes(16).toString("hex");
+    const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
+    const hashedPassword = `${buffer.toString("hex")}.${salt}`;
+    
+    await storage.updateUserPassword(id, hashedPassword);
     res.json({ message: "تم تحديث كلمة المرور بنجاح" });
   });
 
