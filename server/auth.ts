@@ -38,9 +38,14 @@ export function setupAuth(app: Express) {
   passport.use(
     new LocalStrategy({ usernameField: 'phone' }, async (phone, password, done) => {
       try {
-        // Root fix: Clean phone number and search only by phone
+        // Root fix: Clean phone number and search by phone OR username
         const cleanPhone = phone.trim().replace(/\s/g, "");
-        const user = await UserModel.findOne({ phone: cleanPhone }).lean().then(u => u ? { ...u, id: (u as any)._id.toString() } : undefined);
+        const user = await UserModel.findOne({ 
+          $or: [
+            { phone: cleanPhone },
+            { username: cleanPhone }
+          ]
+        }).lean().then(u => u ? { ...u, id: (u as any)._id.toString() } : undefined);
         
         if (!user) {
           return done(null, false, { message: "رقم الهاتف غير مسجل" });
@@ -103,7 +108,12 @@ export function setupAuth(app: Express) {
       }
 
       const cleanPhone = phone.trim().replace(/\s/g, "");
-      const existingUser = await UserModel.findOne({ phone: cleanPhone }).lean();
+      const existingUser = await UserModel.findOne({ 
+        $or: [
+          { phone: cleanPhone },
+          { username: cleanPhone }
+        ]
+      }).lean();
       if (existingUser) {
         return res.status(400).send("رقم الهاتف مسجل مسبقاً");
       }
