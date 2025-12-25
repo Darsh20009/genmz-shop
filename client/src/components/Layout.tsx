@@ -24,80 +24,54 @@ export function Layout({ children }: { children: ReactNode }) {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-background text-foreground" dir="rtl">
+    <div className="min-h-screen bg-white text-black flex flex-col" dir="rtl">
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <nav className="sticky top-0 z-50 w-full border-b border-black/5 bg-white/80 backdrop-blur-md">
         <div className="container flex h-16 items-center justify-between gap-4 px-4">
-          <div className="flex items-center gap-4 md:gap-6">
+          <div className="flex items-center gap-4">
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="md:hidden no-default-hover-elevate">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] flex flex-col">
-                <div className="flex flex-col gap-6 mt-12 px-2 flex-1" dir="rtl">
-                  <Link href="/" className={`text-xl font-bold ${location === '/' ? 'text-primary' : 'text-muted-foreground'}`}>الرئيسية</Link>
-                  <Link href="/products" className={`text-xl font-bold ${location === '/products' ? 'text-primary' : 'text-muted-foreground'}`}>المتجر</Link>
-                  <Link href="/categories/single-cab" className="text-xl font-bold text-muted-foreground">سنقل كاب</Link>
-                  <Link href="/categories/double-cab" className="text-xl font-bold text-muted-foreground">دبل كاب</Link>
-                  {user?.role === 'admin' && (
-                    <Link href="/admin" className="text-xl font-bold text-primary">لوحة التحكم</Link>
-                  )}
+              <SheetContent side="right" className="w-full flex flex-col p-0 border-none bg-white">
+                <div className="flex flex-col gap-8 mt-20 px-8 flex-1" dir="rtl">
+                  <Link href="/" className={`text-4xl font-black uppercase tracking-tighter ${location === '/' ? 'text-black' : 'text-muted-foreground'}`}>الرئيسية</Link>
+                  <Link href="/products" className={`text-4xl font-black uppercase tracking-tighter ${location === '/products' ? 'text-black' : 'text-muted-foreground'}`}>المتجر</Link>
+                  <Link href="/categories/single-cab" className="text-4xl font-black uppercase tracking-tighter text-muted-foreground">سنقل كاب</Link>
+                  <Link href="/categories/double-cab" className="text-4xl font-black uppercase tracking-tighter text-muted-foreground">دبل كاب</Link>
                 </div>
-
-                <div className="mt-auto border-t pt-6 pb-8 px-2">
-                  <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">تواصل معنا</h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    <a href="https://www.instagram.com/genmz.sa/" target="_blank" rel="noreferrer" className="flex items-center justify-center p-3 bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white rounded-xl shadow-sm hover:scale-105 transition-transform">
-                      <Instagram className="h-5 w-5" />
-                    </a>
-                    <a href="https://x.com/GenMZsa" target="_blank" rel="noreferrer" className="flex items-center justify-center p-3 bg-black text-white rounded-xl shadow-sm hover:scale-105 transition-transform border border-white/10">
-                      <SiX className="h-5 w-5" />
-                    </a>
-                    <a href="https://www.snapchat.com/@genmz.sa" target="_blank" rel="noreferrer" className="flex items-center justify-center p-3 bg-[#FFFC00] text-black rounded-xl shadow-sm hover:scale-105 transition-transform">
-                      <SiSnapchat className="h-5 w-5" />
-                    </a>
-                    <a href="https://www.tiktok.com/@genmz.sa" target="_blank" rel="noreferrer" className="flex items-center justify-center p-3 bg-black text-white rounded-xl shadow-sm hover:scale-105 transition-transform border border-white/10">
-                      <SiTiktok className="h-5 w-5" />
-                    </a>
-                  </div>
-                  <div className="mt-4 space-y-2">
-                    <a href="tel:+966552469643" className="flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-primary transition-colors">
-                      <Phone className="h-4 w-4" />
-                      <span dir="ltr">+966 55 246 9643</span>
-                    </a>
-                    <a href="https://api.whatsapp.com/send/?phone=966501906069" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-primary transition-colors">
-                      <SiWhatsapp className="h-4 w-4 text-[#25D366]" />
-                      <span dir="ltr">+966 50 190 6069</span>
-                    </a>
+                
+                <div className="p-8 border-t bg-[#fafafa]">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-4">Connect with us</p>
+                  <div className="flex gap-6">
+                    <a href="https://www.instagram.com/genmz.sa/" target="_blank" rel="noreferrer" className="text-black"><Instagram className="h-6 w-6" /></a>
+                    <a href="https://x.com/GenMZsa" target="_blank" rel="noreferrer" className="text-black"><SiX className="h-6 w-6" /></a>
+                    <a href="https://www.tiktok.com/@genmz.sa" target="_blank" rel="noreferrer" className="text-black"><SiTiktok className="h-6 w-6" /></a>
                   </div>
                 </div>
               </SheetContent>
             </Sheet>
 
             <Link href="/" className="flex items-center py-2">
-              <img src={logoImg} alt="Gen M & Z" className="h-12 w-auto md:h-16 object-contain" />
+              <img src={logoImg} alt="Gen M & Z" className="h-10 w-auto md:h-12 object-contain" />
             </Link>
-
-            <div className="hidden md:flex items-center gap-6 text-sm font-bold">
-              <Link href="/" className={`transition-colors hover:text-primary ${location === '/' ? 'text-primary' : 'text-muted-foreground'}`}>الرئيسية</Link>
-              <Link href="/products" className={`transition-colors hover:text-primary ${location === '/products' ? 'text-primary' : 'text-muted-foreground'}`}>المتجر</Link>
-              <Link href="/categories/single-cab" className="transition-colors hover:text-primary text-muted-foreground">سنقل كاب</Link>
-              <Link href="/categories/double-cab" className="transition-colors hover:text-primary text-muted-foreground">دبل كاب</Link>
-            </div>
           </div>
 
-          <div className="flex items-center gap-1 md:gap-2">
-            <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="no-default-hover-elevate">
-              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </Button>
+          <div className="hidden md:flex items-center gap-8 text-[11px] font-black uppercase tracking-widest">
+            <Link href="/" className={`transition-colors hover:text-primary ${location === '/' ? 'text-black' : 'text-muted-foreground'}`}>الرئيسية</Link>
+            <Link href="/products" className={`transition-colors hover:text-primary ${location === '/products' ? 'text-black' : 'text-muted-foreground'}`}>المتجر</Link>
+            <Link href="/categories/single-cab" className="transition-colors hover:text-primary text-muted-foreground">سنقل كاب</Link>
+            <Link href="/categories/double-cab" className="transition-colors hover:text-primary text-muted-foreground">دبل كاب</Link>
+          </div>
 
+          <div className="flex items-center gap-2">
             <Link href="/cart">
-              <Button variant="ghost" size="icon" className="relative no-default-hover-elevate">
+              <Button variant="ghost" size="icon" className="relative no-default-hover-elevate hover:text-primary">
                 <ShoppingBag className="h-5 w-5" />
                 {cartItems.length > 0 && (
-                  <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-black text-[9px] font-bold text-white flex items-center justify-center">
                     {cartItems.length}
                   </span>
                 )}
@@ -107,31 +81,24 @@ export function Layout({ children }: { children: ReactNode }) {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="no-default-hover-elevate">
+                  <Button variant="ghost" size="icon" className="no-default-hover-elevate hover:text-primary">
                     <User className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56" dir="rtl">
-                  <DropdownMenuLabel className="text-right">مرحباً, {user.username}</DropdownMenuLabel>
+                <DropdownMenuContent align="end" className="w-56 rounded-none border-black/5 shadow-2xl bg-white" dir="rtl">
+                  <DropdownMenuLabel className="text-right font-black uppercase text-[10px] tracking-widest">{user.username}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <Link href="/dashboard">
-                    <DropdownMenuItem className="justify-start">حسابي</DropdownMenuItem>
-                  </Link>
+                  <Link href="/dashboard"><DropdownMenuItem className="justify-start text-xs font-bold uppercase tracking-wider">حسابي</DropdownMenuItem></Link>
                   {user?.role === 'admin' && (
-                    <Link href="/admin">
-                      <DropdownMenuItem className="justify-start text-primary font-bold">لوحة التحكم</DropdownMenuItem>
-                    </Link>
+                    <Link href="/admin"><DropdownMenuItem className="justify-start text-xs font-bold uppercase tracking-wider text-primary">لوحة التحكم</DropdownMenuItem></Link>
                   )}
-                  <DropdownMenuItem onClick={() => logout()} className="justify-start text-destructive">
-                    <LogOut className="h-4 w-4 ml-2" />
-                    تسجيل الخروج
-                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => logout()} className="justify-start text-xs font-bold uppercase tracking-wider text-destructive">تسجيل الخروج</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <Link href="/login">
-                <Button variant="default" size="sm" className="font-bold h-9">
-                  تسجيل الدخول
+                <Button variant="ghost" size="sm" className="font-black uppercase text-[10px] tracking-widest h-9 px-4">
+                  Sign In
                 </Button>
               </Link>
             )}
@@ -139,7 +106,7 @@ export function Layout({ children }: { children: ReactNode }) {
         </div>
       </nav>
 
-      <main>{children}</main>
+      <main className="flex-1">{children}</main>
 
       {/* Floating WhatsApp Button */}
       <a
