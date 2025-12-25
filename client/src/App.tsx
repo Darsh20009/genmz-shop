@@ -33,7 +33,7 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="dark" storageKey="genmz-theme">
+      <ThemeProvider defaultTheme="light" storageKey="genmz-theme">
         <TooltipProvider>
           <Toaster />
           <div dir="rtl">
