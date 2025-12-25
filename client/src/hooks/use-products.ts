@@ -13,7 +13,7 @@ export function useProducts() {
   });
 }
 
-export function useProduct(id: number) {
+export function useProduct(id: string) {
   return useQuery({
     queryKey: [api.products.get.path, id],
     queryFn: async () => {

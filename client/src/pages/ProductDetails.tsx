@@ -11,8 +11,8 @@ import { useLanguage } from "@/hooks/use-language";
 
 export default function ProductDetails() {
   const [, params] = useRoute("/products/:id");
-  const id = Number(params?.id);
-  const { data: product, isLoading } = useProduct(id);
+  const id = params?.id;
+  const { data: product, isLoading } = useProduct(id || "");
   const { addItem } = useCart();
   const { toast } = useToast();
   const { t, language } = useLanguage();
@@ -37,7 +37,16 @@ export default function ProductDetails() {
     );
   }
 
-  if (!product) return <div>Product not found</div>;
+  if (!product) {
+    return (
+      <Layout>
+        <div className="container py-24 text-center">
+          <h2 className="text-2xl font-bold">{t('productNotFound')}</h2>
+          <p className="text-muted-foreground mt-4">{t('noResults')}</p>
+        </div>
+      </Layout>
+    );
+  }
 
   // Ensure variants exist, otherwise provide default
   const variants = product.variants && product.variants.length > 0 ? product.variants : [{ sku: 'default', color: 'Default', size: 'One Size', stock: 10 }];
