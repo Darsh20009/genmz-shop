@@ -847,6 +847,41 @@ const CouponsTable = memo(() => {
   );
 });
 
+const LogsTable = memo(() => {
+  const { data: logs, isLoading } = useQuery<any[]>({ queryKey: ["/api/admin/logs"] });
+
+  if (isLoading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin" /></div>;
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-2xl font-bold uppercase tracking-tight">سجل العمليات</h2>
+      <div className="rounded-none border border-black/5 overflow-hidden">
+        <div className="p-6 grid grid-cols-4 font-black uppercase tracking-widest text-[10px] bg-secondary/20 text-black/40 border-b border-black/5">
+          <div className="text-right">الموظف</div>
+          <div className="text-right">الإجراء</div>
+          <div className="text-right">الهدف</div>
+          <div className="text-right">التاريخ</div>
+        </div>
+        <div className="divide-y divide-black/5">
+          {logs?.map((l: any) => (
+            <div key={l.id} className="p-6 grid grid-cols-4 items-center hover:bg-secondary/10 transition-colors">
+              <div className="font-bold">{l.employeeId}</div>
+              <div className="text-sm">{l.action}</div>
+              <div className="text-xs opacity-60">{l.targetType} {l.targetId && `(#${l.targetId.slice(-6)})`}</div>
+              <div className="text-xs">{new Date(l.createdAt).toLocaleString('ar-SA')}</div>
+            </div>
+          ))}
+          {logs?.length === 0 && (
+            <div className="p-12 text-center text-black/20 font-bold uppercase tracking-widest text-[10px]">
+              لا توجد سجلات حالياً
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+});
+
 export default function Admin() {
   const { user, isLoading } = useAuth();
   const [, setLocation] = useLocation();
@@ -867,13 +902,14 @@ export default function Admin() {
       <div className="container py-12 text-right" dir="rtl">
         <h1 className="font-display text-4xl font-bold mb-12 uppercase tracking-tighter">لوحة التحكم</h1>
         
-          <TabsList className="w-full justify-start bg-transparent border-b rounded-none h-12 p-0 space-x-reverse space-x-8 flex overflow-x-auto no-scrollbar">
+            <TabsList className="w-full justify-start bg-transparent border-b rounded-none h-12 p-0 space-x-reverse space-x-8 flex overflow-x-auto no-scrollbar">
             <TabsTrigger value="overview" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">نظرة عامة</TabsTrigger>
             <TabsTrigger value="products" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">المنتجات</TabsTrigger>
             <TabsTrigger value="orders" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">الطلبات</TabsTrigger>
             <TabsTrigger value="returns" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">الاسترجاع</TabsTrigger>
-            <TabsTrigger value="customers" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">العملاء</TabsTrigger>
+            <TabsTrigger value="customers" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">المستخدمين</TabsTrigger>
             <TabsTrigger value="coupons" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">أكواد الخصم</TabsTrigger>
+            <TabsTrigger value="logs" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">سجل العمليات</TabsTrigger>
           </TabsList>
           
           <TabsContent value="overview">
@@ -898,6 +934,10 @@ export default function Admin() {
 
           <TabsContent value="coupons">
             <CouponsTable />
+          </TabsContent>
+
+          <TabsContent value="logs">
+            <LogsTable />
           </TabsContent>
       </div>
     </Layout>

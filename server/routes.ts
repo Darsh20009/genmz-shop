@@ -247,6 +247,19 @@ export async function registerRoutes(
     res.sendStatus(200);
   });
 
+  app.get("/api/coupons/:code", async (req, res) => {
+    const coupon = await storage.getCouponByCode(req.params.code);
+    if (!coupon) return res.status(404).json({ message: "كود الخصم غير صحيح أو منتهي" });
+    res.json(coupon);
+  });
+
+  // Activity Logs
+  app.get("/api/admin/logs", async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+    const logs = await storage.getActivityLogs();
+    res.json(logs);
+  });
+
   // Wallet
   app.get("/api/wallet/transactions", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
