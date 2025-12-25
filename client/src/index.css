@@ -79,6 +79,15 @@
   }
 }
 
+/* Fix Arabic Spacing: Tracking breaks Arabic connections */
+[lang="ar"] {
+  letter-spacing: normal !important;
+}
+
+[lang="ar"] * {
+  letter-spacing: normal !important;
+}
+
 /* RTL Support Utilities */
 [dir="rtl"] {
   text-align: right;

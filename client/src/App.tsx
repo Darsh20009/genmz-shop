@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
+import { useLanguage } from "@/hooks/use-language";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Products from "@/pages/Products";
@@ -39,12 +40,14 @@ function Router() {
 }
 
 function App() {
+  const { language } = useLanguage();
+  
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="genmz-theme">
         <TooltipProvider>
           <Toaster />
-          <div dir="rtl">
+          <div dir={language === 'ar' ? 'rtl' : 'ltr'} lang={language}>
             <Router />
           </div>
         </TooltipProvider>
