@@ -292,14 +292,35 @@ export async function registerRoutes(
     res.json({ success: true, newBalance });
   });
 
-  // Shipping Integration (Storage Station Stub)
-  app.post("/api/shipping/create-shipment", async (req, res) => {
+  // Wallet Management
+  app.patch("/api/user/wallet", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const { balance } = req.body;
+    const updatedUser = await storage.updateUserWallet((req.user as any).id, balance);
+    res.json(updatedUser);
+  });
+
+  app.post("/api/wallet/transaction", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const { amount, type, description } = req.body;
+    const transaction = await storage.createWalletTransaction({
+      userId: (req.user as any).id,
+      amount,
+      type,
+      description,
+    });
+    res.json(transaction);
+  });
+
+  // Shipping Integration (Storage Station)
+  app.post("/api/shipping/storage-station/create", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     const { orderId } = req.body;
     
-    // This is a stub for Storage Station API
-    // Real integration would use an API Key and fetch shipment details
-    console.log(`Creating shipment for order ${orderId} via Storage Station`);
+    // In a real scenario, you'd call Storage Station API here
+    // const response = await axios.post('https://api.storagestation.io/v1/shipments', {...}, { headers: { Authorization: `Bearer ${API_KEY}` } });
+    
+    console.log(`[Storage Station] Creating shipment for order: ${orderId}`);
     
     const order = await storage.updateOrderStatus(orderId, "processing", {
       provider: "Storage Station",

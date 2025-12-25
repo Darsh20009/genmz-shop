@@ -52,6 +52,7 @@ export default function Employees() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       toast({ title: "تم إضافة الرصيد بنجاح" });
+      setDepositData({ userId: "", amount: "", description: "" });
       setIsDepositing(false);
     },
   });

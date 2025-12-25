@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Truck, CreditCard, Building2, Apple, Landmark, Lock, Check } from "lucide-react";
+import { MapPin, Truck, CreditCard, Building2, Apple, Landmark, Lock, Check, Wallet } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 export default function Checkout() {
@@ -19,16 +19,8 @@ export default function Checkout() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
-  const [shippingMethod, setShippingMethod] = useState<"pickup" | "delivery">("delivery");
-  const [paymentMethod, setPaymentMethod] = useState<"cod" | "bank_transfer" | "apple_pay" | "card">("cod");
-  const [pickupBranch, setPickupBranch] = useState("الرياض - الفرع الرئيسي");
-  const [isStorageStationLoading, setIsStorageStationLoading] = useState(false);
-  const [deliveryDetails, setDeliveryDetails] = useState<any>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"wallet" | "apple_pay" | "card">("card");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [receiptImage, setReceiptImage] = useState<string | null>(null);
-
-  const [passwordVerification, setPasswordVerification] = useState("");
-  const [showPasswordVerification, setShowPasswordVerification] = useState(false);
 
   if (items.length === 0) {
     setLocation("/cart");
@@ -46,26 +38,27 @@ export default function Checkout() {
       return;
     }
 
-    if (!showPasswordVerification) {
-       setShowPasswordVerification(true);
-       return;
+    const orderTotal = total() * 1.15 + 25; // Including VAT and Shipping
+
+    if (paymentMethod === "wallet" && Number(user.walletBalance) < orderTotal) {
+      toast({
+        title: "رصيد المحفظة غير كافٍ",
+        description: `رصيدك الحالي: ${user.walletBalance} ر.س، المطلوب: ${orderTotal.toFixed(2)} ر.س`,
+        variant: "destructive",
+      });
+      return;
     }
 
     setIsSubmitting(true);
     try {
-      // Simple password check - in real app would be API call
-      // For now, we'll proceed if password is provided
-      if (!passwordVerification) {
-         throw new Error("يرجى إدخال كلمة المرور");
-      }
       const orderData = {
         userId: user.id,
-        total: (total() * 1.15).toFixed(2),
+        total: orderTotal.toFixed(2),
         subtotal: total().toFixed(2),
         vatAmount: (total() * 0.15).toFixed(2),
         shippingCost: (25).toFixed(2),
-        tapCommission: (total() * 1.15 * 0.02).toFixed(2),
-        netProfit: (total() * 1.15 * 0.1).toFixed(2),
+        tapCommission: (orderTotal * 0.02).toFixed(2),
+        netProfit: (orderTotal * 0.1).toFixed(2),
         items: items.map(item => ({
           productId: item.productId,
           variantSku: item.variantSku,
@@ -74,20 +67,35 @@ export default function Checkout() {
           cost: Math.round(item.price * 0.7),
           title: item.title,
         })),
-        shippingMethod,
-        pickupBranch: shippingMethod === "pickup" ? pickupBranch : undefined,
+        shippingMethod: "delivery",
         paymentMethod,
-        bankTransferReceipt: paymentMethod === "bank_transfer" ? receiptImage : undefined,
         status: "new",
-        paymentStatus: "pending",
+        paymentStatus: paymentMethod === "wallet" ? "paid" : "pending",
       };
 
-      await apiRequest("POST", "/api/orders", orderData);
+      const res = await apiRequest("POST", "/api/orders", orderData);
+      const order = await res.json();
+
+      if (paymentMethod === "wallet") {
+        const newBalance = (Number(user.walletBalance) - orderTotal).toString();
+        await apiRequest("PATCH", "/api/user/wallet", { balance: newBalance });
+        await apiRequest("POST", "/api/wallet/transaction", {
+          amount: -orderTotal,
+          type: "payment",
+          description: `دفع قيمة الطلب #${order.id.slice(-8).toUpperCase()}`
+        });
+      }
+
+      // Auto-create shipment with Storage Station
+      await apiRequest("POST", "/api/shipping/storage-station/create", { orderId: order.id });
+
       queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       clearCart();
+      
       toast({
         title: "تم استلام طلبك بنجاح",
-        description: `رقم تتبع الشحنة: ${deliveryDetails?.trackingNumber || "N/A"}`,
+        description: "سيتم التوصيل عبر Storage Station قريباً",
       });
       setLocation("/orders");
     } catch (error: any) {
@@ -137,55 +145,17 @@ export default function Checkout() {
                 <div className="flex items-center justify-between border-b border-black/5 pb-6">
                   <h2 className="text-xl font-black uppercase tracking-tighter flex items-center gap-3">
                     <Truck className="h-5 w-5 text-primary" />
-                    <span>طريقة الاستلام</span>
+                    <span>عنوان الشحن</span>
                   </h2>
                 </div>
                 
-                <RadioGroup 
-                  value={shippingMethod} 
-                  onValueChange={(v) => setShippingMethod(v as any)}
-                  className="grid sm:grid-cols-2 gap-4"
-                >
-                  <div 
-                    className={`group relative flex flex-col p-6 border transition-all cursor-pointer ${shippingMethod === "delivery" ? "border-black bg-black text-white" : "border-black/5 bg-[#fcfcfc] hover:border-black/20"}`} 
-                    onClick={() => setShippingMethod("delivery")}
-                  >
-                    <div className="flex justify-between items-start mb-4">
-                      <Truck className={`h-6 w-6 ${shippingMethod === "delivery" ? "text-white" : "text-black/20"}`} />
-                      <RadioGroupItem value="delivery" id="delivery" className="sr-only" />
-                      {deliveryDetails && <Badge className="bg-primary text-white text-[8px] font-bold rounded-none">متصل</Badge>}
-                    </div>
-                    <Label htmlFor="delivery" className="font-black text-sm uppercase tracking-widest cursor-pointer mb-2">توصيل (Storage Station)</Label>
-                    <p className={`text-[10px] ${shippingMethod === "delivery" ? "text-white/60" : "text-black/40"}`}>توصيل سريع لباب المنزل</p>
+                <div className="p-6 bg-black/[0.02] border border-black/5 space-y-4">
+                  <div className="flex items-center gap-4 text-primary">
+                    <MapPin className="h-5 w-5" />
+                    <span className="font-black text-sm">الرياض، المملكة العربية السعودية</span>
                   </div>
-                  
-                  <div 
-                    className={`group relative flex flex-col p-6 border transition-all cursor-pointer ${shippingMethod === "pickup" ? "border-black bg-black text-white" : "border-black/5 bg-[#fcfcfc] hover:border-black/20"}`} 
-                    onClick={() => setShippingMethod("pickup")}
-                  >
-                    <div className="flex justify-between items-start mb-4">
-                      <Building2 className={`h-6 w-6 ${shippingMethod === "pickup" ? "text-white" : "text-black/20"}`} />
-                      <RadioGroupItem value="pickup" id="pickup" className="sr-only" />
-                    </div>
-                    <Label htmlFor="pickup" className="font-black text-sm uppercase tracking-widest cursor-pointer mb-2">استلام من الفرع</Label>
-                    <p className={`text-[10px] ${shippingMethod === "pickup" ? "text-white/60" : "text-black/40"}`}>استلم طلبك من أقرب فرع لك</p>
-                  </div>
-                </RadioGroup>
-
-                {shippingMethod === "pickup" && (
-                  <div className="mt-6 p-6 bg-black/5 space-y-4">
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">اختر الفرع المناسب</Label>
-                    <select 
-                      className="w-full h-14 bg-white border border-black/5 px-4 font-black text-sm outline-none focus:ring-1 focus:ring-black/10 transition-all"
-                      value={pickupBranch}
-                      onChange={(e) => setPickupBranch(e.target.value)}
-                    >
-                      <option>الرياض - الفرع الرئيسي</option>
-                      <option>جدة - فرع رد سي مول</option>
-                      <option>الدمام - فرع النخيل مول</option>
-                    </select>
-                  </div>
-                )}
+                  <p className="text-[10px] text-black/40 font-bold uppercase tracking-widest">التوصيل خلال ٢-٤ أيام عمل عبر Storage Station</p>
+                </div>
               </section>
 
               {/* Payment Method */}
@@ -203,94 +173,28 @@ export default function Checkout() {
                   className="grid sm:grid-cols-2 gap-4"
                 >
                   {[
-                    { id: "cod", label: "الدفع عند الاستلام", icon: MapPin },
-                    { id: "bank_transfer", label: "تحويل بنكي", icon: Landmark },
+                    { id: "card", label: "بطاقة بنكية (مدى / فيزا)", icon: CreditCard },
                     { id: "apple_pay", label: "Apple Pay", icon: Apple },
-                    { id: "card", label: "بطاقة بنكية (Tap)", icon: CreditCard }
+                    { id: "wallet", label: "رصيد المحفظة", icon: Wallet },
                   ].map((method) => (
                     <div 
                       key={method.id}
-                      className={`group relative flex flex-col p-6 border transition-all cursor-pointer ${paymentMethod === method.id ? "border-black bg-black text-white" : "border-black/5 bg-[#fcfcfc] hover:border-black/20"}`} 
+                      className={`group relative flex flex-col p-6 border transition-all cursor-pointer ${paymentMethod === method.id ? "border-primary bg-primary/5" : "border-black/5 bg-[#fcfcfc] hover:border-black/20"}`} 
                       onClick={() => setPaymentMethod(method.id as any)}
                     >
                       <div className="flex justify-between items-start mb-4">
-                        <method.icon className={`h-6 w-6 ${paymentMethod === method.id ? "text-white" : "text-black/20"}`} />
+                        <method.icon className={`h-6 w-6 ${paymentMethod === method.id ? "text-primary" : "text-black/20"}`} />
                         <RadioGroupItem value={method.id} id={method.id} className="sr-only" />
+                        {method.id === "wallet" && (
+                          <Badge variant="outline" className="text-[10px] border-primary/20 text-primary">
+                            {user?.walletBalance} ر.س
+                          </Badge>
+                        )}
                       </div>
                       <Label htmlFor={method.id} className="font-black text-sm uppercase tracking-widest cursor-pointer mb-2">{method.label}</Label>
                     </div>
                   ))}
                 </RadioGroup>
-
-                {paymentMethod === "bank_transfer" && (
-                  <div className="mt-6 p-8 bg-black/5 space-y-6">
-                    <h3 className="font-black text-sm uppercase tracking-widest">تفاصيل الحساب البنكي</h3>
-                    <div className="space-y-4">
-                      {[
-                        { label: "اسم البنك", value: "مصرف الراجحي" },
-                        { label: "رقم الآيبان (IBAN)", value: "SA 12 3456 7890 1234 5678 9012", isIban: true },
-                        { label: "اسم المستفيد", value: "مؤسسة جين إم آند زد للتجارة" }
-                      ].map((info, i) => (
-                        <div key={i} className="flex justify-between items-center border-b border-black/5 pb-3">
-                          <span className={`font-black text-sm ${info.isIban ? "tracking-widest" : ""}`}>{info.value}</span>
-                          <span className="text-[10px] font-bold uppercase tracking-widest opacity-40">{info.label}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="pt-4">
-                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-3 block">إيصال التحويل</Label>
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            const reader = new FileReader();
-                            reader.onloadend = () => setReceiptImage(reader.result as string);
-                            reader.readAsDataURL(file);
-                          }
-                        }}
-                        className="hidden" 
-                        id="receipt-upload" 
-                      />
-                      <label 
-                        htmlFor="receipt-upload" 
-                        className="w-full h-14 bg-white border border-dashed border-black/10 flex items-center justify-center font-black text-[10px] uppercase tracking-widest cursor-pointer hover:border-black/30 transition-all gap-3 shadow-sm"
-                      >
-                        <Landmark className="h-4 w-4 opacity-40" />
-                        {receiptImage ? "تم اختيار الصورة" : "رفع صورة الإيصال"}
-                      </label>
-                      {receiptImage && (
-                        <div className="mt-4 relative group aspect-video bg-white p-2 border border-black/5 shadow-md">
-                          <img src={receiptImage} alt="Receipt" className="w-full h-full object-contain" />
-                          <button 
-                            onClick={() => setReceiptImage(null)}
-                            className="absolute top-4 left-4 bg-black text-white p-2 text-[10px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            حذف الإيصال
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-                {showPasswordVerification && (
-                  <div className="mt-8 p-8 border border-black/5 bg-black/5 space-y-4">
-                    <h3 className="font-black text-sm uppercase tracking-widest flex items-center gap-2">
-                      <Lock className="h-4 w-4" />
-                      <span>تأكيد الهوية</span>
-                    </h3>
-                    <p className="text-[10px] font-bold uppercase tracking-widest opacity-40">أدخل كلمة المرور لإتمام عملية الشراء بأمان</p>
-                    <Input 
-                      type="password" 
-                      placeholder="••••••••" 
-                      value={passwordVerification}
-                      onChange={(e) => setPasswordVerification(e.target.value)}
-                      className="h-14 bg-white border-black/5 rounded-none focus-visible:ring-black"
-                    />
-                  </div>
-                )}
               </section>
             </div>
 
@@ -326,8 +230,12 @@ export default function Checkout() {
                       <span>{(total() * 0.15).toLocaleString()} ر.س</span>
                       <span>الضريبة (١٥٪)</span>
                     </div>
+                    <div className="flex justify-between opacity-40">
+                      <span>25.00 ر.س</span>
+                      <span>رسوم الشحن</span>
+                    </div>
                     <div className="flex justify-between border-t border-black/5 pt-6 font-black text-3xl tracking-tighter text-black">
-                      <span className="text-primary">{(total() * 1.15).toLocaleString()} ر.س</span>
+                      <span className="text-primary">{(total() * 1.15 + 25).toLocaleString()} ر.س</span>
                       <span>الإجمالي</span>
                     </div>
                   </div>
@@ -340,12 +248,10 @@ export default function Checkout() {
 
                     <Button 
                       onClick={handleCheckout}
-                      disabled={isSubmitting || isStorageStationLoading}
-                      className="w-full font-black h-16 uppercase tracking-[0.4em] rounded-none bg-black text-white hover:bg-primary border-none transition-all disabled:opacity-50 text-[10px] shadow-xl shadow-black/10"
+                      disabled={isSubmitting}
+                      className="w-full font-black h-16 uppercase tracking-[0.4em] rounded-none bg-primary text-white hover:bg-primary/90 border-none transition-all disabled:opacity-50 text-[10px] shadow-xl shadow-primary/10"
                     >
-                      {isSubmitting ? "جاري المعالجة..." : 
-                       isStorageStationLoading ? "جاري الربط مع الشحن..." :
-                       (shippingMethod === "delivery" && !deliveryDetails) ? "إعداد الشحن" : "تأكيد الطلب"}
+                      {isSubmitting ? "جاري المعالجة..." : "تأكيد الطلب"}
                     </Button>
                   </div>
                 </div>
