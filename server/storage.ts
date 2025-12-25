@@ -5,6 +5,8 @@ export interface IStorage {
   // Users
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  verifyUserForReset(username: string, email: string, phone: string): Promise<User | undefined>;
+  updateUserPassword(id: string, password: string): Promise<void>;
   createUser(user: InsertUser): Promise<User>;
   
   // Products
@@ -31,6 +33,19 @@ export class MongoDBStorage implements IStorage {
   async getUserByUsername(username: string): Promise<User | undefined> {
     const user = await UserModel.findOne({ username }).lean();
     return user ? { ...user, id: user._id.toString() } : undefined;
+  }
+
+  async verifyUserForReset(username: string, email: string, phone: string): Promise<User | undefined> {
+    const user = await UserModel.findOne({ 
+      username: username,
+      email: email.toLowerCase(),
+      phone: phone
+    }).lean();
+    return user ? { ...user, id: user._id.toString() } : undefined;
+  }
+
+  async updateUserPassword(id: string, password: string): Promise<void> {
+    await UserModel.findByIdAndUpdate(id, { password });
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {

@@ -81,5 +81,27 @@ export async function registerRoutes(
     res.json(categories);
   });
 
+  // Password Reset
+  app.post("/api/verify-reset", async (req, res) => {
+    const { username, email, phone } = req.body;
+    if (!username || !email || !phone) {
+      return res.status(400).json({ message: "جميع الحقول مطلوبة" });
+    }
+    const user = await storage.verifyUserForReset(username, email, phone);
+    if (!user) {
+      return res.status(404).json({ message: "المعلومات غير متطابقة" });
+    }
+    res.json({ id: user.id });
+  });
+
+  app.post("/api/reset-password", async (req, res) => {
+    const { id, password } = req.body;
+    if (!id || !password) {
+      return res.status(400).json({ message: "بيانات غير مكتملة" });
+    }
+    await storage.updateUserPassword(id, password);
+    res.json({ message: "تم تحديث كلمة المرور بنجاح" });
+  });
+
   return httpServer;
 }
