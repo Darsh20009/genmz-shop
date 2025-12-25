@@ -14,50 +14,51 @@ export default function Home() {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative h-[80vh] flex items-center overflow-hidden">
+      <section className="relative h-[85vh] flex items-center overflow-hidden">
         {/* Abstract Dark Luxury Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-secondary to-background z-0" />
-        <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] z-0"></div>
+        <div className="absolute inset-0 bg-background z-0" />
+        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] z-0"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-background via-transparent to-background/50 z-0"></div>
         
-        <div className="container relative z-10 grid md:grid-cols-2 gap-12 items-center">
+        <div className="container relative z-10 grid md:grid-cols-2 gap-12 items-center px-4">
           <motion.div 
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             className="text-right"
           >
-            <h1 className="font-display text-5xl md:text-7xl font-bold leading-tight mb-6">
-              <span className="text-primary">أناقة</span> الجيل الجديد
+            <h1 className="font-display text-5xl md:text-8xl font-black leading-tight mb-8">
+              <span className="text-primary block mb-2">Gen M & Z</span>
+              أناقة الجيل الجديد
             </h1>
-            <p className="text-muted-foreground text-lg md:text-xl mb-8 max-w-lg mr-0 ml-auto">
-              تصاميم عصرية تجمع بين الفخامة والعملية، صنعت خصيصاً لتناسب ذوقك الرفيع.
+            <p className="text-muted-foreground text-lg md:text-2xl mb-12 max-w-lg mr-0 ml-auto leading-relaxed font-medium">
+              تصاميم عصرية تجمع بين الفخامة والعملية، صنعت في المملكة لتناسب ذوقك الرفيع.
             </p>
-            <div className="flex gap-4">
+            <div className="flex gap-6 justify-end">
               <Link href="/products">
-                <Button size="lg" className="px-8 text-lg font-bold rounded-full h-14">
-                  تسوق الآن <ArrowLeft className="mr-2 h-5 w-5" />
+                <Button size="lg" className="px-10 text-xl font-bold rounded-full h-16 shadow-2xl hover:scale-105 transition-transform">
+                  تسوق الآن <ArrowLeft className="mr-3 h-6 w-6" />
                 </Button>
               </Link>
             </div>
           </motion.div>
           
           <motion.div 
-             initial={{ opacity: 0, scale: 0.9 }}
+             initial={{ opacity: 0, scale: 0.95 }}
              animate={{ opacity: 1, scale: 1 }}
-             transition={{ duration: 0.8, delay: 0.2 }}
+             transition={{ duration: 1, delay: 0.2 }}
              className="relative hidden md:block"
           >
-            {/* Using a placeholder for hero image if no asset provided */}
-             {/* fashion model wearing modern clothes */}
-            <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl border border-white/10 aspect-[3/4] max-w-md mx-auto rotate-3 hover:rotate-0 transition-all duration-500">
+            <div className="relative z-10 rounded-[2.5rem] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.3)] border border-white/5 aspect-[4/5] max-w-md mx-auto transform hover:scale-[1.02] transition-all duration-700">
                <img 
-                 src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80" 
-                 alt="Hero Collection" 
+                 src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80" 
+                 alt="Luxury Collection" 
                  className="w-full h-full object-cover"
                />
+               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
             </div>
-            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl"></div>
-            <div className="absolute -top-10 -right-10 w-60 h-60 bg-primary/10 rounded-full blur-3xl"></div>
+            <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-primary/10 rounded-full blur-[100px]"></div>
+            <div className="absolute -top-20 -right-20 w-80 h-80 bg-primary/5 rounded-full blur-[100px]"></div>
           </motion.div>
         </div>
       </section>

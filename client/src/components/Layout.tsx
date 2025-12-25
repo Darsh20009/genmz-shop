@@ -4,6 +4,7 @@ import { ShoppingBag, User, Menu, LogOut, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
+import { useTheme } from "@/components/theme-provider";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,67 +14,57 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useEffect, useState } from "react";
 
 export function Layout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const cartItems = useCart((state) => state.items);
   const [location] = useLocation();
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
-
-  useEffect(() => {
-    document.documentElement.classList.remove('light', 'dark');
-    document.documentElement.classList.add(theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
+  const { theme, setTheme } = useTheme();
 
   return (
     <div className="min-h-screen bg-background text-foreground" dir="rtl">
       {/* Navbar */}
       <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-6">
+        <div className="container flex h-16 items-center justify-between gap-4 px-4">
+          <div className="flex items-center gap-4 md:gap-6">
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
+                <Button variant="ghost" size="icon" className="md:hidden no-default-hover-elevate">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right">
-                <div className="flex flex-col gap-4 mt-8 font-display">
-                  <Link href="/" className="text-lg font-medium">الرئيسية</Link>
-                  <Link href="/products" className="text-lg font-medium">المتجر</Link>
-                  <Link href="/about" className="text-lg font-medium">عن العلامة</Link>
+              <SheetContent side="right" className="w-[300px]">
+                <div className="flex flex-col gap-6 mt-12 px-2" dir="rtl">
+                  <Link href="/" className={`text-xl font-bold ${location === '/' ? 'text-primary' : 'text-muted-foreground'}`}>الرئيسية</Link>
+                  <Link href="/products" className={`text-xl font-bold ${location === '/products' ? 'text-primary' : 'text-muted-foreground'}`}>المتجر</Link>
+                  <Link href="/categories/single-cab" className="text-xl font-bold text-muted-foreground">سنقل كاب</Link>
+                  <Link href="/categories/double-cab" className="text-xl font-bold text-muted-foreground">دبل كاب</Link>
                   {user?.role === 'admin' && (
-                    <Link href="/admin" className="text-lg font-medium text-primary">لوحة التحكم</Link>
+                    <Link href="/admin" className="text-xl font-bold text-primary">لوحة التحكم</Link>
                   )}
                 </div>
               </SheetContent>
             </Sheet>
 
-            <Link href="/" className="flex items-center gap-2">
-              <span className="font-display text-2xl font-bold tracking-tight text-primary">Gen M & Z</span>
+            <Link href="/" className="flex items-center">
+              <span className="font-display text-xl md:text-2xl font-bold tracking-tight text-primary">Gen M & Z</span>
             </Link>
 
-            <div className="hidden md:flex items-center gap-6 text-sm font-medium">
+            <div className="hidden md:flex items-center gap-6 text-sm font-bold">
               <Link href="/" className={`transition-colors hover:text-primary ${location === '/' ? 'text-primary' : 'text-muted-foreground'}`}>الرئيسية</Link>
               <Link href="/products" className={`transition-colors hover:text-primary ${location === '/products' ? 'text-primary' : 'text-muted-foreground'}`}>المتجر</Link>
-              {user?.role === 'admin' && (
-                 <Link href="/admin" className={`transition-colors hover:text-primary ${location.startsWith('/admin') ? 'text-primary' : 'text-muted-foreground'}`}>لوحة التحكم</Link>
-              )}
+              <Link href="/categories/single-cab" className="transition-colors hover:text-primary text-muted-foreground">سنقل كاب</Link>
+              <Link href="/categories/double-cab" className="transition-colors hover:text-primary text-muted-foreground">دبل كاب</Link>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={toggleTheme}>
+          <div className="flex items-center gap-1 md:gap-2">
+            <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="no-default-hover-elevate">
               {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
 
             <Link href="/cart">
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon" className="relative no-default-hover-elevate">
                 <ShoppingBag className="h-5 w-5" />
                 {cartItems.length > 0 && (
                   <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground flex items-center justify-center">
@@ -86,25 +77,30 @@ export function Layout({ children }: { children: ReactNode }) {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" className="no-default-hover-elevate">
                     <User className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>مرحباً, {user.username}</DropdownMenuLabel>
+                <DropdownMenuContent align="end" className="w-56" dir="rtl">
+                  <DropdownMenuLabel className="text-right">مرحباً, {user.username}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <Link href="/dashboard">
-                    <DropdownMenuItem>حسابي</DropdownMenuItem>
+                    <DropdownMenuItem className="justify-start">حسابي</DropdownMenuItem>
                   </Link>
-                  <DropdownMenuItem onClick={() => logout()}>
-                    <LogOut className="mr-2 h-4 w-4 ml-2" />
+                  {user?.role === 'admin' && (
+                    <Link href="/admin">
+                      <DropdownMenuItem className="justify-start text-primary font-bold">لوحة التحكم</DropdownMenuItem>
+                    </Link>
+                  )}
+                  <DropdownMenuItem onClick={() => logout()} className="justify-start text-destructive">
+                    <LogOut className="h-4 w-4 ml-2" />
                     تسجيل الخروج
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <Link href="/login">
-                <Button variant="default" size="sm" className="hidden md:flex font-bold">
+                <Button variant="default" size="sm" className="font-bold h-9">
                   تسجيل الدخول
                 </Button>
               </Link>
@@ -116,37 +112,42 @@ export function Layout({ children }: { children: ReactNode }) {
       <main>{children}</main>
 
       {/* Footer */}
-      <footer className="border-t bg-muted/40 py-12 mt-24">
-        <div className="container grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
+      <footer className="border-t bg-card py-16 mt-24">
+        <div className="container grid grid-cols-1 md:grid-cols-4 gap-12 px-4">
+          <div className="space-y-4">
             <span className="font-display text-2xl font-bold text-primary">Gen M & Z</span>
-            <p className="mt-4 text-sm text-muted-foreground">
-              الفخامة العصرية للجيل الجديد. تصميم سعودي بأعلى معايير الجودة.
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              الفخامة العصرية للجيل الجديد. تصميم سعودي بأعلى معايير الجودة والتفرد.
             </p>
           </div>
           <div>
-            <h3 className="font-bold mb-4">روابط سريعة</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link href="/products">المتجر</Link></li>
-              <li><Link href="/about">عن العلامة</Link></li>
-              <li><Link href="/contact">تواصل معنا</Link></li>
+            <h3 className="font-bold text-lg mb-6">التصنيفات</h3>
+            <ul className="space-y-3 text-sm text-muted-foreground">
+              <li><Link href="/products" className="hover:text-primary transition-colors">جميع المنتجات</Link></li>
+              <li><Link href="/categories/single-cab" className="hover:text-primary transition-colors">سنقل كاب</Link></li>
+              <li><Link href="/categories/double-cab" className="hover:text-primary transition-colors">دبل كاب</Link></li>
             </ul>
           </div>
           <div>
-            <h3 className="font-bold mb-4">المساعدة</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>سياسة الشحن</li>
-              <li>سياسة الاسترجاع</li>
-              <li>الأسئلة الشائعة</li>
+            <h3 className="font-bold text-lg mb-6">المساعدة</h3>
+            <ul className="space-y-3 text-sm text-muted-foreground">
+              <li className="hover:text-primary cursor-pointer transition-colors">سياسة الشحن</li>
+              <li className="hover:text-primary cursor-pointer transition-colors">سياسة الاسترجاع</li>
+              <li className="hover:text-primary cursor-pointer transition-colors">الأسئلة الشائعة</li>
             </ul>
           </div>
           <div>
-            <h3 className="font-bold mb-4">تواصل معنا</h3>
-            <p className="text-sm text-muted-foreground">الرياض، المملكة العربية السعودية</p>
-            <p className="text-sm text-muted-foreground mt-2">info@genmz.sa</p>
+            <h3 className="font-bold text-lg mb-6">تواصل معنا</h3>
+            <div className="space-y-3 text-sm text-muted-foreground">
+              <p>الرياض، المملكة العربية السعودية</p>
+              <p dir="ltr" className="text-right">info@genmz.sa</p>
+              <div className="flex gap-4 mt-6">
+                 {/* Social icons could go here */}
+              </div>
+            </div>
           </div>
         </div>
-        <div className="container mt-12 pt-8 border-t text-center text-sm text-muted-foreground">
+        <div className="container mt-16 pt-8 border-t text-center text-sm text-muted-foreground px-4">
           © 2024 Gen M & Z. جميع الحقوق محفوظة.
         </div>
       </footer>
