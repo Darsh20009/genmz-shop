@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import type { User, Product, Order, Category } from "@shared/schema";
+import type { User, Product, Order, Category, WalletTransaction } from "@shared/schema";
 
 const userSchema = new Schema<User>(
   {
@@ -74,7 +74,18 @@ const categorySchema = new Schema<Category>(
   { timestamps: false }
 );
 
+const walletTransactionSchema = new Schema<WalletTransaction>(
+  {
+    userId: { type: String, required: true },
+    amount: { type: Number, required: true },
+    type: { type: String, enum: ["deposit", "withdrawal", "payment", "refund"], required: true },
+    description: { type: String, required: true },
+  },
+  { timestamps: true }
+);
+
 export const UserModel = mongoose.model<User>("User", userSchema);
 export const ProductModel = mongoose.model<Product>("Product", productSchema);
 export const OrderModel = mongoose.model<Order>("Order", orderSchema);
 export const CategoryModel = mongoose.model<Category>("Category", categorySchema);
+export const WalletTransactionModel = mongoose.model<WalletTransaction>("WalletTransaction", walletTransactionSchema);

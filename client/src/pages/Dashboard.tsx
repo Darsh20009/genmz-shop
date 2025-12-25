@@ -5,14 +5,41 @@ import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, ShoppingBag, User, Wallet, LogOut, MapPin, FileText, Package } from "lucide-react";
+import { Loader2, ShoppingBag, User, Wallet, LogOut, MapPin, FileText, Package, Plus, Trash2 } from "lucide-react";
 import { Link } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function Dashboard() {
   const { user, isLoading: authLoading, logout } = useAuth();
   const { data: orders, isLoading: ordersLoading } = useMyOrders();
+  const { data: transactions } = useQuery({
+    queryKey: ["/api/wallet/transactions"],
+    enabled: !!user,
+  });
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const [isAddingAddress, setIsAddingAddress] = useState(false);
+  const [newAddress, setNewAddress] = useState({ name: "", city: "", street: "" });
+
+  const addressMutation = useMutation({
+    mutationFn: async (addresses: any[]) => {
+      const res = await apiRequest("PATCH", "/api/user/addresses", { addresses });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      toast({ title: "تم تحديث العناوين بنجاح" });
+      setIsAddingAddress(false);
+      setNewAddress({ name: "", city: "", street: "" });
+    },
+  });
 
   if (authLoading) {
     return (
@@ -28,6 +55,16 @@ export default function Dashboard() {
     setLocation("/login");
     return null;
   }
+
+  const handleAddAddress = () => {
+    const addresses = [...(user.addresses || []), { ...newAddress, id: Math.random().toString(36).substr(2, 9), isDefault: (user.addresses || []).length === 0 }];
+    addressMutation.mutate(addresses);
+  };
+
+  const handleDeleteAddress = (id: string) => {
+    const addresses = (user.addresses || []).filter((a: any) => a.id !== id);
+    addressMutation.mutate(addresses);
+  };
 
   return (
     <Layout>
@@ -155,6 +192,18 @@ export default function Dashboard() {
                             <p className="font-bold">{order.shippingMethod === 'pickup' ? 'من الفرع' : 'توصيل'}</p>
                           </div>
                         </div>
+
+                        <div className="mt-8 pt-8 border-t border-black/5">
+                          <p className="text-[10px] uppercase font-black tracking-widest text-black/40 mb-4">المنتجات</p>
+                          <div className="space-y-4">
+                            {order.items.map((item: any, idx: number) => (
+                              <div key={idx} className="flex justify-between items-center text-sm">
+                                <span className="font-bold">{item.title} x {item.quantity}</span>
+                                <span>{item.price * item.quantity} ر.س</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </Card>
                   ))}
@@ -170,35 +219,82 @@ export default function Dashboard() {
               <p className="text-5xl font-black tracking-tighter mb-8">{user.walletBalance} ر.س</p>
               <div className="max-w-md mx-auto p-6 bg-white border border-black/5 text-sm text-right">
                 <p className="font-bold mb-4 border-b pb-4 opacity-40 uppercase tracking-widest text-xs">آخر العمليات</p>
-                <div className="flex justify-between items-center py-2 opacity-40 italic">
-                  <span>-</span>
-                  <span>لا توجد عمليات مؤخراً</span>
-                </div>
+                {Array.isArray(transactions) && transactions.length > 0 ? (
+                  <div className="space-y-4">
+                    {transactions.map((t: any) => (
+                      <div key={t.id} className="flex justify-between items-center py-2 border-b border-black/5 last:border-0">
+                        <div className="text-right">
+                          <p className="font-bold text-xs">{t.description}</p>
+                          <p className="text-[8px] opacity-40 uppercase">{new Date(t.createdAt).toLocaleDateString("ar-SA")}</p>
+                        </div>
+                        <span className={`font-black tracking-tighter ${t.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {t.amount > 0 ? '+' : ''}{t.amount} ر.س
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex justify-between items-center py-2 opacity-40 italic">
+                    <span>-</span>
+                    <span>لا توجد عمليات مؤخراً</span>
+                  </div>
+                )}
               </div>
             </Card>
           </TabsContent>
 
           <TabsContent value="addresses">
             <div className="grid md:grid-cols-2 gap-8">
-              <div className="border-2 border-dashed border-black/5 p-12 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-black/20 transition-all">
-                <MapPin className="w-12 h-12 mb-6 text-black/10 group-hover:text-black/40 transition-all" />
-                <p className="font-bold uppercase tracking-widest text-xs">إضافة عنوان جديد</p>
-              </div>
+              <Dialog open={isAddingAddress} onOpenChange={setIsAddingAddress}>
+                <DialogTrigger asChild>
+                  <div className="border-2 border-dashed border-black/5 p-12 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-black/20 transition-all">
+                    <Plus className="w-12 h-12 mb-6 text-black/10 group-hover:text-black/40 transition-all" />
+                    <p className="font-bold uppercase tracking-widest text-xs">إضافة عنوان جديد</p>
+                  </div>
+                </DialogTrigger>
+                <DialogContent dir="rtl" className="rounded-none border-none shadow-2xl">
+                  <DialogHeader>
+                    <DialogTitle className="text-right font-black uppercase tracking-tight">إضافة عنوان جديد</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-6 pt-6">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">اسم العنوان (مثل المنزل، العمل)</Label>
+                      <Input value={newAddress.name} onChange={(e) => setNewAddress({...newAddress, name: e.target.value})} className="rounded-none h-12" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">المدينة</Label>
+                      <Input value={newAddress.city} onChange={(e) => setNewAddress({...newAddress, city: e.target.value})} className="rounded-none h-12" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">الشارع والحي</Label>
+                      <Input value={newAddress.street} onChange={(e) => setNewAddress({...newAddress, street: e.target.value})} className="rounded-none h-12" />
+                    </div>
+                    <Button onClick={handleAddAddress} disabled={addressMutation.isPending} className="w-full rounded-none h-14 font-black uppercase tracking-widest">
+                      {addressMutation.isPending ? <Loader2 className="animate-spin" /> : "حفظ العنوان"}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
               
-              {/* Placeholder for saved addresses */}
-              <Card className="border border-black rounded-none p-8 relative">
-                <Badge className="absolute top-4 left-4 bg-black text-white rounded-none font-bold text-[8px] uppercase tracking-widest">العنوان الافتراضي</Badge>
-                <h4 className="font-black text-xl mb-4 uppercase tracking-tight">المنزل</h4>
-                <div className="space-y-2 text-sm opacity-60">
-                  <p>المملكة العربية السعودية</p>
-                  <p>الرياض</p>
-                  <p>طريق الملك فهد، حي المروج</p>
-                </div>
-                <div className="mt-8 flex gap-4">
-                  <button className="text-[10px] font-black uppercase tracking-widest border-b border-black pb-1">تعديل</button>
-                  <button className="text-[10px] font-black uppercase tracking-widest text-red-500 opacity-40 hover:opacity-100 transition-all pb-1">حذف</button>
-                </div>
-              </Card>
+              {user.addresses?.map((address: any) => (
+                <Card key={address.id} className="border border-black/5 rounded-none p-8 relative shadow-sm hover:shadow-md transition-all">
+                  {address.isDefault && (
+                    <Badge className="absolute top-4 left-4 bg-black text-white rounded-none font-bold text-[8px] uppercase tracking-widest">العنوان الافتراضي</Badge>
+                  )}
+                  <h4 className="font-black text-xl mb-4 uppercase tracking-tight">{address.name}</h4>
+                  <div className="space-y-2 text-sm opacity-60">
+                    <p>المملكة العربية السعودية</p>
+                    <p>{address.city}</p>
+                    <p>{address.street}</p>
+                  </div>
+                  <div className="mt-8 flex gap-6">
+                    <button onClick={() => handleDeleteAddress(address.id)} className="text-[10px] font-black uppercase tracking-widest text-red-500 opacity-40 hover:opacity-100 transition-all flex items-center gap-2">
+                      <Trash2 className="w-3 h-3" />
+                      حذف
+                    </button>
+                  </div>
+                </Card>
+              ))}
             </div>
           </TabsContent>
         </Tabs>

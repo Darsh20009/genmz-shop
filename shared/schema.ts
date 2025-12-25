@@ -90,6 +90,18 @@ export type Order = InsertOrder & {
   createdAt: Date;
 };
 
+// Wallet Transaction Schema
+export const insertWalletTransactionSchema = z.object({
+  userId: z.string(),
+  amount: z.number(),
+  type: z.enum(["deposit", "withdrawal", "payment", "refund"]),
+  description: z.string(),
+  createdAt: z.date().optional(),
+});
+
+export type InsertWalletTransaction = z.infer<typeof insertWalletTransactionSchema>;
+export type WalletTransaction = InsertWalletTransaction & { _id: string; id: string; createdAt: Date };
+
 // API Types
 export type LoginRequest = { username: string; password: string };
 export type AuthResponse = User;

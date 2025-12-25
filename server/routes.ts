@@ -164,5 +164,23 @@ export async function registerRoutes(
     });
   });
 
+  // Wallet
+  app.get("/api/wallet/transactions", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const user = req.user as any;
+    const transactions = await storage.getWalletTransactions(user.id);
+    res.json(transactions);
+  });
+
+  // Addresses
+  app.patch("/api/user/addresses", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const user = req.user as any;
+    const { addresses } = req.body;
+    if (!Array.isArray(addresses)) return res.status(400).json({ message: "Invalid addresses format" });
+    const updatedUser = await storage.updateUserAddresses(user.id, addresses);
+    res.json(updatedUser);
+  });
+
   return httpServer;
 }
