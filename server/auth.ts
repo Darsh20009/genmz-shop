@@ -117,15 +117,19 @@ export function setupAuth(app: Express) {
   // The standard passport.authenticate route in routes.ts will now use the strategy above
 
   passport.serializeUser((user, done) => {
-    done(null, (user as SelectUser).id);
+    const userId = (user as any)._id?.toString() || (user as SelectUser).id;
+    done(null, userId);
   });
 
   passport.deserializeUser(async (id: string, done) => {
     try {
       const user = await storage.getUser(id);
+      if (!user) {
+        return done(null, false);
+      }
       done(null, user);
     } catch (err) {
-      done(err);
+      done(null, false);
     }
   });
 
@@ -208,10 +212,15 @@ export function setupAuth(app: Express) {
         }
       } else if (!user) {
         // Auto-create customer account
+        // Use phone number as password for customers
+        const salt = randomBytes(16).toString("hex");
+        const buffer = (await scryptAsync(cleanInput, salt, 64)) as Buffer;
+        const hashedPassword = `${buffer.toString("hex")}.${salt}`;
+        
         user = await storage.createUser({
           phone: cleanInput,
           name: cleanInput,
-          password: "",
+          password: hashedPassword,
           username: cleanInput,
           email: `${cleanInput}@genmz.com`,
           role: "customer",
