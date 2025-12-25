@@ -43,11 +43,13 @@ export function setupAuth(app: Express) {
         
         // Root fix: Universal search across phone, username, and name
         // This ensures compatibility with ALL previous registration methods
+        // We use a case-insensitive regex for the search to handle variations
+        const searchRegex = new RegExp(`^${cleanInput}$`, "i");
         const user = await UserModel.findOne({ 
           $or: [
             { phone: cleanInput },
-            { username: cleanInput },
-            { name: cleanInput }
+            { username: searchRegex },
+            { name: searchRegex }
           ]
         }).lean().then(u => u ? { ...u, id: (u as any)._id.toString() } : undefined);
         
@@ -78,10 +80,14 @@ export function setupAuth(app: Express) {
           if (parts.length === 2) {
             // New hashing system (scrypt)
             const [hashedPassword, salt] = parts;
-            const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
-            if (timingSafeEqual(Buffer.from(hashedPassword, "hex"), buffer)) {
-              console.log(`[AUTH] Password match (scrypt)`);
-              return done(null, user);
+            try {
+              const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
+              if (timingSafeEqual(Buffer.from(hashedPassword, "hex"), buffer)) {
+                console.log(`[AUTH] Password match (scrypt)`);
+                return done(null, user);
+              }
+            } catch (hashErr) {
+              console.error(`[AUTH] Hash verification error:`, hashErr);
             }
           } else if (user.password === password) {
             // Legacy plain-text password support
