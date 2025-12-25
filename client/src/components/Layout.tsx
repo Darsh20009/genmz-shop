@@ -35,8 +35,8 @@ export function Layout({ children }: { children: ReactNode }) {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px]">
-                <div className="flex flex-col gap-6 mt-12 px-2" dir="rtl">
+              <SheetContent side="right" className="w-[300px] flex flex-col">
+                <div className="flex flex-col gap-6 mt-12 px-2 flex-1" dir="rtl">
                   <Link href="/" className={`text-xl font-bold ${location === '/' ? 'text-primary' : 'text-muted-foreground'}`}>الرئيسية</Link>
                   <Link href="/products" className={`text-xl font-bold ${location === '/products' ? 'text-primary' : 'text-muted-foreground'}`}>المتجر</Link>
                   <Link href="/categories/single-cab" className="text-xl font-bold text-muted-foreground">سنقل كاب</Link>
@@ -44,6 +44,34 @@ export function Layout({ children }: { children: ReactNode }) {
                   {user?.role === 'admin' && (
                     <Link href="/admin" className="text-xl font-bold text-primary">لوحة التحكم</Link>
                   )}
+                </div>
+
+                <div className="mt-auto border-t pt-6 pb-8 px-2">
+                  <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">تواصل معنا</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <a href="https://www.instagram.com/genmz.sa/" target="_blank" rel="noreferrer" className="flex items-center justify-center p-3 bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white rounded-xl shadow-sm hover:scale-105 transition-transform">
+                      <Instagram className="h-5 w-5" />
+                    </a>
+                    <a href="https://x.com/GenMZsa" target="_blank" rel="noreferrer" className="flex items-center justify-center p-3 bg-black text-white rounded-xl shadow-sm hover:scale-105 transition-transform border border-white/10">
+                      <Twitter className="h-5 w-5" />
+                    </a>
+                    <a href="https://www.snapchat.com/@genmz.sa" target="_blank" rel="noreferrer" className="flex items-center justify-center p-3 bg-[#FFFC00] text-black rounded-xl shadow-sm hover:scale-105 transition-transform">
+                      <SiSnapchat className="h-5 w-5" />
+                    </a>
+                    <a href="https://www.tiktok.com/@genmz.sa" target="_blank" rel="noreferrer" className="flex items-center justify-center p-3 bg-black text-white rounded-xl shadow-sm hover:scale-105 transition-transform border border-white/10">
+                      <SiTiktok className="h-5 w-5" />
+                    </a>
+                  </div>
+                  <div className="mt-4 space-y-2">
+                    <a href="tel:+966552469643" className="flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-primary transition-colors">
+                      <Phone className="h-4 w-4" />
+                      <span dir="ltr">+966 55 246 9643</span>
+                    </a>
+                    <a href="https://api.whatsapp.com/send/?phone=966501906069" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-primary transition-colors">
+                      <SiWhatsapp className="h-4 w-4 text-[#25D366]" />
+                      <span dir="ltr">+966 50 190 6069</span>
+                    </a>
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>
