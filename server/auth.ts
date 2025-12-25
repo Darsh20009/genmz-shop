@@ -2,12 +2,15 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { type Express } from "express";
 import session from "express-session";
-import createMemoryStore from "memorystore";
+import MemoryStoreFactory from "memorystore";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify } from "util";
+import { storage } from "./storage";
+import { User as SelectUser } from "@shared/schema";
 
 const scryptAsync = promisify(scrypt);
 
-const MemoryStore = createMemoryStore(session);
+const MemoryStore = MemoryStoreFactory(session);
 
 export function setupAuth(app: Express) {
   const sessionSettings: session.SessionOptions = {
