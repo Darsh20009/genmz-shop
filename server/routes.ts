@@ -113,5 +113,56 @@ export async function registerRoutes(
     res.json({ message: "تم تحديث كلمة المرور بنجاح" });
   });
 
+  // Admin Stats
+  app.get("/api/admin/stats", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const user = req.user as any;
+    if (user.role !== "admin") return res.sendStatus(403);
+
+    const orders = await storage.getOrders();
+    const products = await storage.getProducts();
+
+    const totalSales = orders.reduce((acc, order) => acc + Number(order.total), 0);
+    const totalCost = orders.reduce((acc, order) => {
+      return acc + order.items.reduce((itemAcc, item) => {
+        const product = products.find(p => p.id === item.productId);
+        return itemAcc + (Number(product?.cost || 0) * item.quantity);
+      }, 0);
+    }, 0);
+
+    const netProfit = totalSales - totalCost;
+    
+    const orderStatusCounts = {
+      new: orders.filter(o => o.status === "new").length,
+      processing: orders.filter(o => o.status === "processing").length,
+      shipped: orders.filter(o => o.status === "shipped").length,
+      completed: orders.filter(o => o.status === "completed").length,
+    };
+
+    // Top selling products
+    const productSales: Record<string, { name: string, quantity: number, revenue: number }> = {};
+    orders.forEach(order => {
+      order.items.forEach(item => {
+        if (!productSales[item.productId]) {
+          productSales[item.productId] = { name: item.title, quantity: 0, revenue: 0 };
+        }
+        productSales[item.productId].quantity += item.quantity;
+        productSales[item.productId].revenue += (item.price * item.quantity);
+      });
+    });
+
+    const topProducts = Object.values(productSales)
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 5);
+
+    res.json({
+      totalSales,
+      totalOrders: orders.length,
+      orderStatusCounts,
+      netProfit,
+      topProducts
+    });
+  });
+
   return httpServer;
 }
