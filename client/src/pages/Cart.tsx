@@ -81,59 +81,53 @@ export default function Cart() {
           </div>
 
           {/* Summary */}
-          <div className="lg:col-span-3 mt-24">
-            <div className="bg-black text-white p-12 lg:p-20 shadow-2xl relative overflow-hidden">
-              {/* Background Accent */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
-              
-              <div className="grid lg:grid-cols-2 gap-16 items-start relative z-10">
+          <div className="lg:col-span-3 mt-16 max-w-4xl mx-auto w-full">
+            <div className="bg-white border border-black/5 p-8 lg:p-12 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all duration-700">
+              <div className="grid md:grid-cols-2 gap-12 items-center relative z-10">
                 {/* Discount Section */}
-                <div className={`space-y-8 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-                  <h3 className="font-display text-2xl font-black uppercase tracking-widest">{t('discountCode') || 'كود الخصم'}</h3>
-                  <p className="text-sm font-light opacity-60 italic">{t('discountDesc') || 'أدخل كود الخصم الخاص بك للحصول على عرض حصري'}</p>
-                  <div className="flex gap-4">
+                <div className={`space-y-6 ${language === 'ar' ? 'text-right' : 'text-left'} border-b md:border-b-0 md:border-l border-black/5 pb-8 md:pb-0 md:pl-12 order-2 md:order-1`}>
+                  <h3 className="text-xs font-black uppercase tracking-[0.3em] text-black/40">{t('discountCode') || 'كود الخصم'}</h3>
+                  <div className="flex gap-2">
                     <input 
                       type="text" 
-                      placeholder={t('enterCoupon') || 'أدخل الكود هنا'}
-                      className="flex-1 bg-white/10 border border-white/20 p-4 text-sm focus:outline-none focus:border-white transition-colors"
+                      placeholder={t('enterCoupon') || 'الكود'}
+                      className="flex-1 bg-secondary border-none p-3 text-xs focus:ring-1 focus:ring-black/10 transition-all uppercase tracking-widest"
                     />
-                    <Button variant="outline" className="h-14 px-8 border-white/20 hover:bg-white hover:text-black transition-all rounded-none uppercase text-xs font-bold tracking-widest">
+                    <Button variant="outline" className="h-11 px-6 border-black/10 hover:bg-black hover:text-white transition-all rounded-none uppercase text-[10px] font-bold tracking-widest">
                       {t('apply') || 'تطبيق'}
                     </Button>
                   </div>
                 </div>
 
                 {/* Calculation Section */}
-                <div className={`space-y-8 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-                  <h3 className="font-display text-2xl font-black uppercase tracking-widest border-b border-white/10 pb-6">{t('bagSummary')}</h3>
-                  
-                  <div className="space-y-6 text-sm font-light">
-                    <div className={`flex justify-between opacity-60 ${language === 'ar' ? '' : 'flex-row-reverse'}`}>
+                <div className={`space-y-6 ${language === 'ar' ? 'text-right' : 'text-left'} order-1 md:order-2`}>
+                  <div className="space-y-3 text-xs font-bold uppercase tracking-widest text-black/60">
+                    <div className={`flex justify-between ${language === 'ar' ? '' : 'flex-row-reverse'}`}>
                       <span>{total().toLocaleString()} {t('currency')}</span>
-                      <span>{t('subtotal')}</span>
+                      <span className="opacity-40">{t('subtotal')}</span>
                     </div>
-                    <div className={`flex justify-between opacity-60 ${language === 'ar' ? '' : 'flex-row-reverse'}`}>
+                    <div className={`flex justify-between ${language === 'ar' ? '' : 'flex-row-reverse'}`}>
                       <span>{(total() * 0.15).toLocaleString()} {t('currency')}</span>
-                      <span>{t('tax')}</span>
+                      <span className="opacity-40">{t('tax')}</span>
                     </div>
-                    <div className={`flex justify-between border-t border-white/10 pt-8 font-bold text-4xl tracking-tighter ${language === 'ar' ? '' : 'flex-row-reverse'}`}>
+                    <div className={`flex justify-between pt-4 font-black text-2xl tracking-tighter text-black ${language === 'ar' ? '' : 'flex-row-reverse'}`}>
                       <span className="text-primary">{(total() * 1.15).toLocaleString()} {t('currency')}</span>
                       <span>{t('total')}</span>
                     </div>
                   </div>
 
-                  <div className="pt-8">
+                  <div className="pt-4">
                     <Link href="/checkout">
-                      <Button size="lg" className="w-full font-bold h-20 uppercase tracking-[0.4em] rounded-none bg-white text-black hover:bg-primary hover:text-white border-none transition-all text-sm">
+                      <Button size="lg" className="w-full font-bold h-14 uppercase tracking-[0.4em] rounded-none bg-black text-white hover:bg-primary border-none transition-all text-[10px]">
                         {t('checkout')}
                       </Button>
                     </Link>
                   </div>
-                  
-                  <div className="text-[10px] uppercase tracking-[0.3em] opacity-40 text-center">
-                    {t('freeShippingPromo')}
-                  </div>
                 </div>
+              </div>
+              
+              <div className="mt-8 text-[9px] uppercase tracking-[0.4em] opacity-20 text-center font-black">
+                {t('freeShippingPromo')}
               </div>
             </div>
           </div>
