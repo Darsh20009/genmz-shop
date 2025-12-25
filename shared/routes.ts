@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { insertUserSchema, insertProductSchema, insertOrderSchema, users, products, orders, categories, insertCategorySchema } from './schema';
+import { insertUserSchema, insertProductSchema, insertOrderSchema, insertCategorySchema, User, Product, Order, Category } from './schema';
 
 export const errorSchemas = {
   validation: z.object({
@@ -24,7 +24,7 @@ export const api = {
       path: '/api/auth/login',
       input: z.object({ username: z.string(), password: z.string() }),
       responses: {
-        200: z.custom<typeof users.$inferSelect>(),
+        200: z.custom<User>(),
         401: errorSchemas.unauthorized,
       },
     },
@@ -40,7 +40,7 @@ export const api = {
       path: '/api/auth/register',
       input: insertUserSchema,
       responses: {
-        201: z.custom<typeof users.$inferSelect>(),
+        201: z.custom<User>(),
         400: errorSchemas.validation,
       },
     },
@@ -48,7 +48,7 @@ export const api = {
       method: 'GET' as const,
       path: '/api/user',
       responses: {
-        200: z.custom<typeof users.$inferSelect>(),
+        200: z.custom<User>(),
         401: errorSchemas.unauthorized,
       },
     },
@@ -58,14 +58,14 @@ export const api = {
       method: 'GET' as const,
       path: '/api/products',
       responses: {
-        200: z.array(z.custom<typeof products.$inferSelect>()),
+        200: z.array(z.custom<Product>()),
       },
     },
     get: {
       method: 'GET' as const,
       path: '/api/products/:id',
       responses: {
-        200: z.custom<typeof products.$inferSelect>(),
+        200: z.custom<Product>(),
         404: errorSchemas.notFound,
       },
     },
@@ -74,7 +74,7 @@ export const api = {
       path: '/api/products',
       input: insertProductSchema,
       responses: {
-        201: z.custom<typeof products.$inferSelect>(),
+        201: z.custom<Product>(),
         400: errorSchemas.validation,
       },
     },
@@ -84,7 +84,15 @@ export const api = {
       method: 'GET' as const,
       path: '/api/orders',
       responses: {
-        200: z.array(z.custom<typeof orders.$inferSelect>()),
+        200: z.array(z.custom<Order>()),
+      },
+    },
+    my: {
+      method: 'GET' as const,
+      path: '/api/orders/my',
+      responses: {
+        200: z.array(z.custom<Order>()),
+        401: errorSchemas.unauthorized,
       },
     },
     create: {
@@ -92,7 +100,7 @@ export const api = {
       path: '/api/orders',
       input: insertOrderSchema,
       responses: {
-        201: z.custom<typeof orders.$inferSelect>(),
+        201: z.custom<Order>(),
         400: errorSchemas.validation,
       },
     },
@@ -102,7 +110,7 @@ export const api = {
       method: 'GET' as const,
       path: '/api/categories',
       responses: {
-        200: z.array(z.custom<typeof categories.$inferSelect>()),
+        200: z.array(z.custom<Category>()),
       },
     },
   }

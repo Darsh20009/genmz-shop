@@ -48,7 +48,20 @@ export async function registerRoutes(
   // Orders
   app.get(api.orders.list.path, async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
-    const orders = await storage.getOrders(); // TODO: Filter by user if not admin
+    const user = req.user as any;
+    if (user.role === "admin") {
+      const orders = await storage.getOrders();
+      res.json(orders);
+    } else {
+      const orders = await storage.getOrdersByUser(user.id);
+      res.json(orders);
+    }
+  });
+
+  app.get(api.orders.my.path, async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const user = req.user as any;
+    const orders = await storage.getOrdersByUser(user.id);
     res.json(orders);
   });
 

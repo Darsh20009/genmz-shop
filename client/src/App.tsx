@@ -12,6 +12,7 @@ import Cart from "@/pages/Cart";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import Admin from "@/pages/Admin";
+import Orders from "@/pages/Orders";
 import Terms from "@/pages/Terms";
 
 function Router() {
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/checkout" component={Cart} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
+      <Route path="/orders" component={Orders} />
       <Route path="/admin" component={Admin} />
       <Route path="/dashboard" component={Home} />
       <Route path="/terms" component={Terms} />
