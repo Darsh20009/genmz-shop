@@ -75,7 +75,7 @@ export default function ProductDetails() {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-6 sticky top-24"
+            className="space-y-6"
           >
             <div className="aspect-[3/4] bg-white overflow-hidden shadow-2xl border border-black/5 group flex items-center justify-center p-4">
               <img 
