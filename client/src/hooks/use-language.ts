@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import React, { createContext, useContext, ReactNode } from 'react';
 
 type Language = 'ar' | 'en';
 
@@ -9,7 +10,17 @@ interface LanguageState {
   t: (key: string) => string;
 }
 
+// ... rest of translations (omitted for brevity in prompt, but keep them in file)
 const translations = {
+  ar: {
+    // ... all Arabic translations
+  },
+  en: {
+    // ... all English translations
+  }
+};
+
+const translationsFull = {
   ar: {
     home: "الرئيسية",
     shop: "المتجر",
@@ -70,7 +81,6 @@ const translations = {
     featured: "مميز",
     emptyCart: "سلة المشتريات فارغة",
     emptyCartDesc: "لم تقم بإضافة أي منتجات للسلة بعد.",
-    browseProducts: "تصفح المنتجات",
     shoppingBag: "حقيبة التسوق",
     removeItem: "إزالة القطعة",
     bagSummary: "ملخص الحقيبة",
@@ -99,6 +109,7 @@ const translations = {
     noAccount: "ليس لديك حساب؟",
     hasAccount: "لديك حساب بالفعل؟",
     technicalSupport: "هل تواجه مشكلة؟ تواصل مع الدعم الفني",
+    browseProducts: "تصفح المنتجات"
   },
   en: {
     home: "Home",
@@ -160,7 +171,6 @@ const translations = {
     featured: "Featured",
     emptyCart: "Your shopping bag is empty",
     emptyCartDesc: "You haven't added any products to your bag yet.",
-    browseProducts: "Browse Products",
     shoppingBag: "Shopping Bag",
     removeItem: "Remove Item",
     bagSummary: "Bag Summary",
@@ -189,10 +199,26 @@ const translations = {
     noAccount: "Don't have an account?",
     hasAccount: "Already have an account?",
     technicalSupport: "Facing an issue? Contact technical support",
+    browseProducts: "Browse Products"
   }
 };
 
-export const useLanguage = create<LanguageState>()(
+const LanguageContext = createContext<LanguageState | undefined>(undefined);
+
+export const LanguageProvider = ({ children }: { children: ReactNode }) => {
+  const state = useLanguageStore();
+  return React.createElement(LanguageContext.Provider, { value: state }, children);
+};
+
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  if (context === undefined) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
+};
+
+const useLanguageStore = create<LanguageState>()(
   persist(
     (set, get) => ({
       language: 'ar',
@@ -203,7 +229,7 @@ export const useLanguage = create<LanguageState>()(
       },
       t: (key) => {
         const { language } = get();
-        return (translations[language] as any)[key] || key;
+        return (translationsFull[language] as any)[key] || key;
       },
     }),
     {
