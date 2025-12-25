@@ -37,7 +37,7 @@ export function setupAuth(app: Express) {
   passport.use(
     new LocalStrategy({ usernameField: 'phone' }, async (phone, password, done) => {
       try {
-        const user = await storage.getUserByUsername(phone);
+        const user = await storage.getUserByUsername(phone) || await UserModel.findOne({ phone }).lean().then(u => u ? { ...u, id: u._id.toString() } : undefined);
         if (!user) {
           return done(null, false, { message: "رقم الهاتف غير مسجل" });
         }
