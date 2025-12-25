@@ -72,14 +72,23 @@ export default function Orders() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">الإجمالي</p>
                     <p className="font-bold text-lg">{order.total} ر.س</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">طريقة الدفع</p>
-                    <p className="font-bold text-lg capitalize">{order.paymentMethod}</p>
+                    <p className="font-bold text-lg capitalize">{order.paymentMethod === 'cod' ? 'عند الاستلام' : order.paymentMethod === 'bank_transfer' ? 'تحويل بنكي' : order.paymentMethod}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">طريقة الاستلام</p>
+                    <p className="font-bold text-lg">{order.shippingMethod === 'pickup' ? 'استلام من الفرع' : 'توصيل'}</p>
+                    {order.pickupBranch && <p className="text-[10px] opacity-60">{order.pickupBranch}</p>}
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">الحالة</p>
+                    <Badge className="capitalize mt-1">{order.status}</Badge>
                   </div>
                 </div>
 
