@@ -85,6 +85,9 @@ export default function Orders() {
                     <p className="text-sm text-muted-foreground">طريقة الاستلام</p>
                     <p className="font-bold text-lg">{order.shippingMethod === 'pickup' ? 'استلام من الفرع' : 'توصيل'}</p>
                     {order.pickupBranch && <p className="text-[10px] opacity-60">{order.pickupBranch}</p>}
+                    {order.deliveryDetails?.trackingNumber && (
+                      <p className="text-[10px] text-primary font-bold">تتبع: {order.deliveryDetails.trackingNumber}</p>
+                    )}
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">الحالة</p>
