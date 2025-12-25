@@ -39,21 +39,23 @@ export function setupAuth(app: Express) {
     new LocalStrategy({ usernameField: 'phone' }, async (phone, password, done) => {
       try {
         const cleanPhone = phone.trim().replace(/\s/g, "");
-        // Simplified search: match either phone or username
+        // Root fix: Search by both phone and username simultaneously for all users
         const user = await UserModel.findOne({ 
-          $or: [{ phone: cleanPhone }, { username: cleanPhone }] 
+          $or: [
+            { phone: cleanPhone },
+            { username: cleanPhone }
+          ]
         }).lean().then(u => u ? { ...u, id: (u as any)._id.toString() } : undefined);
         
         if (!user) {
           return done(null, false, { message: "رقم الهاتف غير مسجل" });
         }
 
-        // Mandatory password for staff/admin
+        // Staff/Admin/Support MUST have a password
         const isStaffOrAdmin = ["admin", "employee", "support"].includes(user.role);
         
-        // If password is provided, or if user is staff/admin (who MUST have a password)
-        if (password || isStaffOrAdmin) {
-          if (!password) {
+        if (isStaffOrAdmin || (password && password !== "" && password !== "undefined")) {
+          if (!password || password === "undefined" || password === "") {
              return done(null, false, { message: "كلمة المرور مطلوبة لهذا الحساب" });
           }
           
@@ -65,13 +67,18 @@ export function setupAuth(app: Express) {
               return done(null, user);
             }
           } else if (user.password === password) {
-            // Support legacy plain-text passwords if any exist for emergency
+            // Support legacy plain-text passwords
             return done(null, user);
           }
           return done(null, false, { message: "كلمة المرور غير صحيحة" });
         }
         
-        // Customer phone-only login (if no password provided and not staff)
+        // For customer who registered with a password, but trying to login without one
+        if (user.password && user.password.includes(".") && (!password || password === "")) {
+           return done(null, false, { message: "كلمة المرور مطلوبة" });
+        }
+        
+        // Final fallback for customer phone-only login
         return done(null, user);
       } catch (err) {
         return done(err);
