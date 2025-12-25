@@ -26,7 +26,7 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="text-right z-20"
           >
-            <span className="inline-block text-xs font-bold tracking-[0.2em] text-primary mb-4 uppercase">New Collection 2024</span>
+            <span className="inline-block text-xs font-bold tracking-[0.2em] text-primary mb-4 uppercase">New Collection 2026</span>
             <h1 className="font-display text-4xl md:text-7xl font-black leading-[1.1] mb-6 text-black">
               GEN M & Z
               <span className="block text-2xl md:text-4xl mt-2 font-medium text-muted-foreground italic font-serif">أناقة تتجاوز الحدود</span>
@@ -64,7 +64,6 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
-
       {/* Featured Products Showcase (Creative Grid) */}
       <section className="py-20 bg-[#f9f9f9]">
         <div className="container px-4">
@@ -101,7 +100,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Dynamic Product Grid */}
       <section className="py-20 container px-4">
         {isLoading ? (
@@ -118,7 +116,6 @@ export default function Home() {
           </div>
         )}
       </section>
-
       {/* Brand Story Section */}
       <section className="py-32 overflow-hidden bg-white">
         <div className="container px-4">
@@ -149,7 +146,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Trust Badges */}
       <section className="py-16 border-y bg-[#fafafa]">
         <div className="container grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
@@ -166,7 +162,6 @@ export default function Home() {
           ))}
         </div>
       </section>
-
       {/* Newsletter */}
       <section className="py-32 bg-black text-white relative">
         <div className="container px-4 text-center max-w-xl mx-auto z-10 relative">
