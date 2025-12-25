@@ -1,7 +1,7 @@
 import logoImg from "@assets/Gen_M&Z_LOGO_1766644527859.png";
 import { ReactNode, useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { ShoppingBag, User, Menu, LogOut, Sun, Moon, Phone, Mail, Instagram, Twitter, Download, Globe } from "lucide-react";
+import { ShoppingBag, User, Menu, LogOut, Sun, Moon, Phone, Mail, Instagram, Twitter, Download, Globe, Check } from "lucide-react";
 import { SiTiktok, SiSnapchat, SiWhatsapp, SiX } from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -143,7 +143,7 @@ export function Layout({ children }: { children: ReactNode }) {
                   <Button variant="ghost" className="h-10 px-4 flex items-center gap-3 border border-black/5 hover:border-black/20 transition-all rounded-none group no-default-hover-elevate">
                     <div className="flex flex-col items-end">
                       <span className="text-[10px] font-black uppercase tracking-widest text-black/40 group-hover:text-black transition-colors">{t('myAccount') || 'حسابي'}</span>
-                      <span dir="ltr" className="text-[11px] font-bold text-black/60 truncate max-w-[100px]">{user.username}</span>
+                      <span dir="ltr" className="text-[11px] font-bold text-black/60 truncate max-w-[100px]">{user?.username}</span>
                     </div>
                     <div className="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-500">
                       <User className="h-4 w-4" />
@@ -153,11 +153,11 @@ export function Layout({ children }: { children: ReactNode }) {
                 <DropdownMenuContent align={language === 'ar' ? "end" : "start"} className="w-64 p-2 rounded-none border-black/5 shadow-2xl bg-white animate-in fade-in zoom-in-95 duration-200">
                   <div className="px-3 py-4 mb-2 bg-black/5 flex items-center gap-4">
                     <div className="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center font-black text-xl">
-                      {user.username.charAt(0).toUpperCase()}
+                      {user?.username?.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex flex-col">
                       <span className="text-[10px] font-black uppercase tracking-widest text-black/40">{t('welcome') || 'مرحباً بك'}</span>
-                      <span dir="ltr" className="text-sm font-bold text-black truncate max-w-[140px]">{user.username}</span>
+                      <span dir="ltr" className="text-sm font-bold text-black truncate max-w-[140px]">{user?.username}</span>
                     </div>
                   </div>
                   
