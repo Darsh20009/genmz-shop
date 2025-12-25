@@ -22,6 +22,7 @@ export async function seed() {
       name: "Admin User",
       email: "admin@genmz.com",
       phone: "0500000000",
+      walletBalance: "0",
     });
     console.log("Admin user created");
   }
