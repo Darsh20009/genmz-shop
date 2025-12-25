@@ -38,49 +38,41 @@ export function setupAuth(app: Express) {
   passport.use(
     new LocalStrategy({ usernameField: 'phone' }, async (phone, password, done) => {
       try {
-        // Root fix: Clean phone number and search by phone OR username
         const cleanPhone = phone.trim().replace(/\s/g, "");
+        // Simplified search: match either phone or username
         const user = await UserModel.findOne({ 
-          $or: [
-            { phone: cleanPhone },
-            { username: cleanPhone }
-          ]
+          $or: [{ phone: cleanPhone }, { username: cleanPhone }] 
         }).lean().then(u => u ? { ...u, id: (u as any)._id.toString() } : undefined);
         
         if (!user) {
           return done(null, false, { message: "رقم الهاتف غير مسجل" });
         }
 
-        // Staff/Admin MUST have a password
-        const isStaffOrAdmin = user.role === "admin" || user.role === "employee";
+        // Mandatory password for staff/admin
+        const isStaffOrAdmin = ["admin", "employee", "support"].includes(user.role);
         
-        if (isStaffOrAdmin || (password && password !== "" && password !== "undefined")) {
-          // IMPORTANT: If no password provided but it's a manager/staff, we MUST have a password
-          if (isStaffOrAdmin && (!password || password === "undefined" || password === "")) {
+        // If password is provided, or if user is staff/admin (who MUST have a password)
+        if (password || isStaffOrAdmin) {
+          if (!password) {
              return done(null, false, { message: "كلمة المرور مطلوبة لهذا الحساب" });
           }
           
           const parts = user.password.split(".");
-          if (parts.length !== 2) {
-            // If the password doesn't have a salt, it might be a legacy password
-            // or an incorrectly seeded one. For root stability, we handle this.
-            return done(null, false, { message: "خطأ في نظام التشفير - يرجى التواصل مع الدعم" });
-          }
-          const [hashedPassword, salt] = parts;
-          const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
-          if (timingSafeEqual(Buffer.from(hashedPassword, "hex"), buffer)) {
+          if (parts.length === 2) {
+            const [hashedPassword, salt] = parts;
+            const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
+            if (timingSafeEqual(Buffer.from(hashedPassword, "hex"), buffer)) {
+              return done(null, user);
+            }
+          } else if (user.password === password) {
+            // Support legacy plain-text passwords if any exist for emergency
             return done(null, user);
-          } else {
-            return done(null, false, { message: "كلمة المرور غير صحيحة" });
           }
+          return done(null, false, { message: "كلمة المرور غير صحيحة" });
         }
         
-        // For customer who registered with a password, but trying to login without one
-        if (user.password && user.password.includes(".") && (!password || password === "")) {
-           // We might want to allow this for "phone only" login if that's the desired UX
-           // but the user says it's not working, so let's enforce password if it exists
-           return done(null, false, { message: "كلمة المرور مطلوبة" });
-        }
+        // Customer phone-only login (if no password provided and not staff)
+        return done(null, user);
       } catch (err) {
         return done(err);
       }
