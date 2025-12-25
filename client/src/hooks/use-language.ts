@@ -10,16 +10,6 @@ interface LanguageState {
   t: (key: string) => string;
 }
 
-// ... rest of translations (omitted for brevity in prompt, but keep them in file)
-const translations = {
-  ar: {
-    // ... all Arabic translations
-  },
-  en: {
-    // ... all English translations
-  }
-};
-
 const translationsFull = {
   ar: {
     home: "الرئيسية",
@@ -203,24 +193,6 @@ const translationsFull = {
   }
 };
 
-const LanguageContext = createContext<LanguageState | undefined>(undefined);
-
-export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const state = useLanguageStore();
-  return React.createElement(LanguageContext.Provider, { value: state }, children);
-};
-
-export const useLanguage = () => {
-  const context = useContext(LanguageContext);
-  if (context === undefined) {
-    // If not within a provider, return the store directly to avoid crash
-    // but warn in console.
-    console.warn('useLanguage used outside of LanguageProvider');
-    return useLanguageStore();
-  }
-  return context;
-};
-
 const useLanguageStore = create<LanguageState>()(
   persist(
     (set, get) => ({
@@ -240,3 +212,22 @@ const useLanguageStore = create<LanguageState>()(
     }
   )
 );
+
+const LanguageContext = createContext<LanguageState | undefined>(undefined);
+
+export const LanguageProvider = ({ children }: { children: ReactNode }) => {
+  const state = useLanguageStore();
+  return React.createElement(LanguageContext.Provider, { value: state }, children);
+};
+
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  if (context === undefined) {
+    // If not within a provider, return the store directly to avoid crash
+    // but warn in console.
+    console.warn('useLanguage used outside of LanguageProvider');
+    return useLanguageStore();
+  }
+  return context;
+};
+
