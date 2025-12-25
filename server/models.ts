@@ -53,6 +53,7 @@ const orderSchema = new Schema<Order>(
     },
     pickupBranch: String,
     paymentMethod: { type: String, enum: ["cod", "bank_transfer", "apple_pay", "card"], required: true },
+    bankTransferReceipt: String,
     paymentStatus: { type: String, default: "pending" },
   },
   { timestamps: true }

@@ -22,6 +22,7 @@ export default function Checkout() {
   const [pickupBranch, setPickupBranch] = useState("الرياض - الفرع الرئيسي");
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [receiptImage, setReceiptImage] = useState<string | null>(null);
 
   if (items.length === 0) {
     setLocation("/cart");
@@ -54,6 +55,7 @@ export default function Checkout() {
         shippingMethod,
         pickupBranch: shippingMethod === "pickup" ? pickupBranch : undefined,
         paymentMethod,
+        bankTransferReceipt: paymentMethod === "bank_transfer" ? receiptImage : undefined,
         status: "new",
         paymentStatus: "pending",
       };
@@ -171,6 +173,62 @@ export default function Checkout() {
                   </div>
                 </div>
               </RadioGroup>
+
+              {paymentMethod === "bank_transfer" && (
+                <Card className="mt-4 p-6 border-black/10 rounded-none bg-secondary/30">
+                  <h3 className="font-bold mb-4">تفاصيل التحويل البنكي</h3>
+                  <div className="space-y-4 text-sm mb-6">
+                    <div className="flex justify-between border-b border-black/5 pb-2">
+                      <span className="font-bold">مصرف الراجحي</span>
+                      <span className="opacity-60">اسم البنك</span>
+                    </div>
+                    <div className="flex justify-between border-b border-black/5 pb-2">
+                      <span className="font-bold tracking-widest">SA 12 3456 7890 1234 5678 9012</span>
+                      <span className="opacity-60">رقم الآيبان (IBAN)</span>
+                    </div>
+                    <div className="flex justify-between border-b border-black/5 pb-2">
+                      <span className="font-bold">مؤسسة جين إم آند زد للتجارة</span>
+                      <span className="opacity-60">اسم المستفيد</span>
+                    </div>
+                  </div>
+
+                  <Label className="block mb-3 font-bold opacity-60 text-xs uppercase tracking-widest">رفع إيصال التحويل</Label>
+                  <div className="relative">
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => setReceiptImage(reader.result as string);
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="hidden" 
+                      id="receipt-upload" 
+                    />
+                    <label 
+                      htmlFor="receipt-upload" 
+                      className="w-full h-12 bg-white border border-dashed border-black/20 flex items-center justify-center font-bold cursor-pointer hover:border-black transition-all gap-2"
+                    >
+                      <Landmark className="h-4 w-4" />
+                      {receiptImage ? "تم اختيار الصورة" : "اضغط لرفع صورة الإيصال"}
+                    </label>
+                  </div>
+                  {receiptImage && (
+                    <div className="mt-4 aspect-video border border-black/10 overflow-hidden relative group">
+                      <img src={receiptImage} alt="Receipt preview" className="w-full h-full object-cover" />
+                      <button 
+                        onClick={() => setReceiptImage(null)}
+                        className="absolute top-2 right-2 bg-black text-white p-2 text-xs font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        حذف
+                      </button>
+                    </div>
+                  )}
+                </Card>
+              )}
             </section>
           </div>
 

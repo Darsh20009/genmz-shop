@@ -69,6 +69,7 @@ export const insertOrderSchema = z.object({
   }).optional(),
   pickupBranch: z.string().optional(),
   paymentMethod: z.enum(["cod", "bank_transfer", "apple_pay", "card"]),
+  bankTransferReceipt: z.string().optional(),
 });
 
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
