@@ -15,6 +15,7 @@ import Admin from "@/pages/Admin";
 import Dashboard from "@/pages/Dashboard";
 import Orders from "@/pages/Orders";
 import Terms from "@/pages/Terms";
+import ForgotPassword from "@/pages/ForgotPassword";
 
 function Router() {
   return (
@@ -26,6 +27,7 @@ function Router() {
       <Route path="/checkout" component={Cart} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
+      <Route path="/forgot-password" component={ForgotPassword} />
       <Route path="/orders" component={Orders} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/admin" component={Admin} />
