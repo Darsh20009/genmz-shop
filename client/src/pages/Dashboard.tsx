@@ -5,7 +5,11 @@ import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, ShoppingBag, User, Wallet, LogOut, MapPin, FileText, Package, Plus, Trash2 } from "lucide-react";
+import { 
+  Loader2, ShoppingBag, User, Wallet, LogOut, MapPin, 
+  FileText, Package, Plus, Trash2, Home, Settings, 
+  Users, BarChart3, Box, Bell, Search, Globe, ChevronRight
+} from "lucide-react";
 import { Link } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -15,6 +19,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from "@/components/ui/sidebar";
 
 export default function Dashboard() {
   const { user, isLoading: authLoading, logout } = useAuth();
@@ -43,11 +48,9 @@ export default function Dashboard() {
 
   if (authLoading) {
     return (
-      <Layout>
-        <div className="container py-24 text-center">
-          <Loader2 className="animate-spin mx-auto" />
-        </div>
-      </Layout>
+      <div className="flex h-screen items-center justify-center bg-[#f8fafc]">
+        <Loader2 className="animate-spin text-primary" />
+      </div>
     );
   }
 
@@ -55,6 +58,14 @@ export default function Dashboard() {
     setLocation("/login");
     return null;
   }
+
+  const sidebarItems = [
+    { title: "الرئيسية", icon: Home, url: "/dashboard", active: true },
+    { title: "الطلبات", icon: ShoppingBag, url: "/orders" },
+    { title: "المنتجات", icon: Box, url: "/products" },
+    { title: "العملاء", icon: Users, url: "#" },
+    { title: "التقارير", icon: BarChart3, url: "#" },
+  ];
 
   const handleAddAddress = () => {
     const addresses = [...(user.addresses || []), { ...newAddress, id: Math.random().toString(36).substr(2, 9), isDefault: (user.addresses || []).length === 0 }];
@@ -67,238 +78,227 @@ export default function Dashboard() {
   };
 
   return (
-    <Layout>
-      <div className="container py-12 text-right" dir="rtl">
-        <h1 className="font-display text-4xl font-bold mb-12 uppercase tracking-tighter">حسابي</h1>
-        
-        <Tabs defaultValue="overview" className="space-y-8">
-          <TabsList className="w-full justify-start bg-transparent border-b rounded-none h-12 p-0 space-x-reverse space-x-8">
-            <TabsTrigger value="overview" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold">نظرة عامة</TabsTrigger>
-            <TabsTrigger value="orders" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold">طلباتي</TabsTrigger>
-            <TabsTrigger value="wallet" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold">المحفظة</TabsTrigger>
-            <TabsTrigger value="addresses" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold">العناوين</TabsTrigger>
-          </TabsList>
+    <SidebarProvider style={{ "--sidebar-width": "18rem" } as React.CSSProperties}>
+      <div className="flex h-screen w-full bg-[#f8fafc]" dir="rtl">
+        <Sidebar className="border-l bg-white shadow-sm">
+          <SidebarHeader className="p-6 border-b">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white">
+                <Globe className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="font-bold text-sm">متجر Gen M & Z</h2>
+                <p className="text-[10px] text-muted-foreground">salla.sa/genmz</p>
+              </div>
+            </div>
+          </SidebarHeader>
+          <SidebarContent className="p-4">
+            <SidebarGroup>
+              <SidebarMenu>
+                {sidebarItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton 
+                      asChild 
+                      className={`h-12 rounded-xl mb-1 px-4 ${item.active ? 'bg-primary/5 text-primary' : 'hover:bg-muted text-muted-foreground'}`}
+                    >
+                      <a href={item.url} className="flex items-center gap-4">
+                        <item.icon className={`w-5 h-5 ${item.active ? 'text-primary' : ''}`} />
+                        <span className="font-medium text-sm">{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroup>
+            
+            <div className="mt-auto pt-8 border-t">
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton className="h-12 rounded-xl text-muted-foreground hover:bg-muted">
+                    <Settings className="w-5 h-5 ml-4" />
+                    <span className="font-medium text-sm">إعدادات المتجر</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton 
+                    onClick={() => logout()} 
+                    className="h-12 rounded-xl text-destructive hover:bg-destructive/5"
+                  >
+                    <LogOut className="w-5 h-5 ml-4" />
+                    <span className="font-medium text-sm">تسجيل الخروج</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </div>
+          </SidebarContent>
+        </Sidebar>
 
-          <TabsContent value="overview" className="space-y-8">
-            <div className="grid lg:grid-cols-3 gap-8">
-              <Card className="lg:col-span-1 border-none bg-secondary/20 rounded-none shadow-none">
-                <CardHeader>
-                  <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center border border-black/5 shadow-sm">
-                      <User className="w-8 h-8 text-black" />
+        <main className="flex-1 overflow-auto">
+          <header className="h-16 bg-white border-b px-8 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+            <div className="flex items-center gap-4 w-1/3">
+              <div className="relative w-full max-w-sm">
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input 
+                  placeholder="ابحث عن طلب، عميل..." 
+                  className="bg-muted/50 border-none h-10 pr-10 rounded-full text-sm"
+                />
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-bold">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                المتجر يعمل
+              </div>
+              <Button size="icon" variant="ghost" className="relative text-muted-foreground">
+                <Bell className="w-5 h-5" />
+                <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-white" />
+              </Button>
+              <div className="flex items-center gap-3 border-r pr-6">
+                <div className="text-left text-xs">
+                  <p className="font-bold text-right">{user.name}</p>
+                  <p className="text-muted-foreground">مدير المتجر</p>
+                </div>
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                  {user.name.charAt(0)}
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <div className="p-10 space-y-10">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-black mb-1">مرحباً بك مجدداً، {user.name.split(' ')[0]} 👋</h1>
+                <p className="text-muted-foreground text-sm">هذا ما حدث في متجرك اليوم</p>
+              </div>
+              <Button className="rounded-xl h-12 px-6 gap-2 shadow-lg shadow-primary/20">
+                <Plus className="w-4 h-4" />
+                منتج جديد
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { title: "المبيعات", value: "0", sub: "0% من الشهر الماضي", icon: BarChart3, color: "bg-blue-500" },
+                { title: "الطلبات", value: orders?.length || 0, sub: "0% من الشهر الماضي", icon: ShoppingBag, color: "bg-orange-500" },
+                { title: "العملاء", value: "0", sub: "0 عميل جديد", icon: Users, color: "bg-purple-500" },
+                { title: "المحفظة", value: user.walletBalance, sub: "رصيد متاح", icon: Wallet, color: "bg-emerald-500" },
+              ].map((stat, i) => (
+                <Card key={i} className="border-none shadow-sm rounded-2xl overflow-hidden hover-elevate transition-all">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className={`p-2.5 rounded-xl ${stat.color} text-white`}>
+                        <stat.icon className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] font-bold text-muted-foreground bg-muted px-2 py-1 rounded-full uppercase">اليوم</span>
                     </div>
                     <div>
-                      <CardTitle className="text-xl font-black uppercase tracking-tight">{user.name}</CardTitle>
-                      <Badge variant="outline" className="mt-2 capitalize font-bold text-[10px] tracking-widest">{user.role}</Badge>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-6 pt-6">
-                  <div className="space-y-1">
-                    <p className="text-[10px] uppercase font-black tracking-widest text-black/40">البريد الإلكتروني</p>
-                    <p className="font-bold">{user.email}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-[10px] uppercase font-black tracking-widest text-black/40">رقم الهاتف</p>
-                    <p className="font-bold">{user.phone || "غير محدد"}</p>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    className="w-full rounded-none border-black hover:bg-black hover:text-white transition-all font-bold uppercase tracking-widest text-xs h-12"
-                    onClick={() => {
-                      logout();
-                      setLocation("/");
-                    }}
-                  >
-                    <LogOut className="w-4 h-4 ml-2" />
-                    تسجيل الخروج
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <div className="lg:col-span-2 grid sm:grid-cols-2 gap-8">
-                <Card className="border-none bg-black text-white rounded-none p-8 flex flex-col justify-between h-64 shadow-2xl">
-                  <Wallet className="w-10 h-10 mb-8" />
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.3em] opacity-40 mb-2">الرصيد المتاح</p>
-                    <p className="text-5xl font-black tracking-tighter">{user.walletBalance} <span className="text-xl font-light opacity-60">ر.س</span></p>
-                  </div>
-                </Card>
-
-                <Card className="border border-black/5 rounded-none p-8 flex flex-col justify-between h-64 shadow-sm hover:shadow-md transition-all">
-                  <Package className="w-10 h-10 mb-8 text-black/20" />
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.3em] text-black/40 mb-2">إجمالي الطلبات</p>
-                    <p className="text-5xl font-black tracking-tighter">{orders?.length || 0} <span className="text-xl font-light opacity-20">طلب</span></p>
-                  </div>
-                </Card>
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="orders">
-            <div className="space-y-6">
-              {ordersLoading ? (
-                <div className="text-center py-24">
-                  <Loader2 className="animate-spin mx-auto text-black/20" />
-                </div>
-              ) : !orders || orders.length === 0 ? (
-                <div className="text-center py-24 border-2 border-dashed border-black/5">
-                  <ShoppingBag className="w-16 h-16 mx-auto text-black/10 mb-6" />
-                  <p className="font-bold text-xl mb-6">لا توجد طلبات سابقة</p>
-                  <Link href="/products">
-                    <Button className="rounded-none h-12 px-8 font-bold uppercase tracking-widest">تصفح المجموعة</Button>
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {orders.map((order: any) => (
-                    <Card key={order.id} className="border border-black/5 rounded-none overflow-hidden shadow-none hover:shadow-lg transition-all">
-                      <div className="p-8">
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 pb-6 border-b border-black/5">
-                          <div className="flex items-center gap-6">
-                            <div className="p-4 bg-secondary/30">
-                              <Package className="w-6 h-6" />
-                            </div>
-                            <div>
-                              <p className="text-[10px] uppercase font-black tracking-widest text-black/40 mb-1">رقم الطلب</p>
-                              <h3 className="font-black text-xl tracking-tighter">#{order.id.slice(-8).toUpperCase()}</h3>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <Button variant="outline" className="rounded-none font-bold text-xs uppercase tracking-widest h-10 border-black/10">
-                              <FileText className="w-4 h-4 ml-2" />
-                              تحميل الفاتورة (PDF)
-                            </Button>
-                            <Badge className="rounded-none px-4 py-2 uppercase font-black text-[10px] tracking-[0.2em]">{order.status}</Badge>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
-                          <div className="space-y-1">
-                            <p className="text-[10px] uppercase font-black tracking-widest text-black/40">التاريخ</p>
-                            <p className="font-bold">{new Date(order.createdAt).toLocaleDateString("ar-SA")}</p>
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-[10px] uppercase font-black tracking-widest text-black/40">المبلغ الإجمالي</p>
-                            <p className="font-bold text-xl tracking-tight">{order.total} ر.س</p>
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-[10px] uppercase font-black tracking-widest text-black/40">طريقة الدفع</p>
-                            <p className="font-bold capitalize">{order.paymentMethod === 'cod' ? 'عند الاستلام' : order.paymentMethod === 'bank_transfer' ? 'تحويل بنكي' : order.paymentMethod}</p>
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-[10px] uppercase font-black tracking-widest text-black/40">الاستلام</p>
-                            <p className="font-bold">{order.shippingMethod === 'pickup' ? 'من الفرع' : 'توصيل'}</p>
-                          </div>
-                        </div>
-
-                        <div className="mt-8 pt-8 border-t border-black/5">
-                          <p className="text-[10px] uppercase font-black tracking-widest text-black/40 mb-4">المنتجات</p>
-                          <div className="space-y-4">
-                            {order.items.map((item: any, idx: number) => (
-                              <div key={idx} className="flex justify-between items-center text-sm">
-                                <span className="font-bold">{item.title} x {item.quantity}</span>
-                                <span>{item.price * item.quantity} ر.س</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
+                      <p className="text-muted-foreground text-sm mb-1">{stat.title}</p>
+                      <div className="flex items-baseline gap-2">
+                        <p className="text-2xl font-black tracking-tighter">{stat.value}</p>
+                        {i === 3 && <span className="text-xs font-bold text-muted-foreground">ر.س</span>}
                       </div>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="wallet">
-            <Card className="border-none bg-secondary/20 rounded-none p-12 text-center">
-              <Wallet className="w-16 h-16 mx-auto mb-6 text-black/20" />
-              <h3 className="text-2xl font-black mb-2">رصيد محفظتك</h3>
-              <p className="text-5xl font-black tracking-tighter mb-8">{user.walletBalance} ر.س</p>
-              <div className="max-w-md mx-auto p-6 bg-white border border-black/5 text-sm text-right">
-                <p className="font-bold mb-4 border-b pb-4 opacity-40 uppercase tracking-widest text-xs">آخر العمليات</p>
-                {Array.isArray(transactions) && transactions.length > 0 ? (
-                  <div className="space-y-4">
-                    {transactions.map((t: any) => (
-                      <div key={t.id} className="flex justify-between items-center py-2 border-b border-black/5 last:border-0">
-                        <div className="text-right">
-                          <p className="font-bold text-xs">{t.description}</p>
-                          <p className="text-[8px] opacity-40 uppercase">{new Date(t.createdAt).toLocaleDateString("ar-SA")}</p>
-                        </div>
-                        <span className={`font-black tracking-tighter ${t.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {t.amount > 0 ? '+' : ''}{t.amount} ر.س
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex justify-between items-center py-2 opacity-40 italic">
-                    <span>-</span>
-                    <span>لا توجد عمليات مؤخراً</span>
-                  </div>
-                )}
-              </div>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="addresses">
-            <div className="grid md:grid-cols-2 gap-8">
-              <Dialog open={isAddingAddress} onOpenChange={setIsAddingAddress}>
-                <DialogTrigger asChild>
-                  <div className="border-2 border-dashed border-black/5 p-12 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-black/20 transition-all">
-                    <Plus className="w-12 h-12 mb-6 text-black/10 group-hover:text-black/40 transition-all" />
-                    <p className="font-bold uppercase tracking-widest text-xs">إضافة عنوان جديد</p>
-                  </div>
-                </DialogTrigger>
-                <DialogContent dir="rtl" className="rounded-none border-none shadow-2xl">
-                  <DialogHeader>
-                    <DialogTitle className="text-right font-black uppercase tracking-tight">إضافة عنوان جديد</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-6 pt-6">
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">اسم العنوان (مثل المنزل، العمل)</Label>
-                      <Input value={newAddress.name} onChange={(e) => setNewAddress({...newAddress, name: e.target.value})} className="rounded-none h-12" />
+                      <p className="text-[10px] mt-2 font-medium text-muted-foreground flex items-center gap-1">
+                        {stat.sub}
+                      </p>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">المدينة</Label>
-                      <Input value={newAddress.city} onChange={(e) => setNewAddress({...newAddress, city: e.target.value})} className="rounded-none h-12" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">الشارع والحي</Label>
-                      <Input value={newAddress.street} onChange={(e) => setNewAddress({...newAddress, street: e.target.value})} className="rounded-none h-12" />
-                    </div>
-                    <Button onClick={handleAddAddress} disabled={addressMutation.isPending} className="w-full rounded-none h-14 font-black uppercase tracking-widest">
-                      {addressMutation.isPending ? <Loader2 className="animate-spin" /> : "حفظ العنوان"}
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-              
-              {user.addresses?.map((address: any) => (
-                <Card key={address.id} className="border border-black/5 rounded-none p-8 relative shadow-sm hover:shadow-md transition-all">
-                  {address.isDefault && (
-                    <Badge className="absolute top-4 left-4 bg-black text-white rounded-none font-bold text-[8px] uppercase tracking-widest">العنوان الافتراضي</Badge>
-                  )}
-                  <h4 className="font-black text-xl mb-4 uppercase tracking-tight">{address.name}</h4>
-                  <div className="space-y-2 text-sm opacity-60">
-                    <p>المملكة العربية السعودية</p>
-                    <p>{address.city}</p>
-                    <p>{address.street}</p>
-                  </div>
-                  <div className="mt-8 flex gap-6">
-                    <button onClick={() => handleDeleteAddress(address.id)} className="text-[10px] font-black uppercase tracking-widest text-red-500 opacity-40 hover:opacity-100 transition-all flex items-center gap-2">
-                      <Trash2 className="w-3 h-3" />
-                      حذف
-                    </button>
-                  </div>
+                  </CardContent>
                 </Card>
               ))}
             </div>
-          </TabsContent>
-        </Tabs>
+
+            <div className="grid lg:grid-cols-3 gap-8">
+              <Card className="lg:col-span-2 border-none shadow-sm rounded-2xl">
+                <CardHeader className="flex flex-row items-center justify-between p-8 border-b">
+                  <CardTitle className="text-lg font-bold">أحدث الطلبات</CardTitle>
+                  <Button variant="ghost" size="sm" className="text-primary gap-1 font-bold">
+                    عرض الكل <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </CardHeader>
+                <CardContent className="p-0">
+                  {ordersLoading ? (
+                    <div className="p-20 text-center"><Loader2 className="animate-spin mx-auto text-muted-foreground" /></div>
+                  ) : !orders?.length ? (
+                    <div className="p-20 text-center space-y-4">
+                      <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
+                        <ShoppingBag className="w-8 h-8 text-muted-foreground/30" />
+                      </div>
+                      <p className="text-muted-foreground font-medium">لا توجد طلبات بعد</p>
+                    </div>
+                  ) : (
+                    <div className="divide-y">
+                      {orders.slice(0, 5).map((order: any) => (
+                        <div key={order.id} className="p-6 flex items-center justify-between hover:bg-muted/30 transition-colors">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
+                              <Package className="w-6 h-6 text-muted-foreground" />
+                            </div>
+                            <div>
+                              <p className="font-bold text-sm">#{order.id.slice(-8).toUpperCase()}</p>
+                              <p className="text-[10px] text-muted-foreground">{new Date(order.createdAt).toLocaleDateString("ar-SA")}</p>
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <Badge variant="outline" className="rounded-full px-3 border-emerald-100 text-emerald-600 bg-emerald-50 font-bold text-[10px]">{order.status}</Badge>
+                          </div>
+                          <div className="text-left">
+                            <p className="font-black text-sm">{order.total} ر.س</p>
+                            <p className="text-[10px] text-muted-foreground">{order.paymentMethod}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card className="border-none shadow-sm rounded-2xl">
+                <CardHeader className="p-8 border-b">
+                  <CardTitle className="text-lg font-bold">رصيد المحفظة</CardTitle>
+                </CardHeader>
+                <CardContent className="p-8">
+                  <div className="bg-primary rounded-3xl p-8 text-white relative overflow-hidden shadow-xl shadow-primary/20 mb-8">
+                    <div className="relative z-10">
+                      <p className="text-[10px] uppercase font-bold tracking-widest opacity-60 mb-2">الرصيد المتاح</p>
+                      <p className="text-4xl font-black tracking-tighter mb-6">{user.walletBalance} <span className="text-lg font-light opacity-60">ر.س</span></p>
+                      <Button className="w-full bg-white text-primary hover:bg-white/90 rounded-xl font-bold h-12">سحب الرصيد</Button>
+                    </div>
+                    <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
+                    <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-2xl" />
+                  </div>
+
+                  <div className="space-y-6">
+                    <p className="font-bold text-xs text-muted-foreground border-b pb-4">العمليات الأخيرة</p>
+                    {Array.isArray(transactions) && transactions.length > 0 ? (
+                      <div className="space-y-4">
+                        {transactions.slice(0, 3).map((t: any) => (
+                          <div key={t.id} className="flex justify-between items-center group">
+                            <div className="flex items-center gap-3">
+                              <div className={`p-2 rounded-lg ${t.amount > 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+                                <Wallet className="w-4 h-4" />
+                              </div>
+                              <div className="text-right">
+                                <p className="font-bold text-[11px] group-hover:text-primary transition-colors">{t.description}</p>
+                                <p className="text-[9px] text-muted-foreground">{new Date(t.createdAt).toLocaleDateString("ar-SA")}</p>
+                              </div>
+                            </div>
+                            <span className={`font-black text-xs ${t.amount > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                              {t.amount > 0 ? '+' : ''}{t.amount} ر.س
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-center text-xs text-muted-foreground py-8 italic">لا توجد عمليات مؤخراً</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </main>
       </div>
-    </Layout>
+    </SidebarProvider>
   );
 }
