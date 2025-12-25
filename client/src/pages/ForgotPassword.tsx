@@ -6,7 +6,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Loader2, CheckCircle2, ShieldCheck, Lock } from "lucide-react";
+import { Loader2, CheckCircle2, ShieldCheck, Lock, Eye, EyeOff } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import logoImg from "@assets/Gen_M&Z_LOGO_1766644527859.png";
@@ -29,6 +29,7 @@ export default function ForgotPassword() {
   const [step, setStep] = useState<"verify" | "reset" | "success">("verify");
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
@@ -155,7 +156,18 @@ export default function ForgotPassword() {
                     <FormItem className="text-right">
                       <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">كلمة المرور الجديدة</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} className="h-12 bg-white border-black/10 rounded-none focus-visible:ring-black" />
+                        <div className="relative">
+                          <Input type={showPassword ? "text" : "password"} placeholder="••••••••" {...field} className="h-12 bg-white border-black/10 rounded-none focus-visible:ring-black pr-12" />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 text-black/40 hover:text-black no-default-hover-elevate"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                        </div>
                       </FormControl>
                       <FormMessage className="text-[10px]" />
                     </FormItem>
@@ -168,7 +180,18 @@ export default function ForgotPassword() {
                     <FormItem className="text-right">
                       <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">تأكيد كلمة المرور</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} className="h-12 bg-white border-black/10 rounded-none focus-visible:ring-black" />
+                        <div className="relative">
+                          <Input type={showPassword ? "text" : "password"} placeholder="••••••••" {...field} className="h-12 bg-white border-black/10 rounded-none focus-visible:ring-black pr-12" />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 text-black/40 hover:text-black no-default-hover-elevate"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                        </div>
                       </FormControl>
                       <FormMessage className="text-[10px]" />
                     </FormItem>
