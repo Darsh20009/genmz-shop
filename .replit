@@ -42,3 +42,6 @@ waitForPort = 5000
 
 [userenv.shared]
 MONGODB_URI = "mongodb+srv://Vercel-Admin-Genmz-sa-shop:TOTY20009a@genmz-sa-shop.gmwh2y0.mongodb.net/?appName=Genmz-sa-shop"
+
+[agent]
+expertMode = true

@@ -3,12 +3,14 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { Product } from "@shared/schema";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/hooks/use-language";
 
 interface ProductCardProps {
   product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const { t, language } = useLanguage();
   return (
     <motion.div
       whileHover={{ y: -5 }}
@@ -25,13 +27,13 @@ export function ProductCard({ product }: ProductCardProps) {
             <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <Button
               size="sm"
-              className="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 rounded-none font-black uppercase tracking-widest text-[10px]"
+              className="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 rounded-none font-black uppercase text-[10px]"
             >
-              عرض التفاصيل
+              {t('viewDetails')}
             </Button>
             {product.isFeatured && (
-              <div className="absolute top-4 right-4 bg-black text-white text-[10px] font-black uppercase tracking-widest px-3 py-1">
-                FEATURED
+              <div className={`absolute top-4 ${language === 'ar' ? 'right-4' : 'left-4'} bg-black text-white text-[10px] font-black uppercase tracking-widest px-3 py-1`}>
+                {t('featured')}
               </div>
             )}
           </div>
@@ -39,7 +41,7 @@ export function ProductCard({ product }: ProductCardProps) {
             <h3 className="font-black uppercase tracking-tighter text-sm mb-1 group-hover:text-primary transition-colors">
               {product.name}
             </h3>
-            <p className="text-xs text-muted-foreground font-bold">{Number(product.price).toLocaleString()} ر.س</p>
+            <p className="text-xs text-muted-foreground font-bold">{Number(product.price).toLocaleString()} {t('currency')}</p>
           </CardContent>
         </Card>
       </Link>

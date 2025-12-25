@@ -3,8 +3,9 @@ import { ProductCard } from "@/components/ProductCard";
 import { useProducts } from "@/hooks/use-products";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { ShoppingBag, Star, ShieldCheck, Truck, ChevronRight } from "lucide-react";
+import { ShoppingBag, Star, ShieldCheck, Truck, ChevronRight, ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/hooks/use-language";
 import heroImg from "@assets/Screenshot_2025-12-25_100613_1766646961781.png";
 import tealImg from "@assets/Screenshot_2025-12-25_100641_1766646961781.png";
 import greyImg from "@assets/Screenshot_2025-12-25_100700_1766646961782.png";
@@ -13,6 +14,7 @@ import blueImg from "@assets/Screenshot_2025-12-25_100724_1766646961782.png";
 
 export default function Home() {
   const { data: products, isLoading } = useProducts();
+  const { t, language } = useLanguage();
   const featuredProducts = products?.filter(p => p.isFeatured).slice(0, 4) || [];
 
   return (
@@ -21,23 +23,23 @@ export default function Home() {
       <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-white">
         <div className="container relative z-10 grid lg:grid-cols-2 gap-8 items-center px-4 pt-20">
           <motion.div 
-            initial={{ opacity: 0, x: 50 }}
+            initial={{ opacity: 0, x: language === 'ar' ? 50 : -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-right z-20"
+            className={language === 'ar' ? "text-right z-20" : "text-left z-20"}
           >
-            <span className="inline-block text-xs font-bold tracking-[0.2em] text-primary mb-4 uppercase">New Collection 2026</span>
+            <span className="inline-block text-xs font-bold tracking-[0.2em] text-primary mb-4 uppercase">{t('newCollection')}</span>
             <h1 className="font-display text-5xl md:text-8xl font-black leading-[0.9] mb-8 text-black tracking-tighter">
               GEN M & Z
-              <span className="block text-2xl md:text-5xl mt-4 font-light text-muted-foreground italic font-serif">أناقة تتجاوز الحدود</span>
+              <span className="block text-2xl md:text-5xl mt-4 font-light text-muted-foreground italic font-serif">{t('heroTitle')}</span>
             </h1>
-            <p className="text-muted-foreground text-base md:text-xl mb-12 max-w-md mr-0 ml-auto leading-relaxed font-light">
-              نقدم لكم تشكيلة الهوديز الجديدة المصممة بعناية فائقة لتناسب أسلوب حياتكم العصري. جودة استثنائية وتفاصيل تروي قصة إبداع سعودي.
+            <p className={`text-muted-foreground text-base md:text-xl mb-12 max-w-md ${language === 'ar' ? 'mr-0 ml-auto' : 'ml-0 mr-auto'} leading-relaxed font-light`}>
+              {t('heroDesc')}
             </p>
-            <div className="flex gap-6 justify-end">
+            <div className={`flex gap-6 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
               <Link href="/products">
                 <Button size="lg" className="px-10 py-8 text-sm font-bold uppercase tracking-[0.2em] rounded-none shadow-2xl hover-elevate transition-all bg-black text-white border-none active-elevate-2">
-                  اكتشف المجموعة <ChevronRight className="mr-3 h-5 w-5" />
+                  {t('discoverCollection')} {language === 'ar' ? <ChevronRight className="mr-3 h-5 w-5" /> : <ChevronLeft className="ml-3 h-5 w-5" />}
                 </Button>
               </Link>
             </div>
@@ -56,8 +58,8 @@ export default function Home() {
                 alt="Gen M & Z Hero" 
                 className="w-full h-full object-cover shadow-2xl grayscale hover:grayscale-0 transition-all duration-1000"
               />
-              <div className="absolute -bottom-6 -right-6 bg-black text-white p-6 hidden md:block">
-                <p className="text-[10px] tracking-widest uppercase font-bold mb-1">Featured item</p>
+              <div className={`absolute -bottom-6 ${language === 'ar' ? '-right-6' : '-left-6'} bg-black text-white p-6 hidden md:block`}>
+                <p className="text-[10px] tracking-widest uppercase font-bold mb-1">{t('featuredItem')}</p>
                 <p className="text-lg font-black leading-none">BURGUNDY HOODIE</p>
               </div>
             </div>
@@ -82,7 +84,7 @@ export default function Home() {
                 className="group relative aspect-[3/4] overflow-hidden bg-white shadow-sm"
               >
                 <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4 md:p-6 text-white">
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4 md:p-6 text-white text-right">
                   <span className="text-[10px] font-bold tracking-widest uppercase mb-1">{item.color}</span>
                   <h3 className="text-sm md:text-lg font-black leading-none">{item.title}</h3>
                 </div>
@@ -90,11 +92,11 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="flex flex-col md:flex-row items-center justify-between border-t border-black/5 pt-12 gap-6">
-            <h2 className="font-display text-2xl md:text-4xl font-black text-black">المختارات الحصرية</h2>
+          <div className={`flex flex-col md:flex-row items-center justify-between border-t border-black/5 pt-12 gap-6 ${language === 'ar' ? '' : 'md:flex-row-reverse'}`}>
+            <h2 className="font-display text-2xl md:text-4xl font-black text-black">{t('exclusivePicks')}</h2>
             <Link href="/products">
               <Button variant="outline" className="rounded-none border-black text-black font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-colors">
-                عرض جميع المنتجات
+                {t('viewAllProducts')}
               </Button>
             </Link>
           </div>
@@ -120,26 +122,26 @@ export default function Home() {
       <section className="py-32 overflow-hidden bg-white">
         <div className="container px-4">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="relative order-2 lg:order-1">
+            <div className={`relative ${language === 'ar' ? 'order-2 lg:order-1' : 'order-2'}`}>
                <div className="aspect-[4/5] bg-muted overflow-hidden">
                  <img src={tealImg} alt="Teal Hoodie" className="w-full h-full object-cover" />
                </div>
-               <div className="absolute -top-10 -left-10 w-40 h-40 border-l-[1px] border-t-[1px] border-black opacity-20 hidden lg:block" />
+               <div className={`absolute -top-10 ${language === 'ar' ? '-left-10' : '-right-10'} w-40 h-40 ${language === 'ar' ? 'border-l-[1px]' : 'border-r-[1px]'} border-t-[1px] border-black opacity-20 hidden lg:block`} />
             </div>
-            <div className="text-right order-1 lg:order-2">
-              <span className="text-primary font-bold text-xs uppercase tracking-[0.3em] mb-4 inline-block">Our Mission</span>
-              <h2 className="text-4xl md:text-6xl font-black text-black mb-8 leading-tight">الجودة هي هويتنا</h2>
+            <div className={`text-right ${language === 'ar' ? 'order-1 lg:order-2' : 'order-1 lg:text-left'}`}>
+              <span className="text-primary font-bold text-xs uppercase tracking-[0.3em] mb-4 inline-block">{t('ourMission')}</span>
+              <h2 className="text-4xl md:text-6xl font-black text-black mb-8 leading-tight">{t('qualityIsIdentity')}</h2>
               <p className="text-muted-foreground text-sm md:text-lg mb-10 leading-relaxed">
-                في Gen M & Z، نؤمن أن الملابس ليست مجرد أقمشة، بل هي تعبير عن الشخصية. نحرص على استخدام أجود أنواع القطن والتصاميم التي تجمع بين الراحة القصوى والجمالية العالية.
+                {t('brandStoryDesc')}
               </p>
-              <div className="grid grid-cols-2 gap-8 text-right">
+              <div className={`grid grid-cols-2 gap-8 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
                 <div>
                    <h4 className="font-black text-xl mb-2 text-black">+١٠٠</h4>
-                   <p className="text-[10px] uppercase font-bold text-muted-foreground">عميل سعيد</p>
+                   <p className="text-[10px] uppercase font-bold text-muted-foreground">{t('happyCustomers')}</p>
                 </div>
                 <div>
                    <h4 className="font-black text-xl mb-2 text-black">١٠٠٪</h4>
-                   <p className="text-[10px] uppercase font-bold text-muted-foreground">صناعة متقنة</p>
+                   <p className="text-[10px] uppercase font-bold text-muted-foreground">{t('masterCraftsmanship')}</p>
                 </div>
               </div>
             </div>
@@ -150,9 +152,9 @@ export default function Home() {
       <section className="py-16 border-y bg-[#fafafa]">
         <div className="container grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
           {[
-            { icon: Star, title: 'جودة استثنائية', desc: 'خامات مختارة بعناية لضمان التفرد' },
-            { icon: Truck, title: 'شحن سريع', desc: 'توصيل لباب منزلك في أسرع وقت' },
-            { icon: ShieldCheck, title: 'ضمان ذهبي', desc: 'تسوق بكل ثقة مع سياسة استرجاع مرنة' }
+            { icon: Star, title: t('exceptionalQuality'), desc: t('exceptionalQualityDesc') },
+            { icon: Truck, title: t('fastShipping'), desc: t('fastShippingDesc') },
+            { icon: ShieldCheck, title: t('goldenGuarantee'), desc: t('goldenGuaranteeDesc') }
           ].map((feature, idx) => (
             <div key={idx} className="flex flex-col items-center">
               <feature.icon className="h-6 w-6 text-black mb-4" strokeWidth={1} />
@@ -165,18 +167,18 @@ export default function Home() {
       {/* Newsletter */}
       <section className="py-32 bg-black text-white relative">
         <div className="container px-4 text-center max-w-xl mx-auto z-10 relative">
-          <h2 className="text-3xl md:text-5xl font-black mb-6 uppercase tracking-tight">Stay Exclusive</h2>
+          <h2 className="text-3xl md:text-5xl font-black mb-6 uppercase tracking-tight">{t('stayExclusive')}</h2>
           <p className="text-sm opacity-60 mb-12">
-            كن أول من يعلم عن الإصدارات المحدودة والعروض الحصرية. انضم إلى قائمتنا البريدية.
+            {t('newsletterDesc')}
           </p>
           <form className="flex flex-col sm:flex-row gap-0 border-b border-white/20 pb-2">
             <input 
               type="email" 
-              placeholder="بريدك الإلكتروني" 
+              placeholder={t('emailPlaceholder')}
               className="bg-transparent border-none text-white placeholder:text-white/40 focus:ring-0 flex-1 text-center py-4 text-lg"
             />
             <button className="text-xs font-black uppercase tracking-[0.2em] hover:text-primary transition-all duration-300 py-4 px-8 hover:bg-white hover:text-black">
-              SUBSCRIBE
+              {t('subscribe')}
             </button>
           </form>
         </div>
