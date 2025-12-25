@@ -16,6 +16,7 @@ import Dashboard from "@/pages/Dashboard";
 import Orders from "@/pages/Orders";
 import Terms from "@/pages/Terms";
 import ForgotPassword from "@/pages/ForgotPassword";
+import Checkout from "@/pages/Checkout";
 
 function Router() {
   return (
@@ -24,7 +25,7 @@ function Router() {
       <Route path="/products" component={Products} />
       <Route path="/products/:id" component={ProductDetails} />
       <Route path="/cart" component={Cart} />
-      <Route path="/checkout" component={Cart} />
+      <Route path="/checkout" component={Checkout} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/forgot-password" component={ForgotPassword} />
