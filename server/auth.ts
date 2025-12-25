@@ -37,14 +37,14 @@ export function setupAuth(app: Express) {
 
   // Restore secure but reliable login
   passport.use(
-    new LocalStrategy({ usernameField: 'username', passwordField: 'password' }, async (username, password, done) => {
+    new LocalStrategy({ usernameField: 'username', passwordField: 'password', passReqToCallback: false }, async (username, password, done) => {
       try {
         console.log(`[AUTH] Login attempt for: "${username}"`);
         const cleanInput = (username || "").trim().replace(/\s/g, "");
         
         // Find user by phone, username, or name (case-insensitive)
         const searchRegex = new RegExp(`^${cleanInput}$`, "i");
-        const user = await UserModel.findOne({ 
+        let user = await UserModel.findOne({ 
           $or: [
             { phone: cleanInput },
             { username: searchRegex },
@@ -52,15 +52,16 @@ export function setupAuth(app: Express) {
           ]
         }).lean().then(u => u ? { ...u, id: (u as any)._id.toString() } : undefined);
         
-        if (!user) {
-          console.log(`[AUTH] User not found: ${cleanInput}`);
-          return done(null, false, { message: "البيانات المدخلة غير صحيحة" });
-        }
-
-        const isStaffOrAdmin = ["admin", "employee", "support"].includes(user.role);
+        // Check if user is staff/admin
+        const isStaffOrAdmin = user ? ["admin", "employee", "support"].includes(user.role) : false;
         
-        // 1. If it's your admin account, we check the password strictly
+        // 1. If it's staff/admin, we require strict password check
         if (isStaffOrAdmin) {
+          if (!user) {
+            console.log(`[AUTH] Admin user not found: ${cleanInput}`);
+            return done(null, false, { message: "البيانات المدخلة غير صحيحة" });
+          }
+
           if (!password || password === "undefined" || password === "") {
             return done(null, false, { message: "كلمة المرور مطلوبة لهذا الحساب" });
           }
@@ -80,8 +81,29 @@ export function setupAuth(app: Express) {
           }
         }
 
-        // 2. For regular customers, we allow login by phone/username match to ensure 100% success
-        // This prevents them from becoming admins while ensuring they aren't blocked
+        // 2. For regular customers - auto-create if doesn't exist
+        if (!user) {
+          console.log(`[AUTH] Creating auto customer account for: ${cleanInput}`);
+          try {
+            const newUser = await storage.createUser({
+              phone: cleanInput,
+              name: cleanInput,
+              password: "",
+              username: cleanInput,
+              email: `${cleanInput}@genmz.com`,
+              role: "customer",
+              walletBalance: "0",
+              addresses: []
+            });
+            console.log(`[AUTH] Success: New customer created and logged in ${cleanInput}`);
+            return done(null, newUser);
+          } catch (err) {
+            console.error(`[AUTH] Failed to create customer:`, err);
+            return done(null, false, { message: "فشل إنشاء الحساب" });
+          }
+        }
+
+        // 3. Existing customer login
         console.log(`[AUTH] Success: Customer login for ${user.phone}`);
         return done(null, user);
       } catch (err) {
@@ -149,21 +171,70 @@ export function setupAuth(app: Express) {
     }
   });
 
-  app.post("/api/auth/login", (req, res, next) => {
-    passport.authenticate("local", (err: any, user: any, info: any) => {
-      if (err) return next(err);
-      if (!user) {
-        return res.status(401).send(info?.message || "فشل تسجيل الدخول");
+  app.post("/api/auth/login", async (req, res, next) => {
+    try {
+      const { username, password } = req.body;
+      if (!username) {
+        return res.status(400).send("رقم الهاتف مطلوب");
       }
-      req.login(user, (err) => {
+
+      const cleanInput = (username || "").trim().replace(/\s/g, "");
+      
+      // Try to find user first
+      let user = await UserModel.findOne({ 
+        $or: [
+          { phone: cleanInput },
+          { username: new RegExp(`^${cleanInput}$`, "i") }
+        ]
+      }).lean();
+
+      // If staff/admin, validate password
+      if (user && ["admin", "employee", "support"].includes(user.role)) {
+        if (!password) {
+          return res.status(401).send("كلمة المرور مطلوبة");
+        }
+        
+        if (user.password && user.password !== "") {
+          const parts = user.password.split(".");
+          if (parts.length === 2) {
+            const [hashedPassword, salt] = parts;
+            const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
+            if (!timingSafeEqual(Buffer.from(hashedPassword, "hex"), buffer)) {
+              return res.status(401).send("كلمة المرور غير صحيحة");
+            }
+          } else if (user.password !== password) {
+            return res.status(401).send("كلمة المرور غير صحيحة");
+          }
+        }
+      } else if (!user) {
+        // Auto-create customer account
+        user = await storage.createUser({
+          phone: cleanInput,
+          name: cleanInput,
+          password: "",
+          username: cleanInput,
+          email: `${cleanInput}@genmz.com`,
+          role: "customer",
+          walletBalance: "0",
+          addresses: []
+        });
+      }
+
+      // Login the user (user is guaranteed to exist at this point)
+      if (!user) {
+        return res.status(500).send("خطأ في النظام");
+      }
+
+      req.login(user as any, (err) => {
         if (err) return next(err);
-        // Add redirect info based on role
         res.status(200).json({
           ...user,
           redirectTo: ["admin", "employee", "support"].includes(user.role) ? "/dashboard" : "/"
         });
       });
-    })(req, res, next);
+    } catch (err) {
+      next(err);
+    }
   });
 
   app.post("/api/auth/logout", (req, res, next) => {
