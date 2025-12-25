@@ -12,34 +12,35 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <motion.div
       whileHover={{ y: -5 }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: 0.3 }}
     >
       <Link href={`/products/${product.id}`}>
-        <Card className="overflow-hidden border-none shadow-none bg-transparent group cursor-pointer">
-          <CardContent className="p-0 aspect-[3/4] overflow-hidden rounded-xl bg-secondary relative">
+        <Card className="group overflow-hidden border-none rounded-none bg-white hover-elevate transition-all duration-500 cursor-pointer">
+          <div className="relative aspect-[3/4] overflow-hidden">
             <img
               src={product.images[0] || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80"}
               alt={product.name}
-              className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
             />
+            <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <Button
+              size="sm"
+              className="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 rounded-none font-black uppercase tracking-widest text-[10px]"
+            >
+              عرض التفاصيل
+            </Button>
             {product.isFeatured && (
-              <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full">
-                مميز
+              <div className="absolute top-4 right-4 bg-black text-white text-[10px] font-black uppercase tracking-widest px-3 py-1">
+                FEATURED
               </div>
             )}
-          </CardContent>
-          <CardFooter className="flex flex-col items-start p-4 gap-2">
-            <h3 className="font-display text-lg font-bold group-hover:text-primary transition-colors">
+          </div>
+          <CardContent className="p-4 text-center">
+            <h3 className="font-black uppercase tracking-tighter text-sm mb-1 group-hover:text-primary transition-colors">
               {product.name}
             </h3>
-            <p className="text-muted-foreground text-sm line-clamp-2">{product.description}</p>
-            <div className="flex items-center justify-between w-full mt-2">
-              <span className="font-mono text-lg font-bold">{Number(product.price).toLocaleString()} ر.س</span>
-              <Button variant="outline" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                عرض التفاصيل
-              </Button>
-            </div>
-          </CardFooter>
+            <p className="text-xs text-muted-foreground font-bold">{Number(product.price).toLocaleString()} ر.س</p>
+          </CardContent>
         </Card>
       </Link>
     </motion.div>
