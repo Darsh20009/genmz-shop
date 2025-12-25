@@ -2,10 +2,12 @@ import { Layout } from "@/components/Layout";
 import { ProductCard } from "@/components/ProductCard";
 import { useProducts } from "@/hooks/use-products";
 import { Button } from "@/components/ui/button";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { ShoppingBag, Star, ShieldCheck, Truck, ChevronRight, ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/hooks/use-language";
+import { useAuth } from "@/hooks/use-auth";
+import { useEffect } from "react";
 import heroImg from "@assets/Screenshot_2025-12-25_100613_1766646961781.png";
 import tealImg from "@assets/Screenshot_2025-12-25_100641_1766646961781.png";
 import greyImg from "@assets/Screenshot_2025-12-25_100700_1766646961782.png";
@@ -13,8 +15,17 @@ import burgundyImg from "@assets/Screenshot_2025-12-25_100738_1766646961782.png"
 import blueImg from "@assets/Screenshot_2025-12-25_100724_1766646961782.png";
 
 export default function Home() {
+  const { user } = useAuth();
+  const [, setLocation] = useLocation();
   const { data: products, isLoading } = useProducts();
   const { t, language } = useLanguage();
+
+  useEffect(() => {
+    if (user && ["admin", "employee", "support"].includes(user.role)) {
+      setLocation("/admin");
+    }
+  }, [user, setLocation]);
+
   const featuredProducts = products?.filter(p => p.isFeatured).slice(0, 4) || [];
 
   return (

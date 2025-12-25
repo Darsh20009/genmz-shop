@@ -248,9 +248,11 @@ export function setupAuth(app: Express) {
         return res.status(500).send("خطأ في النظام");
       }
 
-      req.login(user as any, (err) => {
+      const userToLogin = { ...user, id: (user as any)._id?.toString() || (user as any).id };
+
+      req.login(userToLogin as any, (err) => {
         if (err) return next(err);
-        const userObj = user as any;
+        const userObj = userToLogin as any;
         res.status(200).json({
           ...userObj,
           redirectTo: ["admin", "employee", "support"].includes(userObj.role) ? "/admin" : "/"

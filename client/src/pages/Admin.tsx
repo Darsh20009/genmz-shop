@@ -167,6 +167,65 @@ const StatsCards = memo(() => {
   );
 });
 
+const EditProductDialog = memo(({ product, categories, open, onOpenChange }: any) => {
+  const { toast } = useToast();
+  const [variants, setVariants] = useState<any[]>(product?.variants || []);
+  
+  const form = useForm<InsertProduct>({
+    resolver: zodResolver(insertProductSchema),
+    defaultValues: {
+      name: product?.name || "",
+      description: product?.description || "",
+      price: product?.price || "0",
+      cost: product?.cost || "0",
+      images: product?.images || [],
+      categoryId: product?.categoryId || "",
+      variants: product?.variants || [],
+      isFeatured: product?.isFeatured || false,
+    }
+  });
+
+  const onSubmit = async (data: InsertProduct) => {
+    try {
+      await apiRequest("PATCH", `/api/products/${product.id}`, {
+        ...data,
+        variants,
+        price: data.price.toString(),
+        cost: data.cost.toString(),
+      });
+      toast({ title: "تم تحديث المنتج بنجاح" });
+      onOpenChange(false);
+      queryClient.invalidateQueries({ queryKey: [api.products.list.path] });
+    } catch (e) {
+      toast({ title: "خطأ", description: "فشل تحديث المنتج", variant: "destructive" });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl rounded-none border-none shadow-2xl overflow-y-auto max-h-[90vh]">
+        <DialogHeader>
+          <DialogTitle className="text-right font-black uppercase tracking-tight">تعديل المنتج</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-8" dir="rtl">
+           {/* Form fields here - similar to the add product form */}
+           <div className="grid grid-cols-2 gap-6 text-right">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">اسم المنتج</Label>
+                  <Input {...form.register("name")} className="rounded-none h-12 text-right" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">السعر الأساسي (ر.س)</Label>
+                  <Input type="number" {...form.register("price")} className="rounded-none h-12 text-right" />
+                </div>
+              </div>
+           <Button type="submit" className="w-full h-14 rounded-none font-black uppercase tracking-widest text-lg">تحديث المنتج</Button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+});
+
 const ProductsTable = memo(() => {
   const { data: products, isLoading } = useProducts();
   const { data: categories } = useQuery<any[]>({ queryKey: ["/api/categories"] });
