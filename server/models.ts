@@ -4,7 +4,7 @@ import type { User, Product, Order, Category, WalletTransaction } from "@shared/
 const userSchema = new Schema<User>(
   {
     username: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String, default: "" },
     role: { type: String, enum: ["admin", "employee", "customer", "support"], default: "customer" },
     name: { type: String, required: true },
     email: { type: String, required: true },
