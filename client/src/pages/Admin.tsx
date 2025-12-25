@@ -892,7 +892,8 @@ export default function Admin() {
       <div className="container py-12 text-right" dir="rtl">
         <h1 className="font-display text-4xl font-bold mb-12 uppercase tracking-tighter">لوحة التحكم</h1>
         
-            <TabsList className="w-full justify-start bg-transparent border-b rounded-none h-12 p-0 space-x-reverse space-x-8 flex overflow-x-auto no-scrollbar">
+        <Tabs defaultValue="overview" className="space-y-8">
+          <TabsList className="w-full justify-start bg-transparent border-b rounded-none h-12 p-0 space-x-reverse space-x-8 flex overflow-x-auto no-scrollbar">
             <TabsTrigger value="overview" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">نظرة عامة</TabsTrigger>
             <TabsTrigger value="products" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">المنتجات</TabsTrigger>
             <TabsTrigger value="orders" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">الطلبات</TabsTrigger>
@@ -929,6 +930,7 @@ export default function Admin() {
           <TabsContent value="logs">
             <LogsTable />
           </TabsContent>
+        </Tabs>
       </div>
     </Layout>
   );

@@ -65,7 +65,6 @@ export function Layout({ children }: { children: ReactNode }) {
                   
                   {user && (
                     <>
-                      <Link href="/dashboard" className="text-2xl font-black uppercase transition-all hover:translate-x-1 text-black">{t('myAccount')}</Link>
                       <Link href="/orders" className="text-2xl font-black uppercase transition-all hover:translate-x-1 text-black">{t('myOrders')}</Link>
                       {user.role === 'admin' && (
                         <Link href="/admin" className="text-2xl font-black uppercase transition-all hover:translate-x-1 text-primary">{t('adminPanel')}</Link>
