@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import { insertUserSchema, insertProductSchema, insertOrderSchema, insertCategorySchema, User, Product, Order, Category } from './schema';
 
+export type LoginRequest = { username: string; password: string };
+export type InsertUser = z.infer<typeof insertUserSchema>;
+
 export const errorSchemas = {
   validation: z.object({
     message: z.string(),

@@ -85,7 +85,7 @@ export function Layout({ children }: { children: ReactNode }) {
                     <User className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 rounded-none border-black/5 shadow-2xl bg-white" dir="rtl">
+                <DropdownMenuContent align="end" className="w-56 rounded-none border-black/5 shadow-2xl bg-white">
                   <DropdownMenuLabel className="text-right font-black uppercase text-[10px] tracking-widest">{user.username}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <Link href="/dashboard"><DropdownMenuItem className="justify-start text-xs font-bold uppercase tracking-wider">حسابي</DropdownMenuItem></Link>
