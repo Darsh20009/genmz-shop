@@ -77,11 +77,11 @@ export default function ProductDetails() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-6 sticky top-24"
           >
-            <div className="aspect-[3/4] bg-white overflow-hidden shadow-2xl border border-black/5 group">
+            <div className="aspect-[3/4] bg-white overflow-hidden shadow-2xl border border-black/5 group flex items-center justify-center p-4">
               <img 
-                src={product.images[0] || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80"} 
+                src={selectedVariant?.image || product.images[0] || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80"} 
                 alt={product.name} 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
+                className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-1000"
               />
             </div>
           </motion.div>
