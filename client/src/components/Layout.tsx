@@ -2,7 +2,7 @@ import logoImg from "@assets/Gen_M&Z_LOGO_1766644527859.png";
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { ShoppingBag, User, Menu, LogOut, Sun, Moon, Phone, Mail, Instagram, Twitter } from "lucide-react";
-import { SiTiktok, SiSnapchat, SiWhatsapp } from "react-icons/si";
+import { SiTiktok, SiSnapchat, SiWhatsapp, SiX } from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
@@ -53,7 +53,7 @@ export function Layout({ children }: { children: ReactNode }) {
                       <Instagram className="h-5 w-5" />
                     </a>
                     <a href="https://x.com/GenMZsa" target="_blank" rel="noreferrer" className="flex items-center justify-center p-3 bg-black text-white rounded-xl shadow-sm hover:scale-105 transition-transform border border-white/10">
-                      <Twitter className="h-5 w-5" />
+                      <SiX className="h-5 w-5" />
                     </a>
                     <a href="https://www.snapchat.com/@genmz.sa" target="_blank" rel="noreferrer" className="flex items-center justify-center p-3 bg-[#FFFC00] text-black rounded-xl shadow-sm hover:scale-105 transition-transform">
                       <SiSnapchat className="h-5 w-5" />
@@ -224,8 +224,8 @@ export function Layout({ children }: { children: ReactNode }) {
               <span className="font-bold">Instagram</span>
             </a>
             <a href="https://x.com/GenMZsa" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full hover:scale-105 transition-transform shadow-lg border border-white/10">
-              <Twitter className="h-4 w-4" />
-              <span className="font-bold">Twitter</span>
+              <SiX className="h-4 w-4" />
+              <span className="font-bold">X</span>
             </a>
             <a href="https://www.snapchat.com/@genmz.sa" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-[#FFFC00] text-black rounded-full hover:scale-105 transition-transform shadow-lg">
               <SiSnapchat className="h-4 w-4" />
