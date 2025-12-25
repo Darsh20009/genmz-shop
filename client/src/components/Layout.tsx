@@ -36,17 +36,48 @@ export function Layout({ children }: { children: ReactNode }) {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-full flex flex-col p-0 border-none bg-white">
-                <div className="flex flex-col gap-8 mt-20 px-8 flex-1" dir="rtl">
-                  <Link href="/" className={`text-4xl font-black uppercase tracking-tighter transition-all hover:translate-x-2 ${location === '/' ? 'text-black' : 'text-muted-foreground'}`}>الرئيسية</Link>
-                  <Link href="/products" className={`text-4xl font-black uppercase tracking-tighter transition-all hover:translate-x-2 ${location === '/products' ? 'text-black' : 'text-muted-foreground'}`}>المتجر</Link>
+                <div className="p-6 border-b bg-white sticky top-0 z-10">
+                  <img src={logoImg} alt="Gen M & Z" className="h-8 w-auto object-contain" />
                 </div>
                 
-                <div className="p-8 border-t bg-[#fafafa]">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-4">Connect with us</p>
-                  <div className="flex gap-6">
-                    <a href="https://www.instagram.com/genmz.sa/" target="_blank" rel="noreferrer" className="text-black"><Instagram className="h-6 w-6" /></a>
-                    <a href="https://x.com/GenMZsa" target="_blank" rel="noreferrer" className="text-black"><SiX className="h-6 w-6" /></a>
-                    <a href="https://www.tiktok.com/@genmz.sa" target="_blank" rel="noreferrer" className="text-black"><SiTiktok className="h-6 w-6" /></a>
+                <div className="flex flex-col flex-1 px-6 py-8" dir="rtl">
+                  <nav className="space-y-1">
+                    <Link href="/" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${location === '/' ? 'bg-black text-white font-bold' : 'text-black hover:bg-gray-100'}`}>
+                      <span className="text-lg">🏠</span>
+                      <span className="font-bold text-sm uppercase tracking-wide">الرئيسية</span>
+                    </Link>
+                    <Link href="/products" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${location === '/products' ? 'bg-black text-white font-bold' : 'text-black hover:bg-gray-100'}`}>
+                      <span className="text-lg">🛍️</span>
+                      <span className="font-bold text-sm uppercase tracking-wide">المتجر</span>
+                    </Link>
+                  </nav>
+
+                  {user && (
+                    <div className="mt-8 pt-8 border-t space-y-1">
+                      <Link href="/dashboard" className="flex items-center gap-3 px-4 py-3 rounded-lg text-black hover:bg-gray-100 transition-all">
+                        <span className="text-lg">👤</span>
+                        <span className="font-bold text-sm uppercase tracking-wide">حسابي</span>
+                      </Link>
+                      <Link href="/orders" className="flex items-center gap-3 px-4 py-3 rounded-lg text-black hover:bg-gray-100 transition-all">
+                        <span className="text-lg">📦</span>
+                        <span className="font-bold text-sm uppercase tracking-wide">طلباتي</span>
+                      </Link>
+                      {user.role === 'admin' && (
+                        <Link href="/admin" className="flex items-center gap-3 px-4 py-3 rounded-lg text-black hover:bg-gray-100 transition-all">
+                          <span className="text-lg">⚙️</span>
+                          <span className="font-bold text-sm uppercase tracking-wide text-primary">لوحة التحكم</span>
+                        </Link>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="px-6 py-6 border-t bg-gray-50 space-y-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">تواصل معنا</p>
+                  <div className="flex gap-4 justify-end" dir="rtl">
+                    <a href="https://www.instagram.com/genmz.sa/" target="_blank" rel="noreferrer" className="flex items-center justify-center w-10 h-10 rounded-lg bg-white text-black hover:bg-gray-200 transition-colors"><Instagram className="h-5 w-5" /></a>
+                    <a href="https://x.com/GenMZsa" target="_blank" rel="noreferrer" className="flex items-center justify-center w-10 h-10 rounded-lg bg-white text-black hover:bg-gray-200 transition-colors"><SiX className="h-5 w-5" /></a>
+                    <a href="https://www.tiktok.com/@genmz.sa" target="_blank" rel="noreferrer" className="flex items-center justify-center w-10 h-10 rounded-lg bg-white text-black hover:bg-gray-200 transition-colors"><SiTiktok className="h-5 w-5" /></a>
                   </div>
                 </div>
               </SheetContent>
