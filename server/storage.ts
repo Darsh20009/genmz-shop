@@ -41,8 +41,8 @@ export class MongoDBStorage implements IStorage {
     return user ? { ...user, id: user._id.toString() } : undefined;
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const user = await UserModel.findOne({ username }).lean();
+  async getUserByUsername(phone: string): Promise<User | undefined> {
+    const user = await UserModel.findOne({ phone }).lean();
     return user ? { ...user, id: user._id.toString() } : undefined;
   }
 

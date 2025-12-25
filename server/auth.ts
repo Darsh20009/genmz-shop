@@ -38,37 +38,25 @@ export function setupAuth(app: Express) {
   passport.use(
     new LocalStrategy({ usernameField: 'phone' }, async (phone, password, done) => {
       try {
-        // Try searching by phone first, then username
-        const user = await UserModel.findOne({ phone }).lean().then(u => u ? { ...u, id: (u as any)._id.toString() } : undefined) || 
-                     await storage.getUserByUsername(phone);
+        // Root fix: Clean phone number and search only by phone
+        const cleanPhone = phone.trim();
+        const user = await UserModel.findOne({ phone: cleanPhone }).lean().then(u => u ? { ...u, id: (u as any)._id.toString() } : undefined);
         
         if (!user) {
           return done(null, false, { message: "رقم الهاتف غير مسجل" });
         }
 
-        // Special case for Manager/Staff or Checkout verification
-        // For regular customers logging in, we might allow phone-only if requested, 
-        // but the prompt says: "when registering asks for name, phone, password"
-        // "when logging in asks for phone only"
-        // "when completing purchase asks for password"
-        
-        // If it's a customer and no password provided in login, but we are in login flow:
-        // Passport LocalStrategy usually expects a password. 
-        // We'll adapt it to allow empty password for customers during initial login if needed,
-        // but it's safer to check if password matches if it's provided.
-        
+        // Staff/Admin MUST have a password
         const isStaffOrAdmin = user.role === "admin" || user.role === "employee";
-        const isManagerPhone = phone === "0532441566";
         
-        if (isStaffOrAdmin || isManagerPhone || (password && password !== "" && password !== "undefined")) {
-          // If no password provided but it's a manager/staff, we MUST have a password
+        if (isStaffOrAdmin || (password && password !== "" && password !== "undefined")) {
           if (!password || password === "undefined" || password === "") {
              return done(null, false, { message: "كلمة المرور مطلوبة لهذا الحساب" });
           }
           
           const parts = user.password.split(".");
           if (parts.length !== 2) {
-            return done(null, false, { message: "خطأ في تنسيق كلمة المرور" });
+            return done(null, false, { message: "خطأ في نظام التشفير - يرجى التواصل مع الدعم" });
           }
           const [hashedPassword, salt] = parts;
           const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
@@ -79,7 +67,7 @@ export function setupAuth(app: Express) {
           }
         }
         
-        // For customer phone-only login
+        // For customer phone-only login (Legacy compatibility or simplified flow)
         return done(null, user);
       } catch (err) {
         return done(err);
@@ -107,21 +95,25 @@ export function setupAuth(app: Express) {
         return res.status(400).send("جميع الحقول مطلوبة");
       }
 
-      const existingUser = await UserModel.findOne({ phone }).lean() || await storage.getUserByUsername(phone);
+      const cleanPhone = phone.trim();
+      const existingUser = await UserModel.findOne({ phone: cleanPhone }).lean();
       if (existingUser) {
         return res.status(400).send("رقم الهاتف مسجل مسبقاً");
       }
 
       const salt = randomBytes(16).toString("hex");
-      const buffer = (await scryptAsync(req.body.password, salt, 64)) as Buffer;
+      const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
       const hashedPassword = `${buffer.toString("hex")}.${salt}`;
 
       const user = await storage.createUser({
-        ...req.body,
-        email: req.body.email || `${req.body.phone}@example.com`,
-        username: req.body.phone, // Use phone as username internally
+        name,
+        phone: cleanPhone,
         password: hashedPassword,
-        role: req.body.role || "customer"
+        username: cleanPhone, // Set username to phone for internal logic consistency
+        email: req.body.email || `${cleanPhone}@genmz.com`,
+        role: "customer",
+        walletBalance: "0",
+        addresses: []
       });
 
       req.login(user, (err) => {
