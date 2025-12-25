@@ -154,32 +154,58 @@ export function Layout({ children }: { children: ReactNode }) {
           <div>
             <h3 className="font-bold text-lg mb-6">تواصل معنا</h3>
             <div className="space-y-4 text-sm text-muted-foreground">
-              <p className="flex items-center gap-2">
-                <span className="bg-primary/10 p-2 rounded-full text-primary"><Phone className="h-4 w-4" /></span>
-                <a href="tel:+966552469643" target="_blank" rel="noreferrer" dir="ltr">+966 55 246 9643</a>
-              </p>
-              <p className="flex items-center gap-2">
-                <span className="bg-primary/10 p-2 rounded-full text-primary"><Mail className="h-4 w-4" /></span>
-                <a href="mailto:genmz.sa@gmail.com" target="_blank" rel="noreferrer" dir="ltr">genmz.sa@gmail.com</a>
-              </p>
-              <p>الرياض، المملكة العربية السعودية</p>
+              <a 
+                href="tel:+966552469643" 
+                target="_blank" 
+                rel="noreferrer" 
+                className="flex items-center gap-3 p-2 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group"
+              >
+                <span className="bg-primary/10 p-2.5 rounded-lg text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors"><Phone className="h-4 w-4" /></span>
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-muted-foreground font-medium">اتصل بنا</span>
+                  <span dir="ltr" className="font-bold">+966 55 246 9643</span>
+                </div>
+              </a>
+              <a 
+                href="mailto:genmz.sa@gmail.com" 
+                target="_blank" 
+                rel="noreferrer" 
+                className="flex items-center gap-3 p-2 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group"
+              >
+                <span className="bg-primary/10 p-2.5 rounded-lg text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors"><Mail className="h-4 w-4" /></span>
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-muted-foreground font-medium">البريد الإلكتروني</span>
+                  <span dir="ltr" className="font-bold">genmz.sa@gmail.com</span>
+                </div>
+              </a>
+              <div className="flex items-center gap-3 p-2">
+                <span className="bg-primary/10 p-2.5 rounded-lg text-primary"><SiWhatsapp className="h-4 w-4" /></span>
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-muted-foreground font-medium">واتساب</span>
+                  <a href="https://api.whatsapp.com/send/?phone=966501906069" target="_blank" rel="noreferrer" dir="ltr" className="font-bold hover:text-primary transition-colors">+966 50 190 6069</a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
         <div className="container mt-16 pt-8 border-t text-center text-sm text-muted-foreground px-4">
           © 2024 Gen M & Z. جميع الحقوق محفوظة.
-          <div className="flex justify-center gap-6 mt-6">
-            <a href="https://www.instagram.com/genmz.sa/" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors flex items-center gap-2">
-              <Instagram className="h-5 w-5" />
+          <div className="flex justify-center flex-wrap gap-4 mt-8">
+            <a href="https://www.instagram.com/genmz.sa/" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white rounded-full hover:scale-105 transition-transform shadow-lg">
+              <Instagram className="h-4 w-4" />
+              <span className="font-bold">Instagram</span>
             </a>
-            <a href="https://x.com/GenMZsa" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors flex items-center gap-2">
-              <Twitter className="h-5 w-5" />
+            <a href="https://x.com/GenMZsa" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full hover:scale-105 transition-transform shadow-lg border border-white/10">
+              <Twitter className="h-4 w-4" />
+              <span className="font-bold">Twitter</span>
             </a>
-            <a href="https://www.snapchat.com/@genmz.sa" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors flex items-center gap-2">
-              <SiSnapchat className="h-5 w-5" />
+            <a href="https://www.snapchat.com/@genmz.sa" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-[#FFFC00] text-black rounded-full hover:scale-105 transition-transform shadow-lg">
+              <SiSnapchat className="h-4 w-4" />
+              <span className="font-bold">Snapchat</span>
             </a>
-            <a href="https://www.tiktok.com/@genmz.sa" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors flex items-center gap-2">
-              <SiTiktok className="h-5 w-5" />
+            <a href="https://www.tiktok.com/@genmz.sa" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full hover:scale-105 transition-transform shadow-lg border border-white/10">
+              <SiTiktok className="h-4 w-4" />
+              <span className="font-bold">TikTok</span>
             </a>
           </div>
         </div>
