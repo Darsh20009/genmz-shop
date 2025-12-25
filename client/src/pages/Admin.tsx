@@ -14,7 +14,8 @@ import React, { useState, useMemo, memo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProductSchema, type InsertProduct } from "@shared/schema";
-import { Loader2, Plus, DollarSign, ShoppingCart, TrendingUp, BarChart3, ArrowUpRight } from "lucide-react";
+import { Loader2, Plus, DollarSign, ShoppingCart, TrendingUp, BarChart3, ArrowUpRight, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import {
   BarChart,
   Bar,
