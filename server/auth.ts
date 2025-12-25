@@ -42,11 +42,13 @@ export function setupAuth(app: Express) {
           return done(null, false, { message: "Invalid username" });
         }
 
-        const [hashedPassword, salt] = user.password.split(".");
-        if (!salt) {
-          // Fallback for non-salted passwords if any exist or handle missing salt
+        const parts = user.password.split(".");
+        if (parts.length !== 2) {
+          console.log("Invalid password format (expected hash.salt) for user:", username);
           return done(null, false, { message: "Invalid password format" });
         }
+        const [hashedPassword, salt] = parts;
+        
         const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
         if (timingSafeEqual(Buffer.from(hashedPassword, "hex"), buffer)) {
           return done(null, user);
