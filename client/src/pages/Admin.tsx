@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import * as React from "react";
+import React, { useState, useMemo, memo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProductSchema, type InsertProduct } from "@shared/schema";
@@ -26,9 +26,9 @@ import {
   Cell,
 } from "recharts";
 
-// Admin Dashboard Components
+// Components extracted to prevent hook issues
 
-function StatsCards() {
+const StatsCards = memo(() => {
   const { data: stats, isLoading } = useQuery({ 
     queryKey: ["/api/admin/stats"],
     queryFn: async () => {
@@ -45,7 +45,7 @@ function StatsCards() {
   );
 
   return (
-    <>
+    <React.Fragment>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <Card className="hover-elevate border-black/5 bg-white shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -56,10 +56,6 @@ function StatsCards() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-black">{Number(stats?.totalSales || 0).toLocaleString()} <span className="text-xs">ر.س</span></div>
-            <div className="flex items-center gap-1 text-[10px] text-green-600 font-bold mt-1">
-              <ArrowUpRight className="h-3 w-3" />
-              <span>+12.5% نمو</span>
-            </div>
           </CardContent>
         </Card>
         
@@ -72,10 +68,6 @@ function StatsCards() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-black">{Number(stats?.netProfit || 0).toLocaleString()} <span className="text-xs">ر.س</span></div>
-            <div className="flex items-center gap-1 text-[10px] text-green-600 font-bold mt-1">
-              <ArrowUpRight className="h-3 w-3" />
-              <span>+8.2% أداء</span>
-            </div>
           </CardContent>
         </Card>
 
@@ -88,9 +80,6 @@ function StatsCards() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-black">{stats?.totalOrders || 0}</div>
-            <p className="text-[10px] text-muted-foreground font-bold mt-1">
-              {stats?.orderStatusCounts?.new || 0} طلبات جديدة
-            </p>
           </CardContent>
         </Card>
 
@@ -164,14 +153,14 @@ function StatsCards() {
           </div>
         </Card>
       </div>
-    </>
+    </React.Fragment>
   );
-}
+});
 
-function ProductsTable() {
+const ProductsTable = memo(() => {
   const { data: products, isLoading } = useProducts();
   const createProduct = useCreateProduct();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   const form = useForm<InsertProduct>({
     resolver: zodResolver(insertProductSchema),
@@ -256,7 +245,7 @@ function ProductsTable() {
       </div>
     </div>
   );
-}
+});
 
 export default function Admin() {
   const { user, isLoading } = useAuth();
