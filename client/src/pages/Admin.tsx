@@ -326,6 +326,54 @@ const ProductsTable = memo(() => {
     }
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number | null = null) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (limit to 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ 
+        title: "الملف كبير جداً", 
+        description: "يرجى اختيار صورة أقل من 5 ميجابايت", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Upload failed");
+      }
+      
+      const { url } = await res.json();
+      
+      if (index === null) {
+        // Main product image
+        form.setValue("images.0", url);
+      } else {
+        // Variant image
+        updateVariant(index, "image", url);
+      }
+      
+      toast({ title: "تم رفع الصورة بنجاح" });
+    } catch (error: any) {
+      toast({ 
+        title: "خطأ في الرفع", 
+        description: error.message || "تعذر رفع الصورة. حاول مرة أخرى.", 
+        variant: "destructive" 
+      });
+    }
+  };
+
   if (isLoading) return <Loader2 className="animate-spin" />;
 
   return (
@@ -377,9 +425,21 @@ const ProductsTable = memo(() => {
               </div>
 
               <div className="space-y-2 text-right">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">رابط صورة المنتج</Label>
-                <Input {...form.register("images.0")} className="rounded-none h-12 text-left" placeholder="https://..." />
-                <p className="text-[8px] text-black/40 mt-1">يمكنك إضافة روابط صور لكل متغير أدناه</p>
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">صورة المنتج الأساسية</Label>
+                <div className="flex gap-2">
+                  <Input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={(e) => handleImageUpload(e)} 
+                    className="rounded-none h-12 text-right cursor-pointer pt-3" 
+                  />
+                  {form.watch("images.0") && (
+                    <div className="w-12 h-12 border border-black/5 overflow-hidden">
+                      <img src={form.watch("images.0")} alt="" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                </div>
+                <p className="text-[8px] text-black/40 mt-1">يرجى رفع صورة عالية الجودة للمنتج</p>
               </div>
 
               <div className="space-y-2 text-right">
@@ -411,8 +471,20 @@ const ProductsTable = memo(() => {
                         <Input type="number" value={v.stock} onChange={(e) => updateVariant(i, "stock", parseInt(e.target.value))} className="h-8 rounded-none text-xs text-right" />
                       </div>
                       <div className="col-span-2 space-y-1">
-                        <Label className="text-[9px] font-bold">رابط صورة اللون</Label>
-                        <Input value={v.image || ""} onChange={(e) => updateVariant(i, "image", e.target.value)} className="h-8 rounded-none text-xs text-left" placeholder="https://..." />
+                        <Label className="text-[9px] font-bold">صورة المتغير</Label>
+                        <div className="flex gap-2">
+                          <Input 
+                            type="file" 
+                            accept="image/*" 
+                            onChange={(e) => handleImageUpload(e, i)} 
+                            className="h-8 rounded-none text-[8px] pt-1.5 cursor-pointer" 
+                          />
+                          {v.image && (
+                            <div className="w-8 h-8 border border-black/5 overflow-hidden shrink-0">
+                              <img src={v.image} alt="" className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                        </div>
                       </div>
                       <Button type="button" variant="ghost" size="icon" onClick={() => removeVariant(i)} className="h-8 w-8 text-destructive hover:bg-destructive/10">
                         <Trash2 className="h-4 w-4" />
