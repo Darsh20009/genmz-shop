@@ -1,7 +1,7 @@
 import logoImg from "@assets/Gen_M&Z_LOGO_1766644527859.png";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { ShoppingBag, User, Menu, LogOut, Sun, Moon, Phone, Mail, Instagram, Twitter } from "lucide-react";
+import { ShoppingBag, User, Menu, LogOut, Sun, Moon, Phone, Mail, Instagram, Twitter, Download } from "lucide-react";
 import { SiTiktok, SiSnapchat, SiWhatsapp, SiX } from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -22,6 +22,24 @@ export function Layout({ children }: { children: ReactNode }) {
   const cartItems = useCart((state) => state.items);
   const [location] = useLocation();
   const { theme, setTheme } = useTheme();
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    });
+  }, []);
+
+  const handleInstall = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white text-black flex flex-col" dir="rtl">
@@ -49,6 +67,17 @@ export function Layout({ children }: { children: ReactNode }) {
                       )}
                     </>
                   )}
+
+                  {deferredPrompt && (
+                    <Button 
+                      onClick={handleInstall}
+                      variant="default"
+                      className="mt-4 gap-2 font-black uppercase tracking-widest"
+                    >
+                      <Download className="h-5 w-5" />
+                      تثبيت التطبيق
+                    </Button>
+                  )}
                 </div>
                 
                 <div className="p-6 border-t bg-[#fafafa]">
@@ -70,6 +99,17 @@ export function Layout({ children }: { children: ReactNode }) {
           <div className="hidden md:flex items-center gap-8 text-[11px] font-black uppercase tracking-widest">
             <Link href="/" className={`transition-colors hover:text-primary ${location === '/' ? 'text-black' : 'text-muted-foreground'}`}>الرئيسية</Link>
             <Link href="/products" className={`transition-colors hover:text-primary ${location === '/products' ? 'text-black' : 'text-muted-foreground'}`}>المتجر</Link>
+            {deferredPrompt && (
+              <Button 
+                onClick={handleInstall}
+                variant="ghost"
+                size="sm"
+                className="gap-2 font-black uppercase text-[10px] tracking-widest h-9"
+              >
+                <Download className="h-4 w-4" />
+                تثبيت
+              </Button>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
