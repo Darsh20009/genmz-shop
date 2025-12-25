@@ -41,6 +41,21 @@ export default function Employees() {
     },
   });
 
+  const [depositData, setDepositData] = useState({ userId: "", amount: "", description: "" });
+  const [isDepositing, setIsDepositing] = useState(false);
+
+  const depositMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const res = await apiRequest("POST", "/api/admin/wallet/deposit", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "تم إضافة الرصيد بنجاح" });
+      setIsDepositing(false);
+    },
+  });
+
   return (
     <div className="p-8 space-y-8" dir="rtl">
       <div className="flex items-center justify-between">
@@ -123,7 +138,37 @@ export default function Employees() {
                 </div>
               </div>
               
-              <div className="mt-6 pt-4 border-t flex justify-end">
+              <div className="mt-6 pt-4 border-t flex justify-between items-center">
+                <Dialog open={isDepositing && depositData.userId === emp.id} onOpenChange={(open) => {
+                  setIsDepositing(open);
+                  if (open) setDepositData({ ...depositData, userId: emp.id });
+                }}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-8 rounded-lg text-[10px] gap-1">
+                      <Plus className="w-3 h-3" />
+                      شحن المحفظة
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle className="text-right">شحن محفظة {emp.name}</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4 text-right" dir="rtl">
+                      <div className="space-y-2">
+                        <Label>المبلغ (ر.س)</Label>
+                        <Input type="number" value={depositData.amount} onChange={e => setDepositData({...depositData, amount: e.target.value})} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>الملاحظات</Label>
+                        <Input value={depositData.description} onChange={e => setDepositData({...depositData, description: e.target.value})} placeholder="مثال: مكافأة شهرية" />
+                      </div>
+                      <Button className="w-full" onClick={() => depositMutation.mutate(depositData)} disabled={depositMutation.isPending}>
+                        تأكيد الشحن
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
                 <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/5 rounded-lg h-8 px-3">
                   <Trash2 className="w-4 h-4 ml-1" />
                   حذف

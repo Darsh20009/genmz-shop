@@ -269,6 +269,29 @@ export async function registerRoutes(
     res.json(users);
   });
 
+  app.post("/api/admin/wallet/deposit", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const user = req.user as any;
+    if (user.role !== "admin") return res.sendStatus(403);
+
+    const { userId, amount, description } = req.body;
+    if (!userId || !amount) return res.status(400).send("بيانات غير مكتملة");
+
+    const targetUser = await storage.getUser(userId);
+    if (!targetUser) return res.status(404).send("المستخدم غير موجود");
+
+    const newBalance = (Number(targetUser.walletBalance || 0) + Number(amount)).toString();
+    await storage.updateUserWallet(userId, newBalance);
+    await storage.createWalletTransaction({
+      userId,
+      amount: Number(amount),
+      type: "deposit",
+      description: description || "إيداع من قبل الإدارة",
+    });
+
+    res.json({ success: true, newBalance });
+  });
+
   // Shipping Integration (Storage Station Stub)
   app.post("/api/shipping/create-shipment", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
