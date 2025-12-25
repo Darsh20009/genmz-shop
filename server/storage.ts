@@ -84,7 +84,7 @@ export class MongoDBStorage implements IStorage {
   // Activity Logs
   async getActivityLogs(): Promise<ActivityLog[]> {
     const logs = await ActivityLogModel.find().sort({ createdAt: -1 }).lean();
-    return logs.map(l => ({ ...l, id: l._id.toString() }));
+    return logs.map(l => ({ ...l, id: (l as any)._id.toString() } as any));
   }
 
   async createActivityLog(insertLog: InsertActivityLog): Promise<ActivityLog> {
@@ -95,7 +95,7 @@ export class MongoDBStorage implements IStorage {
   // Coupons
   async getCoupons(): Promise<Coupon[]> {
     const coupons = await CouponModel.find().lean();
-    return coupons.map(c => ({ ...c, id: c._id.toString() }));
+    return coupons.map(c => ({ ...c, id: (c as any)._id.toString() } as any));
   }
 
   async getCouponByCode(code: string): Promise<Coupon | undefined> {

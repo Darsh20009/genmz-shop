@@ -44,13 +44,20 @@ export function setupAuth(app: Express) {
         
         // Find user by phone, username, or name (case-insensitive)
         const searchRegex = new RegExp(`^${cleanInput}$`, "i");
+        console.log(`[AUTH] Searching for user with regex: ${searchRegex}`);
         let user = await UserModel.findOne({ 
           $or: [
             { phone: cleanInput },
             { username: searchRegex },
             { name: searchRegex }
           ]
-        }).lean().then(u => u ? { ...u, id: (u as any)._id.toString() } : undefined);
+        }).lean();
+        
+        if (user) {
+          user = { ...user, id: (user as any)._id.toString() };
+        }
+        
+        console.log(`[AUTH] User found: ${user ? user.username : 'null'} with role: ${user ? user.role : 'none'}`);
         
         // Check if user is staff/admin
         const isStaffOrAdmin = user ? ["admin", "employee", "support"].includes(user.role) : false;
@@ -93,7 +100,8 @@ export function setupAuth(app: Express) {
               email: `${cleanInput}@genmz.com`,
               role: "customer",
               walletBalance: "0",
-              addresses: []
+              addresses: [],
+              permissions: []
             });
             console.log(`[AUTH] Success: New customer created and logged in ${cleanInput}`);
             return done(null, newUser);
@@ -163,7 +171,8 @@ export function setupAuth(app: Express) {
         email: req.body.email || `${cleanPhone}@genmz.com`,
         role: "customer",
         walletBalance: "0",
-        addresses: []
+        addresses: [],
+        permissions: []
       });
 
       req.login(user, (err) => {
@@ -225,7 +234,8 @@ export function setupAuth(app: Express) {
           email: `${cleanInput}@genmz.com`,
           role: "customer",
           walletBalance: "0",
-          addresses: []
+          addresses: [],
+          permissions: []
         });
       }
 
@@ -236,9 +246,10 @@ export function setupAuth(app: Express) {
 
       req.login(user as any, (err) => {
         if (err) return next(err);
+        const userObj = user as any;
         res.status(200).json({
-          ...user,
-          redirectTo: ["admin", "employee", "support"].includes(user.role) ? "/dashboard" : "/"
+          ...userObj,
+          redirectTo: ["admin", "employee", "support"].includes(userObj.role) ? "/dashboard" : "/"
         });
       });
     } catch (err) {
