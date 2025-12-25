@@ -253,7 +253,7 @@ export function setupAuth(app: Express) {
         const userObj = user as any;
         res.status(200).json({
           ...userObj,
-          redirectTo: ["admin", "employee", "support"].includes(userObj.role) ? "/dashboard" : "/"
+          redirectTo: ["admin", "employee", "support"].includes(userObj.role) ? "/admin" : "/"
         });
       });
     } catch (err) {
