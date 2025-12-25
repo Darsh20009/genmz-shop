@@ -52,14 +52,14 @@ function AppContent() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light" storageKey="genmz-theme">
-        <LanguageProvider>
+      <LanguageProvider>
+        <ThemeProvider defaultTheme="light" storageKey="genmz-theme">
           <TooltipProvider>
             <Toaster />
             <AppContent />
           </TooltipProvider>
-        </LanguageProvider>
-      </ThemeProvider>
+        </ThemeProvider>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }
