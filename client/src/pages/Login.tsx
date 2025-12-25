@@ -35,13 +35,9 @@ export default function Login() {
   });
 
   const onSubmit = (data: z.infer<typeof loginSchema>) => {
-    // For customers, auto-fill password with phone number
-    // For staff/admin, use the entered password
-    const password = isStaff ? (data.password || "") : data.phone;
-    
     login({ 
       username: data.phone, 
-      password: password
+      password: data.password || ""
     }, {
       onSuccess: (user: any) => {
         // Redirect based on user role
