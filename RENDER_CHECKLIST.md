@@ -1,19 +1,19 @@
-# Checklist for Deployment on Render
+# Checklist for Render Deployment
 
 ## 1. Project Configuration
-- [x] **Build Script Update**: Added `mongoose` to the `allowlist` in `script/build.ts` to ensure it's bundled correctly for production.
-- [x] **Build Command**: Set to `npm run build`.
-- [x] **Start Command**: Set to `npm run start`.
+- **Build Command**: `npm run build`
+- **Start Command**: `npm run start`
+- **Node Version**: Ensure you're using Node.js 18 or 20 (standard on Render).
 
-## 2. Environment Variables (on Render Dashboard)
-- [ ] **MONGODB_URI**: Your MongoDB connection string (e.g., `mongodb+srv://...`).
-- [ ] **SESSION_SECRET**: A random string for session encryption.
-- [ ] **NODE_ENV**: Set to `production`.
-- [ ] **PORT**: Default is `5000` (Render will usually provide this).
+## 2. Environment Variables (Required)
+- `MONGODB_URI`: Your MongoDB Atlas connection string.
+- `SESSION_SECRET`: A secure random string for managing user sessions.
+- `NODE_ENV`: Set to `production`.
 
-## 3. Database
-- [ ] Ensure your MongoDB cluster allows connections from Render's IP addresses (or use `0.0.0.0/0` temporarily for testing).
+## 3. Build & Bundling
+- The project is configured to bundle `mongoose` into the production build (`dist/index.cjs`).
+- The client-side assets are built into `dist/public`.
 
-## 4. Troubleshooting
-- If you see `sh: tsx: not found`, ensure `devDependencies` are installed during the build phase (Render does this by default if `NODE_ENV` is not set to `production` *during* the build).
-- The `dist/index.cjs` file is the entry point for production.
+## 4. Final Steps
+- Ensure your MongoDB IP Access List includes Render's IPs or is set to `0.0.0.0/0`.
+- Verify the build logs on Render to ensure `vite` and `esbuild` complete successfully.
