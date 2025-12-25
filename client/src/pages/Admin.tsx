@@ -166,7 +166,9 @@ const ProductsTable = memo(() => {
   const { data: products, isLoading } = useProducts();
   const { data: categories } = useQuery<any[]>({ queryKey: ["/api/categories"] });
   const createProduct = useCreateProduct();
+  const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<any>(null);
   const [variants, setVariants] = useState<any[]>([]);
 
   const form = useForm<InsertProduct>({
@@ -183,6 +185,33 @@ const ProductsTable = memo(() => {
     }
   });
 
+  useEffect(() => {
+    if (editingProduct) {
+      form.reset({
+        name: editingProduct.name,
+        description: editingProduct.description,
+        price: editingProduct.price,
+        cost: editingProduct.cost,
+        images: editingProduct.images || [],
+        categoryId: editingProduct.categoryId,
+        isFeatured: editingProduct.isFeatured,
+      });
+      setVariants(editingProduct.variants || []);
+    } else {
+      form.reset({
+        name: "",
+        description: "",
+        price: "0",
+        cost: "0",
+        images: [],
+        categoryId: "",
+        variants: [],
+        isFeatured: false,
+      });
+      setVariants([]);
+    }
+  }, [editingProduct, form]);
+
   const addVariant = () => {
     setVariants([...variants, { color: "", size: "", sku: `SKU-${Date.now()}`, stock: 0 }]);
   };
@@ -197,20 +226,40 @@ const ProductsTable = memo(() => {
     setVariants(newVariants);
   };
 
-  const onSubmit = (data: InsertProduct) => {
-    createProduct.mutate({ 
-      ...data, 
-      variants,
-      price: data.price.toString(),
-      cost: data.cost.toString(),
-      images: data.images || []
-    }, {
-      onSuccess: () => {
-        setOpen(false);
-        setVariants([]);
-        form.reset();
+  const deleteProductMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest("DELETE", `/api/products/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [api.products.list.path] });
+      toast({ title: "تم حذف المنتج بنجاح" });
+    }
+  });
+
+  const onSubmit = async (data: InsertProduct) => {
+    try {
+      if (editingProduct) {
+        await apiRequest("PATCH", `/api/products/${editingProduct.id}`, {
+          ...data,
+          variants,
+          price: data.price.toString(),
+          cost: data.cost.toString(),
+        });
+        toast({ title: "تم تحديث المنتج بنجاح" });
+      } else {
+        await createProduct.mutateAsync({ 
+          ...data, 
+          variants,
+          price: data.price.toString(),
+          cost: data.cost.toString(),
+        });
       }
-    });
+      setOpen(false);
+      setEditingProduct(null);
+      queryClient.invalidateQueries({ queryKey: [api.products.list.path] });
+    } catch (e) {
+      toast({ title: "خطأ", description: "فشل حفظ المنتج", variant: "destructive" });
+    }
   };
 
   if (isLoading) return <Loader2 className="animate-spin" />;
@@ -218,34 +267,36 @@ const ProductsTable = memo(() => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold uppercase tracking-tight">المنتجات</h2>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <h2 className="text-2xl font-bold uppercase tracking-tight text-right w-full">إدارة المخزون</h2>
+        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditingProduct(null); }}>
           <DialogTrigger asChild>
             <Button className="rounded-none font-bold uppercase tracking-widest text-xs h-10 px-6">
-              <Plus className="ml-2 h-4 w-4" /> إضافة منتج
+              <Plus className="ml-2 h-4 w-4" /> إضافة منتج جديد
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-4xl rounded-none border-none shadow-2xl overflow-y-auto max-h-[90vh]">
             <DialogHeader>
-              <DialogTitle className="text-right font-black uppercase tracking-tight">إضافة منتج جديد</DialogTitle>
+              <DialogTitle className="text-right font-black uppercase tracking-tight">
+                {editingProduct ? "تعديل المنتج" : "إضافة منتج جديد"}
+              </DialogTitle>
             </DialogHeader>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-8" dir="rtl">
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 gap-6 text-right">
                 <div className="space-y-2">
                   <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">اسم المنتج</Label>
-                  <Input {...form.register("name")} className="rounded-none h-12" />
+                  <Input {...form.register("name")} className="rounded-none h-12 text-right" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">السعر (ر.س)</Label>
-                  <Input type="number" {...form.register("price")} className="rounded-none h-12" />
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">السعر الأساسي (ر.س)</Label>
+                  <Input type="number" {...form.register("price")} className="rounded-none h-12 text-right" />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 gap-6 text-right">
                 <div className="space-y-2">
                   <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">الفئة</Label>
-                  <Select onValueChange={(v) => form.setValue("categoryId", v)}>
-                    <SelectTrigger className="rounded-none h-12">
+                  <Select value={form.watch("categoryId")} onValueChange={(v) => form.setValue("categoryId", v)}>
+                    <SelectTrigger className="rounded-none h-12 text-right">
                       <SelectValue placeholder="اختر الفئة" />
                     </SelectTrigger>
                     <SelectContent>
@@ -257,43 +308,49 @@ const ProductsTable = memo(() => {
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">التكلفة (ر.س)</Label>
-                  <Input type="number" {...form.register("cost")} className="rounded-none h-12" />
+                  <Input type="number" {...form.register("cost")} className="rounded-none h-12 text-right" />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">الوصف</Label>
-                <Textarea {...form.register("description")} className="rounded-none min-h-[100px]" />
+              <div className="space-y-2 text-right">
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">رابط صورة المنتج</Label>
+                <Input {...form.register("images.0")} className="rounded-none h-12 text-left" placeholder="https://..." />
+                <p className="text-[8px] text-black/40 mt-1">يمكنك إضافة روابط صور لكل متغير أدناه</p>
               </div>
 
-              <div className="space-y-4 pt-4 border-t border-black/5">
+              <div className="space-y-2 text-right">
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">الوصف التفصيلي</Label>
+                <Textarea {...form.register("description")} className="rounded-none min-h-[100px] text-right" />
+              </div>
+
+              <div className="space-y-4 pt-4 border-t border-black/5 text-right">
                 <div className="flex justify-between items-center">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-black/40">خيارات المنتج (ألوان/مقاسات)</Label>
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-black/40">المتغيرات (الألوان والمقاسات)</Label>
                   <Button type="button" variant="outline" size="sm" onClick={addVariant} className="rounded-none text-[10px] font-black uppercase tracking-widest h-8">
-                    إضافة خيار <Plus className="mr-1 h-3 w-3" />
+                    إضافة متغير <Plus className="mr-1 h-3 w-3" />
                   </Button>
                 </div>
                 
                 <div className="space-y-3">
                   {variants.map((v, i) => (
-                    <div key={i} className="grid grid-cols-5 gap-3 items-end bg-secondary/10 p-4">
+                    <div key={i} className="grid grid-cols-6 gap-3 items-end bg-secondary/10 p-4 border border-black/5">
                       <div className="space-y-1">
                         <Label className="text-[9px] font-bold">اللون</Label>
-                        <Input value={v.color} onChange={(e) => updateVariant(i, "color", e.target.value)} className="h-8 rounded-none text-xs" placeholder="مثلاً: أسود" />
+                        <Input value={v.color} onChange={(e) => updateVariant(i, "color", e.target.value)} className="h-8 rounded-none text-xs text-right" placeholder="أسود" />
                       </div>
                       <div className="space-y-1">
                         <Label className="text-[9px] font-bold">المقاس</Label>
-                        <Input value={v.size} onChange={(e) => updateVariant(i, "size", e.target.value)} className="h-8 rounded-none text-xs" placeholder="مثلاً: L" />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-[9px] font-bold">SKU</Label>
-                        <Input value={v.sku} onChange={(e) => updateVariant(i, "sku", e.target.value)} className="h-8 rounded-none text-xs" />
+                        <Input value={v.size} onChange={(e) => updateVariant(i, "size", e.target.value)} className="h-8 rounded-none text-xs text-right" placeholder="L" />
                       </div>
                       <div className="space-y-1">
                         <Label className="text-[9px] font-bold">المخزون</Label>
-                        <Input type="number" value={v.stock} onChange={(e) => updateVariant(i, "stock", parseInt(e.target.value))} className="h-8 rounded-none text-xs" />
+                        <Input type="number" value={v.stock} onChange={(e) => updateVariant(i, "stock", parseInt(e.target.value))} className="h-8 rounded-none text-xs text-right" />
                       </div>
-                      <Button type="button" variant="ghost" size="icon" onClick={() => removeVariant(i)} className="h-8 w-8 text-destructive">
+                      <div className="col-span-2 space-y-1">
+                        <Label className="text-[9px] font-bold">رابط صورة اللون</Label>
+                        <Input value={v.image || ""} onChange={(e) => updateVariant(i, "image", e.target.value)} className="h-8 rounded-none text-xs text-left" placeholder="https://..." />
+                      </div>
+                      <Button type="button" variant="ghost" size="icon" onClick={() => removeVariant(i)} className="h-8 w-8 text-destructive hover:bg-destructive/10">
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -307,38 +364,43 @@ const ProductsTable = memo(() => {
                   checked={form.watch("isFeatured")} 
                   onCheckedChange={(checked) => form.setValue("isFeatured", checked)}
                 />
-                <Label htmlFor="isFeatured" className="text-[10px] font-black uppercase tracking-widest cursor-pointer">عرض كمنتج مميز</Label>
+                <Label htmlFor="isFeatured" className="text-[10px] font-black uppercase tracking-widest cursor-pointer">تمييز المنتج في الصفحة الرئيسية</Label>
               </div>
 
-              <Button type="submit" disabled={createProduct.isPending} className="w-full h-14 rounded-none font-black uppercase tracking-widest">
-                {createProduct.isPending ? <Loader2 className="animate-spin" /> : "حفظ المنتج"}
+              <Button type="submit" disabled={createProduct.isPending} className="w-full h-14 rounded-none font-black uppercase tracking-widest text-lg">
+                {createProduct.isPending ? <Loader2 className="animate-spin" /> : editingProduct ? "تحديث المنتج" : "نشر المنتج"}
               </Button>
             </form>
           </DialogContent>
         </Dialog>
       </div>
 
-      <div className="rounded-none border border-black/5 overflow-hidden">
-        <div className="p-6 grid grid-cols-5 font-black uppercase tracking-widest text-[10px] bg-secondary/20 text-black/40 border-b border-black/5">
+      <div className="rounded-none border border-black/5 overflow-hidden bg-white shadow-sm">
+        <div className="p-6 grid grid-cols-6 font-black uppercase tracking-widest text-[10px] bg-secondary/10 text-black/40 border-b border-black/5">
           <div className="text-right">المنتج</div>
           <div className="text-right">الفئة</div>
           <div className="text-right">السعر</div>
           <div className="text-right">المخزون</div>
           <div className="text-right">الحالة</div>
+          <div className="text-right">الإجراءات</div>
         </div>
         <div className="divide-y divide-black/5">
           {products?.map(product => {
             const totalStock = product.variants?.reduce((sum, v) => sum + (v.stock || 0), 0) || 0;
             const category = categories?.find(c => c.id === product.categoryId);
             return (
-              <div key={product.id} className="p-6 grid grid-cols-5 items-center hover:bg-secondary/10 transition-colors">
+              <div key={product.id} className="p-6 grid grid-cols-6 items-center hover:bg-secondary/5 transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-secondary/20 rounded-none flex items-center justify-center">
-                    <PackageCheck className="w-4 h-4 opacity-20" />
+                  <div className="w-12 h-12 bg-secondary/20 rounded-none overflow-hidden border border-black/5">
+                    {product.images?.[0] ? (
+                      <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <PackageCheck className="w-4 h-4 m-4 opacity-20" />
+                    )}
                   </div>
                   <div>
                     <div className="font-bold text-xs">{product.name}</div>
-                    <div className="text-[8px] font-black uppercase opacity-40">{product.variants?.length || 0} خيارات</div>
+                    <div className="text-[8px] font-black uppercase opacity-40">{product.variants?.length || 0} خيارات متاحة</div>
                   </div>
                 </div>
                 <div className="text-[10px] font-black uppercase opacity-60">
@@ -346,17 +408,42 @@ const ProductsTable = memo(() => {
                 </div>
                 <div className="font-black tracking-tighter text-xs">{Number(product.price).toLocaleString()} ر.س</div>
                 <div className="font-bold text-xs">
-                  <span className={totalStock === 0 ? "text-destructive" : totalStock < 5 ? "text-orange-500" : ""}>
+                  <span className={totalStock === 0 ? "text-destructive" : totalStock < 5 ? "text-orange-500" : "text-green-600"}>
                     {totalStock}
                   </span>
                 </div>
                 <div className="flex gap-2">
                   {product.isFeatured && (
-                    <Badge className="bg-orange-500 rounded-none text-[7px] font-black uppercase tracking-tighter">مميز</Badge>
+                    <Badge className="bg-black rounded-none text-[7px] font-black uppercase tracking-tighter">مميز</Badge>
                   )}
-                  <Badge variant={totalStock > 0 ? "default" : "outline"} className="rounded-none text-[7px] font-black uppercase tracking-tighter">
+                  <Badge variant={totalStock > 0 ? "outline" : "destructive"} className="rounded-none text-[7px] font-black uppercase tracking-tighter">
                     {totalStock > 0 ? "متوفر" : "نفذ"}
                   </Badge>
+                </div>
+                <div className="flex gap-2 justify-start">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8 hover:bg-black hover:text-white rounded-none transition-all"
+                    onClick={() => {
+                      setEditingProduct(product);
+                      setOpen(true);
+                    }}
+                  >
+                    <ArrowUpRight className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive rounded-none transition-all"
+                    onClick={() => {
+                      if (confirm("هل أنت متأكد من حذف هذا المنتج؟")) {
+                        deleteProductMutation.mutate(product.id);
+                      }
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             );

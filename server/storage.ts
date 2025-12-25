@@ -16,6 +16,8 @@ export interface IStorage {
   getProducts(): Promise<Product[]>;
   getProduct(id: string): Promise<Product | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
+  updateProduct(id: string, product: Partial<InsertProduct>): Promise<Product>;
+  deleteProduct(id: string): Promise<void>;
   
   // Orders
   getOrders(): Promise<Order[]>;
@@ -99,6 +101,16 @@ export class MongoDBStorage implements IStorage {
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
     const product = await ProductModel.create(insertProduct);
     return { ...product.toObject(), id: product._id.toString() };
+  }
+
+  async updateProduct(id: string, update: Partial<InsertProduct>): Promise<Product> {
+    const product = await ProductModel.findByIdAndUpdate(id, update, { new: true }).lean();
+    if (!product) throw new Error("Product not found");
+    return { ...product, id: product._id.toString() };
+  }
+
+  async deleteProduct(id: string): Promise<void> {
+    await ProductModel.findByIdAndDelete(id);
   }
 
   // Orders

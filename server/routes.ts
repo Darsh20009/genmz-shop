@@ -45,6 +45,18 @@ export async function registerRoutes(
     res.status(201).json(product);
   });
 
+  app.patch("/api/products/:id", async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+    const product = await storage.updateProduct(req.params.id, req.body);
+    res.json(product);
+  });
+
+  app.delete("/api/products/:id", async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+    await storage.deleteProduct(req.params.id);
+    res.sendStatus(200);
+  });
+
   // Orders
   app.get(api.orders.list.path, async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);

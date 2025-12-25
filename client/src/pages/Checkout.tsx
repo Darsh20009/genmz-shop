@@ -102,6 +102,17 @@ export default function Checkout() {
         
         <div className="grid lg:grid-cols-3 gap-16 items-start">
           <div className="lg:col-span-2 space-y-12">
+            {/* Security Banner */}
+            <div className="bg-green-50/50 border border-green-100 p-6 flex items-center gap-6 justify-end mb-8">
+              <div className="text-right">
+                <h3 className="text-sm font-black text-green-900 uppercase tracking-widest">تسوق آمن ١٠٠٪</h3>
+                <p className="text-[10px] text-green-700/70 mt-1 font-bold">تشفير بياناتك يتم بأعلى معايير الأمان العالمية SSL</p>
+              </div>
+              <div className="p-3 bg-white rounded-full shadow-sm">
+                <Lock className="h-6 w-6 text-green-600" />
+              </div>
+            </div>
+
             {/* Shipping Method */}
             <section>
               <h2 className="text-2xl font-black mb-6 flex items-center gap-3 justify-end">
@@ -296,6 +307,11 @@ export default function Checkout() {
                   <span className="text-primary">{(total() * 1.15).toLocaleString()} ر.س</span>
                   <span>الإجمالي النهائي</span>
                 </div>
+              </div>
+
+              <div className="flex items-center gap-2 justify-center mb-6 opacity-40 text-[10px] font-black uppercase tracking-widest">
+                <Lock className="h-3 w-3" />
+                <span>دفع آمن ومحمي</span>
               </div>
 
               <Button 
