@@ -157,7 +157,11 @@ export function setupAuth(app: Express) {
       }
       req.login(user, (err) => {
         if (err) return next(err);
-        res.status(200).json(user);
+        // Add redirect info based on role
+        res.status(200).json({
+          ...user,
+          redirectTo: ["admin", "employee", "support"].includes(user.role) ? "/dashboard" : "/"
+        });
       });
     })(req, res, next);
   });

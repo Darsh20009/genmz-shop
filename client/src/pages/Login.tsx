@@ -39,18 +39,20 @@ export default function Login() {
       username: data.phone, 
       password: data.password || "" 
     }, {
-      onSuccess: () => setLocation("/"),
+      onSuccess: (user: any) => {
+        // Redirect based on user role
+        const redirectPath = user?.redirectTo || "/";
+        setLocation(redirectPath);
+      },
     });
   };
 
   const phoneValue = form.watch("phone");
   const checkIsStaff = (val: string) => {
-    // Logic for manager or staff
-    if (val === "0532441566" || val.startsWith("staff_")) {
-       setIsStaff(true);
-    } else {
-       setIsStaff(false);
-    }
+    // Check if phone matches staff/admin/employee roles
+    // Will be verified on backend - just show password field conditionally
+    const staffNumbers = ["0552469643"];
+    setIsStaff(staffNumbers.includes(val) || val.startsWith("staff_"));
   };
 
   return (

@@ -29,14 +29,18 @@ export function useAuth() {
         if (res.status === 401) throw new Error("Invalid credentials");
         throw new Error("Login failed");
       }
-      return api.auth.login.responses[200].parse(await res.json());
+      const data = await res.json();
+      return {
+        ...api.auth.login.responses[200].parse(data),
+        redirectTo: data.redirectTo
+      };
     },
     onSuccess: (data) => {
       queryClient.setQueryData([api.auth.me.path], data);
-      toast({ title: "Welcome back", description: `Signed in as ${data.username}` });
+      toast({ title: "مرحباً", description: `تم الدخول بنجاح` });
     },
     onError: (error: Error) => {
-      toast({ title: "Login failed", description: error.message, variant: "destructive" });
+      toast({ title: "فشل الدخول", description: error.message, variant: "destructive" });
     },
   });
 
