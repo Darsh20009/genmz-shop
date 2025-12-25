@@ -17,18 +17,56 @@ export default function ProductDetails() {
   const { toast } = useToast();
   const { t, language } = useLanguage();
 
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<any>(null);
   const [quantity, setQuantity] = useState(1);
 
   // Ensure variants exist, otherwise provide default
-  const variants = product?.variants && product.variants.length > 0 ? product.variants : [{ sku: 'default', color: 'Default', size: 'One Size', stock: 10 }];
+  const variants = product?.variants && product.variants.length > 0 ? product.variants : [{ sku: 'default', color: 'Default', size: 'One Size', stock: 10, image: '' }];
   
-  // Auto select first variant if not selected
-  useEffect(() => {
-    if (!selectedVariant && variants.length > 0) {
-      setSelectedVariant(variants[0]);
+  // Extract unique colors
+  const colors = Array.from(new Set(variants.map((v: any) => v.color)));
+  
+  // Get available sizes for selected color
+  const availableSizes = selectedColor 
+    ? Array.from(new Set(variants.filter((v: any) => v.color === selectedColor).map((v: any) => v.size)))
+    : Array.from(new Set(variants.map((v: any) => v.size)));
+  
+  // Get variant images grouped by color
+  const colorImages: Record<string, string> = {};
+  colors.forEach(color => {
+    const variant = variants.find((v: any) => v.color === color);
+    if (variant?.image) {
+      colorImages[color] = variant.image;
     }
-  }, [selectedVariant, variants]);
+  });
+  
+  // Auto select first color if not selected
+  useEffect(() => {
+    if (!selectedColor && colors.length > 0) {
+      setSelectedColor(colors[0]);
+    }
+  }, [colors, selectedColor]);
+
+  // Auto select first size when color changes
+  useEffect(() => {
+    if (availableSizes.length > 0 && !selectedSize) {
+      setSelectedSize(availableSizes[0]);
+    } else if (!availableSizes.includes(selectedSize || "")) {
+      setSelectedSize(availableSizes[0] || null);
+    }
+  }, [selectedColor, availableSizes, selectedSize]);
+
+  // Find and set selected variant based on color and size
+  useEffect(() => {
+    if (selectedColor && selectedSize) {
+      const variant = variants.find((v: any) => v.color === selectedColor && v.size === selectedSize);
+      if (variant) {
+        setSelectedVariant(variant);
+      }
+    }
+  }, [selectedColor, selectedSize, variants]);
 
   if (isLoading) {
     return (
@@ -99,37 +137,39 @@ export default function ProductDetails() {
               <p>{product.description}</p>
             </div>
 
-            {/* Variants */}
+            {/* Variants - Colors Section */}
             <div className="space-y-10 mb-12">
+              {/* Colors */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-[0.2em] mb-6 text-black/40">{t('optionsLabel')}</label>
-                <div className={`flex flex-wrap gap-6 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
-                  {variants.map((variant: any) => (
-                    <div key={variant.sku} className="relative group">
+                <label className="block text-xs font-bold uppercase tracking-[0.2em] mb-6 text-black/40">{t('colorLabel')}</label>
+                <div className={`flex flex-wrap gap-4 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
+                  {colors.map((color: string) => (
+                    <div key={color} className="relative group">
                       <button
-                        onClick={() => setSelectedVariant(variant)}
+                        onClick={() => setSelectedColor(color)}
                         className={`
-                          relative w-20 h-20 rounded-full overflow-hidden transition-all duration-700 p-0.5 border-2
-                          ${selectedVariant?.sku === variant.sku 
+                          relative w-20 h-20 rounded-full overflow-hidden transition-all duration-300 p-0.5 border-2
+                          ${selectedColor === color 
                             ? 'border-black scale-110 shadow-xl' 
                             : 'border-transparent hover:border-black/20 hover:scale-105'}
                         `}
+                        data-testid={`button-color-${color}`}
                       >
-                        {variant.image ? (
+                        {colorImages[color] ? (
                           <div className="w-full h-full rounded-full overflow-hidden bg-muted">
                             <img 
-                              src={variant.image} 
-                              alt={variant.color} 
+                              src={colorImages[color]} 
+                              alt={color} 
                               className="w-full h-full object-cover"
                             />
                           </div>
                         ) : (
-                          <div className="w-full h-full rounded-full bg-black/5 flex items-center justify-center text-[10px] font-black uppercase">
-                            {variant.color}
+                          <div className="w-full h-full rounded-full bg-black/5 flex items-center justify-center text-[10px] font-black uppercase text-center px-1">
+                            {color}
                           </div>
                         )}
                         
-                        {selectedVariant?.sku === variant.sku && (
+                        {selectedColor === color && (
                           <div className="absolute inset-0 bg-black/10 flex items-center justify-center backdrop-blur-[1px]">
                             <Check className="h-5 w-5 text-white drop-shadow-md" />
                           </div>
@@ -139,13 +179,35 @@ export default function ProductDetails() {
                       {/* Tooltip-like label */}
                       <div className={`
                         absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap transition-all duration-300 pointer-events-none
-                        ${selectedVariant?.sku === variant.sku ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0'}
+                        ${selectedColor === color ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0'}
                       `}>
                         <span className="text-[10px] font-black uppercase tracking-widest bg-black text-white px-2 py-0.5">
-                          {variant.color} • {variant.size}
+                          {color}
                         </span>
                       </div>
                     </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sizes */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-[0.2em] mb-6 text-black/40">{t('sizeLabel')}</label>
+                <div className={`flex flex-wrap gap-4 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
+                  {availableSizes.map((size: string) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`
+                        px-6 py-3 border-2 rounded-none font-bold uppercase tracking-widest text-sm transition-all duration-300
+                        ${selectedSize === size
+                          ? 'border-black bg-black text-white shadow-lg'
+                          : 'border-black/20 hover:border-black text-black hover:bg-black/5'}
+                      `}
+                      data-testid={`button-size-${size}`}
+                    >
+                      {size}
+                    </button>
                   ))}
                 </div>
               </div>
@@ -157,13 +219,15 @@ export default function ProductDetails() {
                   <button 
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     className="w-12 h-12 border border-black/10 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-xl font-light"
+                    data-testid="button-decrease-quantity"
                   >
                     -
                   </button>
-                  <span className="text-xl font-light w-12 text-center">{quantity}</span>
+                  <span className="text-xl font-light w-12 text-center" data-testid="text-quantity">{quantity}</span>
                   <button 
                     onClick={() => setQuantity(quantity + 1)}
                     className="w-12 h-12 border border-black/10 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-xl font-light"
+                    data-testid="button-increase-quantity"
                   >
                     +
                   </button>
