@@ -33,51 +33,51 @@ export default function Cart() {
         
         <div className="grid lg:grid-cols-3 gap-16 items-start">
           {/* Cart Items */}
-          <div className={`lg:col-span-2 space-y-8 ${language === 'ar' ? 'order-2 lg:order-1' : 'order-2'}`}>
-            {items.map((item) => (
-              <div key={`${item.productId}-${item.variantSku}`} className="flex flex-col sm:flex-row gap-8 p-6 bg-white border border-black/5 shadow-sm hover:shadow-md transition-shadow">
-                <div className="w-full sm:w-32 aspect-[3/4] bg-white border border-black/5 overflow-hidden shrink-0">
-                  <img src={item.image} alt={item.title} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
-                </div>
-                
-                <div className={`flex-1 flex flex-col justify-between ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-                  <div>
-                    <div className={`flex justify-between items-start gap-4 mb-2 ${language === 'ar' ? '' : 'flex-row-reverse'}`}>
-                      <span className="font-light text-xl tracking-tight">{(item.price * item.quantity).toLocaleString()} {t('currency')}</span>
-                      <h3 className="font-black text-xl uppercase tracking-tight">{item.title}</h3>
-                    </div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-black/40">
-                      {item.color} | {item.size}
-                    </p>
+          <div className="lg:col-span-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {items.map((item) => (
+                <div key={`${item.productId}-${item.variantSku}`} className="group flex gap-6 p-4 bg-white border border-black/5 shadow-sm hover:shadow-lg transition-all duration-500">
+                  <div className="w-24 aspect-[3/4] bg-white border border-black/5 overflow-hidden shrink-0">
+                    <img src={item.image} alt={item.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
                   </div>
                   
-                  <div className={`flex items-center justify-between mt-8 ${language === 'ar' ? '' : 'flex-row-reverse'}`}>
-                    <button 
-                      onClick={() => removeItem(item.productId, item.variantSku)}
-                      className="text-black/40 hover:text-black transition-colors uppercase text-[10px] font-bold tracking-[0.2em] border-b border-black/20 pb-1"
-                    >
-                      {t('removeItem')}
-                    </button>
+                  <div className={`flex-1 flex flex-col justify-between ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+                    <div>
+                      <h3 className="font-black text-sm uppercase tracking-tight mb-1 truncate">{item.title}</h3>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-black/40 mb-2">
+                        {item.color} | {item.size}
+                      </p>
+                      <span className="font-light text-sm tracking-tight block">{(item.price * item.quantity).toLocaleString()} {t('currency')}</span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between mt-4">
+                      <button 
+                        onClick={() => removeItem(item.productId, item.variantSku)}
+                        className="text-black/30 hover:text-red-500 transition-colors uppercase text-[9px] font-bold tracking-widest"
+                      >
+                        {t('removeItem')}
+                      </button>
 
-                    <div className="flex items-center gap-6">
-                      <button 
-                        onClick={() => updateQuantity(item.productId, item.variantSku, Math.max(1, item.quantity - 1))}
-                        className="w-10 h-10 border border-black/10 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-xl font-light"
-                      >
-                        -
-                      </button>
-                      <span className="text-xl font-light w-8 text-center">{item.quantity}</span>
-                      <button 
-                        onClick={() => updateQuantity(item.productId, item.variantSku, item.quantity + 1)}
-                        className="w-10 h-10 border border-black/10 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-xl font-light"
-                      >
-                        +
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <button 
+                          onClick={() => updateQuantity(item.productId, item.variantSku, Math.max(1, item.quantity - 1))}
+                          className="w-7 h-7 border border-black/5 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-sm font-light"
+                        >
+                          -
+                        </button>
+                        <span className="text-sm font-light w-5 text-center">{item.quantity}</span>
+                        <button 
+                          onClick={() => updateQuantity(item.productId, item.variantSku, item.quantity + 1)}
+                          className="w-7 h-7 border border-black/5 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-sm font-light"
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
           {/* Summary */}
