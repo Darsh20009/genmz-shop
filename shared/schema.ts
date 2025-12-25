@@ -4,6 +4,9 @@ import { z } from "zod";
 export const userRoles = ["admin", "employee", "customer", "support"] as const;
 export type UserRole = typeof userRoles[number];
 
+export const employeePermissions = ["orders", "products", "support", "accounting", "customers"] as const;
+export type EmployeePermission = typeof employeePermissions[number];
+
 export const orderStatuses = ["new", "processing", "shipped", "completed", "cancelled"] as const;
 export type OrderStatus = typeof orderStatuses[number];
 
@@ -13,6 +16,7 @@ export const insertUserSchema = z.object({
   phone: z.string().min(10, "رقم الهاتف غير صحيح"),
   password: z.string().optional().default(""),
   role: z.enum(userRoles).default("customer"),
+  permissions: z.array(z.enum(employeePermissions)).default([]),
   username: z.string().optional(),
   email: z.string().optional(),
   walletBalance: z.string().default("0"),
@@ -27,6 +31,36 @@ export const insertUserSchema = z.object({
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = InsertUser & { _id: string; id: string; createdAt: Date };
+
+// Employee Activity Log
+export const insertActivityLogSchema = z.object({
+  employeeId: z.string(),
+  action: z.string(),
+  targetType: z.string(),
+  targetId: z.string().optional(),
+  details: z.string().optional(),
+  createdAt: z.date().optional(),
+});
+
+export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
+export type ActivityLog = InsertActivityLog & { _id: string; id: string; createdAt: Date };
+
+// Coupon Schema
+export const insertCouponSchema = z.object({
+  code: z.string().min(1),
+  type: z.enum(["percentage", "fixed"]),
+  value: z.number(),
+  expiryDate: z.date().optional(),
+  usageLimit: z.number().optional(),
+  perUserLimit: z.number().default(1),
+  minOrderAmount: z.number().optional(),
+  targetCategoryIds: z.array(z.string()).default([]),
+  targetProductIds: z.array(z.string()).default([]),
+  isActive: z.boolean().default(true),
+});
+
+export type InsertCoupon = z.infer<typeof insertCouponSchema>;
+export type Coupon = InsertCoupon & { _id: string; id: string; usageCount: number };
 
 // Product Schema
 export const insertProductSchema = z.object({

@@ -774,21 +774,71 @@ const CustomersTable = memo(() => {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold uppercase tracking-tight">العملاء</h2>
+      <h2 className="text-2xl font-bold uppercase tracking-tight">المستخدمين</h2>
       <div className="rounded-none border border-black/5 overflow-hidden">
-        <div className="p-6 grid grid-cols-4 font-black uppercase tracking-widest text-[10px] bg-secondary/20 text-black/40 border-b border-black/5">
+        <div className="p-6 grid grid-cols-5 font-black uppercase tracking-widest text-[10px] bg-secondary/20 text-black/40 border-b border-black/5">
           <div className="text-right">الاسم</div>
-          <div className="text-right">البريد الإلكتروني</div>
           <div className="text-right">رقم الهاتف</div>
+          <div className="text-right">الدور</div>
           <div className="text-right">المحفظة</div>
+          <div className="text-right">الإجراءات</div>
         </div>
         <div className="divide-y divide-black/5">
           {users?.map((u: any) => (
-            <div key={u.id} className="p-6 grid grid-cols-4 items-center hover:bg-secondary/10 transition-colors">
+            <div key={u.id} className="p-6 grid grid-cols-5 items-center hover:bg-secondary/10 transition-colors">
               <div className="font-bold">{u.name}</div>
-              <div className="text-sm">{u.email}</div>
               <div className="text-sm font-bold">{u.phone || "-"}</div>
+              <div>
+                <Badge variant="outline" className="rounded-none text-[8px] uppercase">{u.role}</Badge>
+              </div>
               <div className="font-black tracking-tighter text-green-600">{u.walletBalance} ر.س</div>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black hover:text-white rounded-none transition-all">
+                  <Edit className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+const CouponsTable = memo(() => {
+  const { data: coupons, isLoading } = useQuery<any[]>({ queryKey: ["/api/coupons"] });
+  const { toast } = useToast();
+
+  if (isLoading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin" /></div>;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold uppercase tracking-tight">أكواد الخصم</h2>
+        <Button className="rounded-none font-bold uppercase tracking-widest text-xs h-10 px-6">
+          <Plus className="ml-2 h-4 w-4" /> إضافة كود
+        </Button>
+      </div>
+      <div className="rounded-none border border-black/5 overflow-hidden bg-white">
+        <div className="p-6 grid grid-cols-5 font-black uppercase tracking-widest text-[10px] bg-secondary/10 text-black/40 border-b border-black/5">
+          <div className="text-right">الكود</div>
+          <div className="text-right">النوع</div>
+          <div className="text-right">القيمة</div>
+          <div className="text-right">الاستخدام</div>
+          <div className="text-right">الحالة</div>
+        </div>
+        <div className="divide-y divide-black/5">
+          {coupons?.map(c => (
+            <div key={c.id} className="p-6 grid grid-cols-5 items-center hover:bg-secondary/5 transition-colors">
+              <div className="font-black text-xs tracking-widest">{c.code}</div>
+              <div className="text-[8px] font-bold uppercase opacity-60">{c.type === 'percentage' ? 'نسبة' : 'مبلغ ثابت'}</div>
+              <div className="font-black text-xs">{c.value} {c.type === 'percentage' ? '%' : 'ر.س'}</div>
+              <div className="text-[10px] font-bold">{c.usageCount} / {c.usageLimit || '∞'}</div>
+              <div>
+                <Badge className={c.isActive ? "bg-green-600" : "bg-destructive"}>
+                  {c.isActive ? "نشط" : "معطل"}
+                </Badge>
+              </div>
             </div>
           ))}
         </div>
@@ -817,13 +867,13 @@ export default function Admin() {
       <div className="container py-12 text-right" dir="rtl">
         <h1 className="font-display text-4xl font-bold mb-12 uppercase tracking-tighter">لوحة التحكم</h1>
         
-        <Tabs defaultValue="overview" className="space-y-8">
-          <TabsList className="w-full justify-start bg-transparent border-b rounded-none h-12 p-0 space-x-reverse space-x-8">
-            <TabsTrigger value="overview" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold">نظرة عامة</TabsTrigger>
-            <TabsTrigger value="products" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold">المنتجات</TabsTrigger>
-            <TabsTrigger value="orders" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold">الطلبات</TabsTrigger>
-            <TabsTrigger value="returns" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold">الاسترجاع</TabsTrigger>
-            <TabsTrigger value="customers" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold">العملاء</TabsTrigger>
+          <TabsList className="w-full justify-start bg-transparent border-b rounded-none h-12 p-0 space-x-reverse space-x-8 flex overflow-x-auto no-scrollbar">
+            <TabsTrigger value="overview" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">نظرة عامة</TabsTrigger>
+            <TabsTrigger value="products" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">المنتجات</TabsTrigger>
+            <TabsTrigger value="orders" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">الطلبات</TabsTrigger>
+            <TabsTrigger value="returns" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">الاسترجاع</TabsTrigger>
+            <TabsTrigger value="customers" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">العملاء</TabsTrigger>
+            <TabsTrigger value="coupons" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">أكواد الخصم</TabsTrigger>
           </TabsList>
           
           <TabsContent value="overview">
@@ -845,7 +895,10 @@ export default function Admin() {
           <TabsContent value="customers">
             <CustomersTable />
           </TabsContent>
-        </Tabs>
+
+          <TabsContent value="coupons">
+            <CouponsTable />
+          </TabsContent>
       </div>
     </Layout>
   );

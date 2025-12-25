@@ -1,5 +1,5 @@
-import { UserModel, ProductModel, OrderModel, CategoryModel, WalletTransactionModel } from "./models";
-import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, OrderStatus } from "@shared/schema";
+import { UserModel, ProductModel, OrderModel, CategoryModel, WalletTransactionModel, ActivityLogModel, CouponModel } from "./models";
+import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, OrderStatus, ActivityLog, InsertActivityLog, Coupon, InsertCoupon } from "@shared/schema";
 
 export interface IStorage {
   // Users
@@ -9,8 +9,21 @@ export interface IStorage {
   verifyUserForReset(phone: string, name: string): Promise<User | undefined>;
   updateUserPassword(id: string, password: string): Promise<void>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: string, update: Partial<InsertUser>): Promise<User>;
+  deleteUser(id: string): Promise<void>;
   updateUserAddresses(id: string, addresses: any[]): Promise<User>;
   updateUserWallet(id: string, newBalance: string): Promise<User>;
+  
+  // Activity Logs
+  getActivityLogs(): Promise<ActivityLog[]>;
+  createActivityLog(log: InsertActivityLog): Promise<ActivityLog>;
+
+  // Coupons
+  getCoupons(): Promise<Coupon[]>;
+  getCouponByCode(code: string): Promise<Coupon | undefined>;
+  createCoupon(coupon: InsertCoupon): Promise<Coupon>;
+  updateCoupon(id: string, update: Partial<InsertCoupon>): Promise<Coupon>;
+  deleteCoupon(id: string): Promise<void>;
   
   // Products
   getProducts(): Promise<Product[]>;
@@ -55,7 +68,54 @@ export class MongoDBStorage implements IStorage {
 
   async getUsers(): Promise<User[]> {
     const users = await UserModel.find().lean();
-    return users.map(u => ({ ...u, id: u._id.toString() }));
+    return users.map(u => ({ ...u, id: u._id.toString(), permissions: u.permissions || [] }));
+  }
+
+  async updateUser(id: string, update: Partial<InsertUser>): Promise<User> {
+    const user = await UserModel.findByIdAndUpdate(id, update, { new: true }).lean();
+    if (!user) throw new Error("User not found");
+    return { ...user, id: user._id.toString(), permissions: user.permissions || [] };
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await UserModel.findByIdAndDelete(id);
+  }
+
+  // Activity Logs
+  async getActivityLogs(): Promise<ActivityLog[]> {
+    const logs = await ActivityLogModel.find().sort({ createdAt: -1 }).lean();
+    return logs.map(l => ({ ...l, id: l._id.toString() }));
+  }
+
+  async createActivityLog(insertLog: InsertActivityLog): Promise<ActivityLog> {
+    const log = await ActivityLogModel.create(insertLog);
+    return { ...log.toObject(), id: log._id.toString() };
+  }
+
+  // Coupons
+  async getCoupons(): Promise<Coupon[]> {
+    const coupons = await CouponModel.find().lean();
+    return coupons.map(c => ({ ...c, id: c._id.toString() }));
+  }
+
+  async getCouponByCode(code: string): Promise<Coupon | undefined> {
+    const coupon = await CouponModel.findOne({ code, isActive: true }).lean();
+    return coupon ? { ...coupon, id: coupon._id.toString() } : undefined;
+  }
+
+  async createCoupon(insertCoupon: InsertCoupon): Promise<Coupon> {
+    const coupon = await CouponModel.create(insertCoupon);
+    return { ...coupon.toObject(), id: coupon._id.toString(), usageCount: 0 };
+  }
+
+  async updateCoupon(id: string, update: Partial<InsertCoupon>): Promise<Coupon> {
+    const coupon = await CouponModel.findByIdAndUpdate(id, update, { new: true }).lean();
+    if (!coupon) throw new Error("Coupon not found");
+    return { ...coupon, id: coupon._id.toString() };
+  }
+
+  async deleteCoupon(id: string): Promise<void> {
+    await CouponModel.findByIdAndDelete(id);
   }
 
   async verifyUserForReset(phone: string, name: string): Promise<User | undefined> {

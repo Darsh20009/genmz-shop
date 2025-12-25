@@ -4,7 +4,7 @@ import { setupAuth } from "./auth";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
-import { insertProductSchema, insertOrderSchema } from "@shared/schema";
+import { insertProductSchema, insertOrderSchema, insertCouponSchema } from "@shared/schema";
 import { seed } from "./seed";
 
 export async function registerRoutes(
@@ -215,6 +215,36 @@ export async function registerRoutes(
     if (user.role !== "admin") return res.sendStatus(403);
     const users = await storage.getUsers();
     res.json(users);
+  });
+
+  app.patch("/api/admin/users/:id", async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+    const user = await storage.updateUser(req.params.id, req.body);
+    res.json(user);
+  });
+
+  app.delete("/api/admin/users/:id", async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+    await storage.deleteUser(req.params.id);
+    res.sendStatus(200);
+  });
+
+  // Coupons
+  app.get("/api/coupons", async (req, res) => {
+    const coupons = await storage.getCoupons();
+    res.json(coupons);
+  });
+
+  app.post("/api/coupons", async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+    const coupon = await storage.createCoupon(req.body);
+    res.json(coupon);
+  });
+
+  app.delete("/api/coupons/:id", async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+    await storage.deleteCoupon(req.params.id);
+    res.sendStatus(200);
   });
 
   // Wallet
