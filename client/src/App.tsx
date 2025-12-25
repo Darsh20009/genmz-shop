@@ -5,6 +5,19 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LanguageProvider, useLanguage } from "@/hooks/use-language";
+import NotFound from "@/pages/not-found";
+import Home from "@/pages/Home";
+import Products from "@/pages/Products";
+import ProductDetails from "@/pages/ProductDetails";
+import Cart from "@/pages/Cart";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
+import Admin from "@/pages/Admin";
+import Dashboard from "@/pages/Dashboard";
+import Orders from "@/pages/Orders";
+import Terms from "@/pages/Terms";
+import ForgotPassword from "@/pages/ForgotPassword";
+import Checkout from "@/pages/Checkout";
 
 function Router() {
   return (
