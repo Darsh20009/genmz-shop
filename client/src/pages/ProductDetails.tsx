@@ -102,39 +102,50 @@ export default function ProductDetails() {
             {/* Variants */}
             <div className="space-y-10 mb-12">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-[0.2em] mb-4 text-black/40">{t('optionsLabel')}</label>
-                <div className={`flex flex-wrap gap-4 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
+                <label className="block text-xs font-bold uppercase tracking-[0.2em] mb-6 text-black/40">{t('optionsLabel')}</label>
+                <div className={`flex flex-wrap gap-6 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
                   {variants.map((variant: any) => (
-                    <button
-                      key={variant.sku}
-                      onClick={() => setSelectedVariant(variant)}
-                      className={`
-                        group relative flex items-center gap-3 p-2 border transition-all duration-500 rounded-none overflow-hidden
-                        ${selectedVariant?.sku === variant.sku 
-                          ? 'border-black ring-1 ring-black' 
-                          : 'border-black/5 hover:border-black/20'}
-                      `}
-                    >
-                      {variant.image && (
-                        <div className="w-12 h-16 bg-muted overflow-hidden">
-                          <img 
-                            src={variant.image} 
-                            alt={variant.color} 
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                          />
-                        </div>
-                      )}
-                      <div className="flex flex-col items-start px-2">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-black/40 mb-0.5">{variant.size}</span>
-                        <span className="text-xs font-black uppercase tracking-tighter">{variant.color}</span>
-                      </div>
+                    <div key={variant.sku} className="relative group">
+                      <button
+                        onClick={() => setSelectedVariant(variant)}
+                        className={`
+                          relative w-20 h-20 rounded-full overflow-hidden transition-all duration-700 p-0.5 border-2
+                          ${selectedVariant?.sku === variant.sku 
+                            ? 'border-black scale-110 shadow-xl' 
+                            : 'border-transparent hover:border-black/20 hover:scale-105'}
+                        `}
+                      >
+                        {variant.image ? (
+                          <div className="w-full h-full rounded-full overflow-hidden bg-muted">
+                            <img 
+                              src={variant.image} 
+                              alt={variant.color} 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-full h-full rounded-full bg-black/5 flex items-center justify-center text-[10px] font-black uppercase">
+                            {variant.color}
+                          </div>
+                        )}
+                        
+                        {selectedVariant?.sku === variant.sku && (
+                          <div className="absolute inset-0 bg-black/10 flex items-center justify-center backdrop-blur-[1px]">
+                            <Check className="h-5 w-5 text-white drop-shadow-md" />
+                          </div>
+                        )}
+                      </button>
                       
-                      {selectedVariant?.sku === variant.sku && (
-                        <div className="absolute top-1 right-1">
-                          <Check className="h-3 w-3 text-black" />
-                        </div>
-                      )}
-                    </button>
+                      {/* Tooltip-like label */}
+                      <div className={`
+                        absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap transition-all duration-300 pointer-events-none
+                        ${selectedVariant?.sku === variant.sku ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0'}
+                      `}>
+                        <span className="text-[10px] font-black uppercase tracking-widest bg-black text-white px-2 py-0.5">
+                          {variant.color} • {variant.size}
+                        </span>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
