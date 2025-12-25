@@ -46,6 +46,12 @@ export function Layout({ children }: { children: ReactNode }) {
     }
   };
 
+  const isDashboard = location.startsWith('/dashboard') || location.startsWith('/admin');
+
+  if (isDashboard) {
+    return <main className="min-h-screen bg-[#f8fafc]">{children}</main>;
+  }
+
   return (
     <div className="min-h-screen bg-white text-black flex flex-col" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {/* Navbar */}

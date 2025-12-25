@@ -67,6 +67,11 @@ export default function Dashboard() {
     { title: "التقارير", icon: BarChart3, url: "#" },
   ];
 
+  const handleLogout = () => {
+    logout();
+    setLocation("/");
+  };
+
   const handleAddAddress = () => {
     const addresses = [...(user.addresses || []), { ...newAddress, id: Math.random().toString(36).substr(2, 9), isDefault: (user.addresses || []).length === 0 }];
     addressMutation.mutate(addresses);
@@ -121,7 +126,7 @@ export default function Dashboard() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton 
-                    onClick={() => logout()} 
+                    onClick={handleLogout} 
                     className="h-12 rounded-xl text-destructive hover:bg-destructive/5"
                   >
                     <LogOut className="w-5 h-5 ml-4" />
