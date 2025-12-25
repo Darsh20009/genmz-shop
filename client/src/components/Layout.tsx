@@ -1,7 +1,8 @@
 import logoImg from "@assets/Gen_M&Z_LOGO_1766644527859.png";
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { ShoppingBag, User, Menu, LogOut, Sun, Moon } from "lucide-react";
+import { ShoppingBag, User, Menu, LogOut, Sun, Moon, Phone, Mail, Instagram, Twitter, MessageCircle } from "lucide-react";
+import { SiTiktok, SiSnapchat } from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
@@ -112,6 +113,17 @@ export function Layout({ children }: { children: ReactNode }) {
 
       <main>{children}</main>
 
+      {/* Floating WhatsApp Button */}
+      <a
+        href="https://api.whatsapp.com/send/?phone=966501906069&text&type=phone_number&app_absent=0"
+        target="_blank"
+        rel="noreferrer"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-[#25D366] text-white px-4 py-3 rounded-full shadow-lg hover:scale-110 transition-transform group"
+      >
+        <span className="font-bold whitespace-nowrap overflow-hidden max-w-0 group-hover:max-w-xs transition-all duration-500">تواصل معنا</span>
+        <MessageCircle className="h-6 w-6 fill-current" />
+      </a>
+
       {/* Footer */}
       <footer className="border-t bg-card py-16 mt-24">
         <div className="container grid grid-cols-1 md:grid-cols-4 gap-12 px-4">
@@ -141,22 +153,34 @@ export function Layout({ children }: { children: ReactNode }) {
           </div>
           <div>
             <h3 className="font-bold text-lg mb-6">تواصل معنا</h3>
-            <div className="space-y-3 text-sm text-muted-foreground">
+            <div className="space-y-4 text-sm text-muted-foreground">
+              <p className="flex items-center gap-2">
+                <span className="bg-primary/10 p-2 rounded-full text-primary"><Phone className="h-4 w-4" /></span>
+                <a href="tel:+966552469643" target="_blank" rel="noreferrer" dir="ltr">+966 55 246 9643</a>
+              </p>
+              <p className="flex items-center gap-2">
+                <span className="bg-primary/10 p-2 rounded-full text-primary"><Mail className="h-4 w-4" /></span>
+                <a href="mailto:genmz.sa@gmail.com" target="_blank" rel="noreferrer" dir="ltr">genmz.sa@gmail.com</a>
+              </p>
               <p>الرياض، المملكة العربية السعودية</p>
-              <p dir="ltr" className="text-right">info@genmz.sa</p>
-              <div className="flex gap-4 mt-6">
-                 {/* Social icons could go here */}
-              </div>
             </div>
           </div>
         </div>
         <div className="container mt-16 pt-8 border-t text-center text-sm text-muted-foreground px-4">
           © 2024 Gen M & Z. جميع الحقوق محفوظة.
-          <div className="flex justify-center gap-6 mt-4">
-            <a href="https://www.instagram.com/genmz.sa/" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">انستجرام</a>
-            <a href="https://x.com/GenMZsa" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">تويتر (X)</a>
-            <a href="https://www.snapchat.com/@genmz.sa" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">سناب شات</a>
-            <a href="https://www.tiktok.com/@genmz.sa" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">تيك توك</a>
+          <div className="flex justify-center gap-6 mt-6">
+            <a href="https://www.instagram.com/genmz.sa/" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors flex items-center gap-2">
+              <Instagram className="h-5 w-5" />
+            </a>
+            <a href="https://x.com/GenMZsa" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors flex items-center gap-2">
+              <Twitter className="h-5 w-5" />
+            </a>
+            <a href="https://www.snapchat.com/@genmz.sa" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors flex items-center gap-2">
+              <SiSnapchat className="h-5 w-5" />
+            </a>
+            <a href="https://www.tiktok.com/@genmz.sa" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors flex items-center gap-2">
+              <SiTiktok className="h-5 w-5" />
+            </a>
           </div>
         </div>
       </footer>
