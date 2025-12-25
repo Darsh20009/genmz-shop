@@ -95,6 +95,19 @@ export async function registerRoutes(
     res.json(order);
   });
 
+  // Categories API
+  app.post("/api/categories", async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+    const category = await storage.createCategory(req.body);
+    res.json(category);
+  });
+
+  app.delete("/api/categories/:id", async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+    await storage.deleteCategory(req.params.id);
+    res.sendStatus(200);
+  });
+
   // Categories
   app.get(api.categories.list.path, async (_req, res) => {
     const categories = await storage.getCategories();

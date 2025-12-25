@@ -26,6 +26,8 @@ export interface IStorage {
   
   // Categories
   getCategories(): Promise<Category[]>;
+  createCategory(category: InsertCategory): Promise<Category>;
+  deleteCategory(id: string): Promise<void>;
 
   // Wallet Transactions
   getWalletTransactions(userId: string): Promise<WalletTransaction[]>;
@@ -134,7 +136,16 @@ export class MongoDBStorage implements IStorage {
   // Categories
   async getCategories(): Promise<Category[]> {
     const categories = await CategoryModel.find().lean();
-    return categories.map(c => ({ ...c, id: c._id.toString() }));
+    return categories.map(c => ({ ...c, id: (c as any)._id.toString() }));
+  }
+
+  async createCategory(insertCategory: InsertCategory): Promise<Category> {
+    const category = await CategoryModel.create(insertCategory);
+    return { ...category.toObject(), id: category._id.toString() };
+  }
+
+  async deleteCategory(id: string): Promise<void> {
+    await CategoryModel.findByIdAndDelete(id);
   }
 
   // Wallet Transactions

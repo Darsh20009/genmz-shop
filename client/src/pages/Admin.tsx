@@ -14,7 +14,7 @@ import React, { useState, useMemo, memo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProductSchema, type InsertProduct, orderStatuses } from "@shared/schema";
-import { Loader2, Plus, DollarSign, ShoppingCart, TrendingUp, BarChart3, ArrowUpRight, Trash2, Search, Filter, ChevronDown, CheckCircle2, XCircle, Truck, PackageCheck, AlertCircle } from "lucide-react";
+import { Loader2, Plus, DollarSign, ShoppingCart, TrendingUp, BarChart3, ArrowUpRight, Trash2, Search, Filter, ChevronDown, CheckCircle2, XCircle, Truck, PackageCheck, AlertCircle, LayoutGrid, Tag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -162,8 +162,10 @@ const StatsCards = memo(() => {
 
 const ProductsTable = memo(() => {
   const { data: products, isLoading } = useProducts();
+  const { data: categories } = useQuery<any[]>({ queryKey: ["/api/categories"] });
   const createProduct = useCreateProduct();
   const [open, setOpen] = useState(false);
+  const [variants, setVariants] = useState<any[]>([]);
 
   const form = useForm<InsertProduct>({
     resolver: zodResolver(insertProductSchema),
@@ -173,15 +175,31 @@ const ProductsTable = memo(() => {
       price: "0",
       cost: "0",
       images: [],
+      categoryId: "",
       variants: [],
       isFeatured: false,
     }
   });
 
+  const addVariant = () => {
+    setVariants([...variants, { color: "", size: "", sku: `SKU-${Date.now()}`, stock: 0 }]);
+  };
+
+  const removeVariant = (index: number) => {
+    setVariants(variants.filter((_, i) => i !== index));
+  };
+
+  const updateVariant = (index: number, field: string, value: any) => {
+    const newVariants = [...variants];
+    newVariants[index] = { ...newVariants[index], [field]: value };
+    setVariants(newVariants);
+  };
+
   const onSubmit = (data: InsertProduct) => {
-    createProduct.mutate(data, {
+    createProduct.mutate({ ...data, variants }, {
       onSuccess: () => {
         setOpen(false);
+        setVariants([]);
         form.reset();
       }
     });
@@ -199,7 +217,7 @@ const ProductsTable = memo(() => {
               <Plus className="ml-2 h-4 w-4" /> إضافة منتج
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl rounded-none border-none shadow-2xl">
+          <DialogContent className="max-w-4xl rounded-none border-none shadow-2xl overflow-y-auto max-h-[90vh]">
             <DialogHeader>
               <DialogTitle className="text-right font-black uppercase tracking-tight">إضافة منتج جديد</DialogTitle>
             </DialogHeader>
@@ -214,14 +232,72 @@ const ProductsTable = memo(() => {
                   <Input type="number" {...form.register("price")} className="rounded-none h-12" />
                 </div>
               </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">الفئة</Label>
+                  <Select onValueChange={(v) => form.setValue("categoryId", v)}>
+                    <SelectTrigger className="rounded-none h-12">
+                      <SelectValue placeholder="اختر الفئة" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories?.map(c => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">التكلفة (ر.س)</Label>
+                  <Input type="number" {...form.register("cost")} className="rounded-none h-12" />
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">الوصف</Label>
                 <Textarea {...form.register("description")} className="rounded-none min-h-[100px]" />
               </div>
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">التكلفة (للحسابات)</Label>
-                <Input type="number" {...form.register("cost")} className="rounded-none h-12" />
+
+              <div className="space-y-4 pt-4 border-t border-black/5">
+                <div className="flex justify-between items-center">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-black/40">خيارات المنتج (ألوان/مقاسات)</Label>
+                  <Button type="button" variant="outline" size="sm" onClick={addVariant} className="rounded-none text-[10px] font-black uppercase tracking-widest h-8">
+                    إضافة خيار <Plus className="mr-1 h-3 w-3" />
+                  </Button>
+                </div>
+                
+                <div className="space-y-3">
+                  {variants.map((v, i) => (
+                    <div key={i} className="grid grid-cols-5 gap-3 items-end bg-secondary/10 p-4">
+                      <div className="space-y-1">
+                        <Label className="text-[9px] font-bold">اللون</Label>
+                        <Input value={v.color} onChange={(e) => updateVariant(i, "color", e.target.value)} className="h-8 rounded-none text-xs" placeholder="مثلاً: أسود" />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-[9px] font-bold">المقاس</Label>
+                        <Input value={v.size} onChange={(e) => updateVariant(i, "size", e.target.value)} className="h-8 rounded-none text-xs" placeholder="مثلاً: L" />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-[9px] font-bold">SKU</Label>
+                        <Input value={v.sku} onChange={(e) => updateVariant(i, "sku", e.target.value)} className="h-8 rounded-none text-xs" />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-[9px] font-bold">المخزون</Label>
+                        <Input type="number" value={v.stock} onChange={(e) => updateVariant(i, "stock", parseInt(e.target.value))} className="h-8 rounded-none text-xs" />
+                      </div>
+                      <Button type="button" variant="ghost" size="icon" onClick={() => removeVariant(i)} className="h-8 w-8 text-destructive">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
+
+              <div className="flex items-center gap-2 pt-4 border-t border-black/5">
+                <input type="checkbox" id="isFeatured" {...form.register("isFeatured")} className="w-4 h-4 accent-black" />
+                <Label htmlFor="isFeatured" className="text-[10px] font-black uppercase tracking-widest cursor-pointer">عرض كمنتج مميز</Label>
+              </div>
+
               <Button type="submit" disabled={createProduct.isPending} className="w-full h-14 rounded-none font-black uppercase tracking-widest">
                 {createProduct.isPending ? <Loader2 className="animate-spin" /> : "حفظ المنتج"}
               </Button>
@@ -231,23 +307,136 @@ const ProductsTable = memo(() => {
       </div>
 
       <div className="rounded-none border border-black/5 overflow-hidden">
-        <div className="p-6 grid grid-cols-4 font-black uppercase tracking-widest text-[10px] bg-secondary/20 text-black/40 border-b border-black/5">
-          <div className="text-right">الاسم</div>
+        <div className="p-6 grid grid-cols-5 font-black uppercase tracking-widest text-[10px] bg-secondary/20 text-black/40 border-b border-black/5">
+          <div className="text-right">المنتج</div>
+          <div className="text-right">الفئة</div>
           <div className="text-right">السعر</div>
-          <div className="text-right">التكلفة</div>
-          <div className="text-right">مميز</div>
+          <div className="text-right">المخزون</div>
+          <div className="text-right">الحالة</div>
         </div>
         <div className="divide-y divide-black/5">
-          {products?.map(product => (
-            <div key={product.id} className="p-6 grid grid-cols-4 items-center hover:bg-secondary/10 transition-colors">
-              <div className="font-bold">{product.name}</div>
-              <div className="font-black tracking-tighter">{Number(product.price).toLocaleString()} ر.س</div>
-              <div className="font-bold text-black/40">{Number(product.cost).toLocaleString()} ر.س</div>
-              <div>
-                <Badge variant={product.isFeatured ? "default" : "outline"} className="rounded-none font-bold text-[8px] uppercase tracking-widest">
-                  {product.isFeatured ? "نعم" : "لا"}
-                </Badge>
+          {products?.map(product => {
+            const totalStock = product.variants?.reduce((sum, v) => sum + (v.stock || 0), 0) || 0;
+            const category = categories?.find(c => c.id === product.categoryId);
+            return (
+              <div key={product.id} className="p-6 grid grid-cols-5 items-center hover:bg-secondary/10 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-secondary/20 rounded-none flex items-center justify-center">
+                    <PackageCheck className="w-4 h-4 opacity-20" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-xs">{product.name}</div>
+                    <div className="text-[8px] font-black uppercase opacity-40">{product.variants?.length || 0} خيارات</div>
+                  </div>
+                </div>
+                <div className="text-[10px] font-black uppercase opacity-60">
+                  {category?.name || "بدون فئة"}
+                </div>
+                <div className="font-black tracking-tighter text-xs">{Number(product.price).toLocaleString()} ر.س</div>
+                <div className="font-bold text-xs">
+                  <span className={totalStock === 0 ? "text-destructive" : totalStock < 5 ? "text-orange-500" : ""}>
+                    {totalStock}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  {product.isFeatured && (
+                    <Badge className="bg-orange-500 rounded-none text-[7px] font-black uppercase tracking-tighter">مميز</Badge>
+                  )}
+                  <Badge variant={totalStock > 0 ? "default" : "outline"} className="rounded-none text-[7px] font-black uppercase tracking-tighter">
+                    {totalStock > 0 ? "متوفر" : "نفذ"}
+                  </Badge>
+                </div>
               </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+const CategoriesTable = memo(() => {
+  const { data: categories, isLoading } = useQuery<any[]>({ queryKey: ["/api/categories"] });
+  const { toast } = useToast();
+  const [newCat, setNewCat] = useState({ name: "", slug: "" });
+
+  const createMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const res = await apiRequest("POST", "/api/categories", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+      setNewCat({ name: "", slug: "" });
+      toast({ title: "تمت إضافة الفئة بنجاح" });
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest("DELETE", `/api/categories/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+      toast({ title: "تم حذف الفئة" });
+    }
+  });
+
+  if (isLoading) return <Loader2 className="animate-spin mx-auto" />;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold uppercase tracking-tight">إدارة الفئات</h2>
+      </div>
+
+      <Card className="rounded-none border-black/5 shadow-sm p-6 bg-secondary/10">
+        <div className="grid grid-cols-3 gap-4" dir="rtl">
+          <div className="space-y-1">
+            <Label className="text-[10px] font-bold uppercase opacity-40">اسم الفئة</Label>
+            <Input 
+              value={newCat.name} 
+              onChange={e => setNewCat({...newCat, name: e.target.value, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})} 
+              className="rounded-none h-10" 
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[10px] font-bold uppercase opacity-40">المعرف (Slug)</Label>
+            <Input value={newCat.slug} readOnly className="rounded-none h-10 bg-black/5" />
+          </div>
+          <div className="flex items-end">
+            <Button 
+              onClick={() => createMutation.mutate(newCat)} 
+              disabled={!newCat.name || createMutation.isPending}
+              className="w-full rounded-none font-bold uppercase tracking-widest h-10"
+            >
+              {createMutation.isPending ? <Loader2 className="animate-spin" /> : "إضافة فئة"}
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      <div className="rounded-none border border-black/5 overflow-hidden bg-white">
+        <div className="divide-y divide-black/5">
+          {categories?.map(cat => (
+            <div key={cat.id} className="p-6 flex justify-between items-center hover:bg-secondary/10 transition-colors">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-secondary/20">
+                  <Tag className="w-4 h-4 opacity-40" />
+                </div>
+                <div>
+                  <div className="font-black text-sm uppercase tracking-widest">{cat.name}</div>
+                  <div className="text-[10px] font-bold opacity-40">{cat.slug}</div>
+                </div>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => deleteMutation.mutate(cat.id)}
+                className="hover:bg-destructive/10 hover:text-destructive rounded-none"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
             </div>
           ))}
         </div>
