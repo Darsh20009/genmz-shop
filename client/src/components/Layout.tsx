@@ -39,8 +39,6 @@ export function Layout({ children }: { children: ReactNode }) {
                 <div className="flex flex-col gap-8 mt-20 px-8 flex-1" dir="rtl">
                   <Link href="/" className={`text-4xl font-black uppercase tracking-tighter transition-all hover:translate-x-2 ${location === '/' ? 'text-black' : 'text-muted-foreground'}`}>الرئيسية</Link>
                   <Link href="/products" className={`text-4xl font-black uppercase tracking-tighter transition-all hover:translate-x-2 ${location === '/products' ? 'text-black' : 'text-muted-foreground'}`}>المتجر</Link>
-                  <Link href="/categories/single-cab" className="text-4xl font-black uppercase tracking-tighter transition-all hover:translate-x-2 text-muted-foreground">سنقل كاب</Link>
-                  <Link href="/categories/double-cab" className="text-4xl font-black uppercase tracking-tighter transition-all hover:translate-x-2 text-muted-foreground">دبل كاب</Link>
                 </div>
                 
                 <div className="p-8 border-t bg-[#fafafa]">
@@ -62,8 +60,6 @@ export function Layout({ children }: { children: ReactNode }) {
           <div className="hidden md:flex items-center gap-8 text-[11px] font-black uppercase tracking-widest">
             <Link href="/" className={`transition-colors hover:text-primary ${location === '/' ? 'text-black' : 'text-muted-foreground'}`}>الرئيسية</Link>
             <Link href="/products" className={`transition-colors hover:text-primary ${location === '/products' ? 'text-black' : 'text-muted-foreground'}`}>المتجر</Link>
-            <Link href="/categories/single-cab" className="transition-colors hover:text-primary text-muted-foreground">سنقل كاب</Link>
-            <Link href="/categories/double-cab" className="transition-colors hover:text-primary text-muted-foreground">دبل كاب</Link>
           </div>
 
           <div className="flex items-center gap-2">
@@ -134,8 +130,6 @@ export function Layout({ children }: { children: ReactNode }) {
             <h3 className="font-bold text-lg mb-6">التصنيفات</h3>
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li><Link href="/products" className="hover:text-primary transition-colors">جميع المنتجات</Link></li>
-              <li><Link href="/categories/single-cab" className="hover:text-primary transition-colors">سنقل كاب</Link></li>
-              <li><Link href="/categories/double-cab" className="hover:text-primary transition-colors">دبل كاب</Link></li>
             </ul>
           </div>
           <div>
