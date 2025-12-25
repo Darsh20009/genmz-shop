@@ -3,7 +3,7 @@ import { useProduct } from "@/hooks/use-products";
 import { useCart } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";
 import { useRoute } from "wouter";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ShoppingBag, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
@@ -52,9 +52,11 @@ export default function ProductDetails() {
   const variants = product.variants && product.variants.length > 0 ? product.variants : [{ sku: 'default', color: 'Default', size: 'One Size', stock: 10 }];
   
   // Auto select first variant if not selected
-  if (!selectedVariant && variants.length > 0) {
-    setSelectedVariant(variants[0]);
-  }
+  useEffect(() => {
+    if (!selectedVariant && variants.length > 0) {
+      setSelectedVariant(variants[0]);
+    }
+  }, [selectedVariant, variants]);
 
   const handleAddToCart = () => {
     if (!selectedVariant) return;
