@@ -7,6 +7,7 @@ import { useState } from "react";
 import { ShoppingBag, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/hooks/use-language";
 
 export default function ProductDetails() {
   const [, params] = useRoute("/products/:id");
@@ -14,6 +15,7 @@ export default function ProductDetails() {
   const { data: product, isLoading } = useProduct(id);
   const { addItem } = useCart();
   const { toast } = useToast();
+  const { t, language } = useLanguage();
 
   const [selectedVariant, setSelectedVariant] = useState<any>(null);
   const [quantity, setQuantity] = useState(1);
@@ -49,15 +51,15 @@ export default function ProductDetails() {
     if (!selectedVariant) return;
     addItem(product, selectedVariant, quantity);
     toast({
-      title: "تمت الإضافة للسلة",
-      description: `${product.name} أضيف إلى سلة مشترياتك.`,
+      title: t('addedToCart'),
+      description: `${product.name} ${t('addedToCartDesc')}`,
     });
   };
 
   return (
     <Layout>
       <div className="container py-24">
-        <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
+        <div className={`grid lg:grid-cols-2 gap-16 lg:gap-24 items-start ${language === 'ar' ? '' : 'lg:flex-row-reverse'}`}>
           {/* Image Gallery */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -74,11 +76,11 @@ export default function ProductDetails() {
           </motion.div>
 
           {/* Details */}
-          <div className="flex flex-col text-right">
+          <div className={`flex flex-col ${language === 'ar' ? 'text-right' : 'text-left'}`}>
             <div className="border-b border-black/5 pb-8 mb-8">
               <h1 className="font-display text-5xl md:text-6xl font-black mb-6 uppercase tracking-tighter">{product.name}</h1>
               <p className="text-3xl font-light text-primary tracking-tight">
-                {Number(product.price).toLocaleString()} ر.س
+                {Number(product.price).toLocaleString()} {t('currency')}
               </p>
             </div>
 
@@ -89,14 +91,14 @@ export default function ProductDetails() {
             {/* Variants */}
             <div className="space-y-10 mb-12">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-[0.2em] mb-4 text-black/40">الخيار (اللون / المقاس)</label>
-                <div className="flex flex-wrap gap-3 justify-end">
+                <label className="block text-xs font-bold uppercase tracking-[0.2em] mb-4 text-black/40">{t('optionsLabel')}</label>
+                <div className={`flex flex-wrap gap-3 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
                   {variants.map((variant: any) => (
                     <button
                       key={variant.sku}
                       onClick={() => setSelectedVariant(variant)}
                       className={`
-                        px-6 py-3 border text-xs font-bold uppercase tracking-widest transition-all duration-300
+                        px-6 py-3 border text-xs font-bold uppercase transition-all duration-300
                         ${selectedVariant?.sku === variant.sku 
                           ? 'border-black bg-black text-white' 
                           : 'border-black/10 hover:border-black/30 text-black/60'}
@@ -110,8 +112,8 @@ export default function ProductDetails() {
 
               {/* Quantity */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-[0.2em] mb-4 text-black/40">الكمية</label>
-                <div className="flex items-center gap-6 justify-end">
+                <label className="block text-xs font-bold uppercase tracking-[0.2em] mb-4 text-black/40">{t('quantityLabel')}</label>
+                <div className={`flex items-center gap-6 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
                   <button 
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     className="w-12 h-12 border border-black/10 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-xl font-light"
@@ -134,14 +136,14 @@ export default function ProductDetails() {
               className="w-full h-20 text-sm font-bold uppercase tracking-[0.3em] rounded-none bg-black text-white hover-elevate active-elevate-2 border-none"
               onClick={handleAddToCart}
             >
-              <ShoppingBag className="ml-3 h-5 w-5" />
-              إضافة إلى حقيبة التسوق
+              {language === 'ar' ? <ShoppingBag className="ml-3 h-5 w-5" /> : <ShoppingBag className="mr-3 h-5 w-5" />}
+              {t('addToCart')}
             </Button>
 
             <div className="mt-12 pt-8 border-t border-black/5 flex flex-col gap-4 text-xs font-bold uppercase tracking-widest text-black/40">
-               <div className="flex items-center gap-3 justify-end"><Check className="h-4 w-4 text-black"/> قطعة أصلية وحصرية</div>
-               <div className="flex items-center gap-3 justify-end"><Check className="h-4 w-4 text-black"/> تغليف فاخر</div>
-               <div className="flex items-center gap-3 justify-end"><Check className="h-4 w-4 text-black"/> شحن سريع وآمن</div>
+               <div className={`flex items-center gap-3 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}><Check className="h-4 w-4 text-black"/> {t('originalProduct')}</div>
+               <div className={`flex items-center gap-3 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}><Check className="h-4 w-4 text-black"/> {t('luxuryPackaging')}</div>
+               <div className={`flex items-center gap-3 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}><Check className="h-4 w-4 text-black"/> {t('secureShipping')}</div>
             </div>
           </div>
         </div>

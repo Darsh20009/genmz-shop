@@ -39,7 +39,7 @@ export default function Home() {
             <div className={`flex gap-6 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
               <Link href="/products">
                 <Button size="lg" className="px-10 py-8 text-sm font-bold uppercase tracking-[0.2em] rounded-none shadow-2xl hover-elevate transition-all bg-black text-white border-none active-elevate-2">
-                  {t('discoverCollection')} {language === 'ar' ? <ChevronRight className="mr-3 h-5 w-5" /> : <ChevronLeft className="ml-3 h-5 w-5" />}
+                  {t('discoverCollection')} {language === 'ar' ? <ChevronLeft className="mr-3 h-5 w-5 rotate-180" /> : <ChevronRight className="ml-3 h-5 w-5" />}
                 </Button>
               </Link>
             </div>
@@ -66,121 +66,102 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
-      {/* Featured Products Showcase (Creative Grid) */}
-      <section className="py-20 bg-[#f9f9f9]">
-        <div className="container px-4">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-6 mb-16">
-            {[
-              { img: burgundyImg, color: 'Burgundy', title: 'SINGLE-LAYER HOOD' },
-              { img: tealImg, color: 'Teal', title: 'DOUBLE-LAYER HOOD' },
-              { img: blueImg, color: 'Blue', title: 'LIMITED EDITION' },
-              { img: greyImg, color: 'Grey', title: 'ESSENTIALS' }
-            ].map((item, idx) => (
-              <motion.div 
-                key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                className="group relative aspect-[3/4] overflow-hidden bg-white shadow-sm"
-              >
-                <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4 md:p-6 text-white text-right">
-                  <span className="text-[10px] font-bold tracking-widest uppercase mb-1">{item.color}</span>
-                  <h3 className="text-sm md:text-lg font-black leading-none">{item.title}</h3>
-                </div>
-              </motion.div>
-            ))}
-          </div>
 
-          <div className={`flex flex-col md:flex-row items-center justify-between border-t border-black/5 pt-12 gap-6 ${language === 'ar' ? '' : 'md:flex-row-reverse'}`}>
-            <h2 className="font-display text-2xl md:text-4xl font-black text-black">{t('exclusivePicks')}</h2>
-            <Link href="/products">
-              <Button variant="outline" className="rounded-none border-black text-black font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-colors">
-                {t('viewAllProducts')}
-              </Button>
-            </Link>
+      {/* Trust Badges */}
+      <section className="py-24 bg-white border-y border-black/5 overflow-hidden">
+        <div className="container px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center group"
+            >
+              <div className="w-20 h-20 bg-secondary/30 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform duration-500">
+                <Star className="w-8 h-8 text-black" />
+              </div>
+              <h3 className="text-xl font-black uppercase tracking-widest mb-4">{t('originalProduct')}</h3>
+              <p className="text-muted-foreground font-light italic">{language === 'ar' ? 'نضمن لك جودة استثنائية وتصاميم حصرية لن تجدها في مكان آخر.' : 'We guarantee exceptional quality and exclusive designs found nowhere else.'}</p>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-center group"
+            >
+              <div className="w-20 h-20 bg-secondary/30 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform duration-500">
+                <Truck className="w-8 h-8 text-black" />
+              </div>
+              <h3 className="text-xl font-black uppercase tracking-widest mb-4">{t('secureShipping')}</h3>
+              <p className="text-muted-foreground font-light italic">{language === 'ar' ? 'توصيل سريع وآمن لجميع مناطق المملكة مع تغليف فاخر يحمي مشترياتك.' : 'Fast and secure delivery to all regions with luxury packaging to protect your purchases.'}</p>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="text-center group"
+            >
+              <div className="w-20 h-20 bg-secondary/30 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform duration-500">
+                <ShieldCheck className="w-8 h-8 text-black" />
+              </div>
+              <h3 className="text-xl font-black uppercase tracking-widest mb-4">{t('goldenGuarantee')}</h3>
+              <p className="text-muted-foreground font-light italic">{t('goldenGuaranteeDesc')}</p>
+            </motion.div>
           </div>
         </div>
       </section>
-      {/* Dynamic Product Grid */}
-      <section className="py-20 container px-4">
-        {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="aspect-[3/4] bg-muted animate-pulse" />
-            ))}
+
+      {/* Featured Products showcase */}
+      <section className="py-32 bg-secondary/10">
+        <div className="container px-4">
+          <div className={`flex flex-col md:flex-row justify-between items-end gap-8 mb-20 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+            <div className="max-w-2xl">
+              <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-6">{t('exclusivePicks')}</h2>
+              <p className="text-xl text-muted-foreground font-light italic">{t('heroDesc')}</p>
+            </div>
+            <Link href="/products">
+              <Button variant="outline" size="lg" className="rounded-none border-black hover:bg-black hover:text-white transition-all font-bold uppercase tracking-widest text-xs h-14 px-10 group">
+                {t('viewAllProducts')}
+                {language === 'ar' ? <ChevronLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" /> : <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />}
+              </Button>
+            </Link>
           </div>
-        ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             {featuredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
-        )}
-      </section>
-      {/* Brand Story Section */}
-      <section className="py-32 overflow-hidden bg-white">
-        <div className="container px-4">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className={`relative ${language === 'ar' ? 'order-2 lg:order-1' : 'order-2'}`}>
-               <div className="aspect-[4/5] bg-muted overflow-hidden">
-                 <img src={tealImg} alt="Teal Hoodie" className="w-full h-full object-cover" />
-               </div>
-               <div className={`absolute -top-10 ${language === 'ar' ? '-left-10' : '-right-10'} w-40 h-40 ${language === 'ar' ? 'border-l-[1px]' : 'border-r-[1px]'} border-t-[1px] border-black opacity-20 hidden lg:block`} />
-            </div>
-            <div className={`text-right ${language === 'ar' ? 'order-1 lg:order-2' : 'order-1 lg:text-left'}`}>
-              <span className="text-primary font-bold text-xs uppercase tracking-[0.3em] mb-4 inline-block">{t('ourMission')}</span>
-              <h2 className="text-4xl md:text-6xl font-black text-black mb-8 leading-tight">{t('qualityIsIdentity')}</h2>
-              <p className="text-muted-foreground text-sm md:text-lg mb-10 leading-relaxed">
-                {t('brandStoryDesc')}
-              </p>
-              <div className={`grid grid-cols-2 gap-8 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-                <div>
-                   <h4 className="font-black text-xl mb-2 text-black">+١٠٠</h4>
-                   <p className="text-[10px] uppercase font-bold text-muted-foreground">{t('happyCustomers')}</p>
-                </div>
-                <div>
-                   <h4 className="font-black text-xl mb-2 text-black">١٠٠٪</h4>
-                   <p className="text-[10px] uppercase font-bold text-muted-foreground">{t('masterCraftsmanship')}</p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
-      {/* Trust Badges */}
-      <section className="py-16 border-y bg-[#fafafa]">
-        <div className="container grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
-          {[
-            { icon: Star, title: t('exceptionalQuality'), desc: t('exceptionalQualityDesc') },
-            { icon: Truck, title: t('fastShipping'), desc: t('fastShippingDesc') },
-            { icon: ShieldCheck, title: t('goldenGuarantee'), desc: t('goldenGuaranteeDesc') }
-          ].map((feature, idx) => (
-            <div key={idx} className="flex flex-col items-center">
-              <feature.icon className="h-6 w-6 text-black mb-4" strokeWidth={1} />
-              <h3 className="font-black text-sm uppercase tracking-widest mb-2 text-black">{feature.title}</h3>
-              <p className="text-xs text-muted-foreground">{feature.desc}</p>
-            </div>
-          ))}
+
+      {/* Brand Story / CTA */}
+      <section className="relative py-48 overflow-hidden bg-black text-white">
+        <div className="absolute inset-0 opacity-20 grayscale">
+          <img 
+            src="https://images.unsplash.com/photo-1441984908747-d4121882c9b6?auto=format&fit=crop&q=80" 
+            alt="Store background" 
+            className="w-full h-full object-cover"
+          />
         </div>
-      </section>
-      {/* Newsletter */}
-      <section className="py-32 bg-black text-white relative">
-        <div className="container px-4 text-center max-w-xl mx-auto z-10 relative">
-          <h2 className="text-3xl md:text-5xl font-black mb-6 uppercase tracking-tight">{t('stayExclusive')}</h2>
-          <p className="text-sm opacity-60 mb-12">
-            {t('newsletterDesc')}
-          </p>
-          <form className="flex flex-col sm:flex-row gap-0 border-b border-white/20 pb-2">
-            <input 
-              type="email" 
-              placeholder={t('emailPlaceholder')}
-              className="bg-transparent border-none text-white placeholder:text-white/40 focus:ring-0 flex-1 text-center py-4 text-lg"
-            />
-            <button className="text-xs font-black uppercase tracking-[0.2em] hover:text-primary transition-all duration-300 py-4 px-8 hover:bg-white hover:text-black">
-              {t('subscribe')}
-            </button>
-          </form>
+        <div className="container px-4 relative z-10 text-center max-w-4xl mx-auto">
+          <motion.div
+             initial={{ opacity: 0, scale: 0.9 }}
+             whileInView={{ opacity: 1, scale: 1 }}
+             viewport={{ once: true }}
+          >
+            <h2 className="text-6xl md:text-8xl font-black uppercase tracking-tighter mb-12 leading-[0.9]">{language === 'ar' ? 'أناقة تتحدث عنك' : 'Elegance That Speaks For You'}</h2>
+            <p className="text-2xl font-light italic mb-16 opacity-60 leading-relaxed">{t('brandStoryDesc')}</p>
+            <Link href="/products">
+              <Button size="lg" className="h-20 px-16 text-sm font-black uppercase tracking-[0.4em] rounded-none bg-white text-black hover:bg-transparent hover:text-white border-2 border-white transition-all duration-500">
+                <ShoppingBag className={`${language === 'ar' ? 'ml-3' : 'mr-3'} h-5 w-5`} />
+                {language === 'ar' ? 'ابدأ التسوق الآن' : 'Start Shopping Now'}
+              </Button>
+            </Link>
+          </motion.div>
         </div>
       </section>
     </Layout>
