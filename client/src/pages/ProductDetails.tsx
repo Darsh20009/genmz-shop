@@ -103,19 +103,37 @@ export default function ProductDetails() {
             <div className="space-y-10 mb-12">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-[0.2em] mb-4 text-black/40">{t('optionsLabel')}</label>
-                <div className={`flex flex-wrap gap-3 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`flex flex-wrap gap-4 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
                   {variants.map((variant: any) => (
                     <button
                       key={variant.sku}
                       onClick={() => setSelectedVariant(variant)}
                       className={`
-                        px-6 py-3 border text-xs font-bold uppercase transition-all duration-300
+                        group relative flex items-center gap-3 p-2 border transition-all duration-500 rounded-none overflow-hidden
                         ${selectedVariant?.sku === variant.sku 
-                          ? 'border-black bg-black text-white' 
-                          : 'border-black/10 hover:border-black/30 text-black/60'}
+                          ? 'border-black ring-1 ring-black' 
+                          : 'border-black/5 hover:border-black/20'}
                       `}
                     >
-                      {variant.color} | {variant.size}
+                      {variant.image && (
+                        <div className="w-12 h-16 bg-muted overflow-hidden">
+                          <img 
+                            src={variant.image} 
+                            alt={variant.color} 
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+                        </div>
+                      )}
+                      <div className="flex flex-col items-start px-2">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-black/40 mb-0.5">{variant.size}</span>
+                        <span className="text-xs font-black uppercase tracking-tighter">{variant.color}</span>
+                      </div>
+                      
+                      {selectedVariant?.sku === variant.sku && (
+                        <div className="absolute top-1 right-1">
+                          <Check className="h-3 w-3 text-black" />
+                        </div>
+                      )}
                     </button>
                   ))}
                 </div>
