@@ -169,14 +169,18 @@ export async function registerRoutes(
 
     const totalSales = orders.reduce((acc, order) => acc + Number(order.total), 0);
     const totalCost = orders.reduce((acc, order) => {
-      return acc + order.items.reduce((itemAcc, item) => {
-        const product = products.find(p => p.id === item.productId);
-        return itemAcc + (Number(product?.cost || 0) * item.quantity);
-      }, 0);
+      return acc + order.items.reduce((itemAcc, item) => itemAcc + (Number(item.cost || 0) * item.quantity), 0);
     }, 0);
 
     const netProfit = totalSales - totalCost;
     
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const dailySales = orders.filter(o => new Date(o.createdAt) >= startOfDay).reduce((acc, o) => acc + Number(o.total), 0);
+    const monthlySales = orders.filter(o => new Date(o.createdAt) >= startOfMonth).reduce((acc, o) => acc + Number(o.total), 0);
+
     const orderStatusCounts = {
       new: orders.filter(o => o.status === "new").length,
       processing: orders.filter(o => o.status === "processing").length,
@@ -205,6 +209,8 @@ export async function registerRoutes(
       totalOrders: orders.length,
       orderStatusCounts,
       netProfit,
+      dailySales,
+      monthlySales,
       topProducts
     });
   });

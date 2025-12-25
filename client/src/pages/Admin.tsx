@@ -74,6 +74,10 @@ const StatsCards = memo(() => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-black">{Number(stats?.netProfit || 0).toLocaleString()} <span className="text-xs">ر.س</span></div>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <div className="text-[8px] font-bold opacity-40 uppercase tracking-tighter">يومي: {Number(stats?.dailySales || 0).toLocaleString()}</div>
+              <div className="text-[8px] font-bold opacity-40 uppercase tracking-tighter text-left">شهري: {Number(stats?.monthlySales || 0).toLocaleString()}</div>
+            </div>
           </CardContent>
         </Card>
 
@@ -592,55 +596,41 @@ const OrdersTable = memo(() => {
     }
   };
 
+  const exportReport = (format: 'pdf' | 'excel') => {
+    toast({ title: `جاري تصدير التقرير بصيغة ${format.toUpperCase()}...` });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <h2 className="text-2xl font-bold uppercase tracking-tight">إدارة الطلبات</h2>
-        <div className="flex w-full md:w-auto gap-4">
-          <div className="relative flex-1 md:w-64">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40" />
-            <Input 
-              placeholder="بحث برقم الطلب..." 
-              className="rounded-none h-10 pr-10" 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <Select value={filter} onValueChange={setFilter}>
-            <SelectTrigger className="w-[180px] rounded-none h-10 border-black/10">
-              <Filter className="w-4 h-4 ml-2" />
-              <SelectValue placeholder="الحالة" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">الكل</SelectItem>
-              {orderStatuses.map(status => (
-                <SelectItem key={status} value={status}>
-                  {status === 'new' ? 'جديد' : 
-                   status === 'processing' ? 'تجهيز' : 
-                   status === 'shipped' ? 'تم الشحن' : 
-                   status === 'completed' ? 'مكتمل' : 'ملغي'}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => exportReport('excel')} className="rounded-none text-xs font-bold border-black/10">
+            تصدير تقرير Excel
+          </Button>
+          <Button variant="outline" onClick={() => exportReport('pdf')} className="rounded-none text-xs font-bold border-black/10">
+            تصدير PDF
+          </Button>
         </div>
       </div>
 
       <div className="rounded-none border border-black/5 overflow-hidden">
-        <div className="p-6 grid grid-cols-6 font-black uppercase tracking-widest text-[10px] bg-secondary/20 text-black/40 border-b border-black/5">
+        <div className="p-6 grid grid-cols-7 font-black uppercase tracking-widest text-[10px] bg-secondary/20 text-black/40 border-b border-black/5">
           <div className="text-right">رقم الطلب</div>
           <div className="text-right">العميل</div>
           <div className="text-right">المبلغ</div>
+          <div className="text-right">الربح</div>
           <div className="text-right">الحالة</div>
           <div className="text-right">التاريخ</div>
           <div className="text-center">إجراءات</div>
         </div>
         <div className="divide-y divide-black/5">
           {filteredOrders.map((order: any) => (
-            <div key={order.id} className="p-6 grid grid-cols-6 items-center hover:bg-secondary/10 transition-colors">
+            <div key={order.id} className="p-6 grid grid-cols-7 items-center hover:bg-secondary/10 transition-colors">
               <div className="font-black">#{order.id.slice(-6).toUpperCase()}</div>
               <div className="font-bold truncate">عميل</div>
               <div className="font-black tracking-tighter">{Number(order.total).toLocaleString()} ر.س</div>
+              <div className="font-black text-green-600 text-[10px]">+{Number(order.netProfit || 0).toLocaleString()} ر.س</div>
               <div>{getStatusBadge(order.status)}</div>
               <div className="text-xs text-black/40">{new Date(order.createdAt).toLocaleDateString("ar-SA")}</div>
               <div className="flex justify-center gap-2">

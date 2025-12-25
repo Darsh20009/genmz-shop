@@ -183,7 +183,12 @@ export class MongoDBStorage implements IStorage {
     const order = await OrderModel.create({
       ...insertOrder,
       status: insertOrder.status || "new",
-      paymentStatus: insertOrder.paymentStatus || "pending"
+      paymentStatus: insertOrder.paymentStatus || "pending",
+      subtotal: insertOrder.subtotal || "0",
+      vatAmount: insertOrder.vatAmount || "0",
+      shippingCost: insertOrder.shippingCost || "0",
+      tapCommission: insertOrder.tapCommission || "0",
+      netProfit: insertOrder.netProfit || "0"
     });
     return { ...order.toObject(), id: order._id.toString() };
   }

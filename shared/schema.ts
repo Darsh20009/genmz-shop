@@ -95,11 +95,19 @@ export type Category = InsertCategory & { _id: string; id: string };
 export const insertOrderSchema = z.object({
   userId: z.string(),
   total: z.string(),
+  subtotal: z.string(),
+  vatAmount: z.string(),
+  shippingCost: z.string(),
+  tapCommission: z.string(),
+  netProfit: z.string(),
+  couponCode: z.string().optional(),
+  discountAmount: z.string().default("0"),
   items: z.array(z.object({
     productId: z.string(),
     variantSku: z.string(),
     quantity: z.number(),
     price: z.number(),
+    cost: z.number(), // Added cost per item at time of purchase
     title: z.string(),
   })),
   shippingMethod: z.enum(["pickup", "delivery"]),
