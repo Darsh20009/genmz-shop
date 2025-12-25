@@ -350,7 +350,11 @@ export async function registerRoutes(
 
   app.post("/api/coupons", async (req, res) => {
     if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
-    const coupon = await storage.createCoupon(req.body);
+    const parsed = insertCouponSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Invalid coupon data", details: parsed.error });
+    }
+    const coupon = await storage.createCoupon(parsed.data);
     res.json(coupon);
   });
 

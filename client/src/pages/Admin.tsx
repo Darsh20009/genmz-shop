@@ -1072,6 +1072,40 @@ const CustomersTable = memo(() => {
 const CouponsTable = memo(() => {
   const { data: coupons, isLoading } = useQuery<any[]>({ queryKey: ["/api/coupons"] });
   const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  
+  const form = useForm({
+    defaultValues: {
+      code: "",
+      type: "percentage" as const,
+      value: "0",
+      usageLimit: "",
+      minOrderAmount: "",
+      isActive: true,
+    }
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const parsed = {
+        ...data,
+        value: Number(data.value),
+        usageLimit: data.usageLimit ? Number(data.usageLimit) : undefined,
+        minOrderAmount: data.minOrderAmount ? Number(data.minOrderAmount) : undefined,
+      };
+      const res = await apiRequest("POST", "/api/coupons", parsed);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/coupons"] });
+      form.reset();
+      setOpen(false);
+      toast({ title: "تمت إضافة كود الخصم بنجاح" });
+    },
+    onError: (err: any) => {
+      toast({ title: "خطأ", description: err.message || "فشلت إضافة الكود", variant: "destructive" });
+    }
+  });
 
   if (isLoading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin" /></div>;
 
@@ -1079,9 +1113,91 @@ const CouponsTable = memo(() => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold uppercase tracking-tight">أكواد الخصم</h2>
-        <Button className="rounded-none font-bold uppercase tracking-widest text-xs h-10 px-6">
-          <Plus className="ml-2 h-4 w-4" /> إضافة كود
-        </Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button className="rounded-none font-bold uppercase tracking-widest text-xs h-10 px-6">
+              <Plus className="ml-2 h-4 w-4" /> إضافة كود
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="rounded-none max-w-md" dir="rtl">
+            <DialogHeader>
+              <DialogTitle>إضافة كود خصم جديد</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={form.handleSubmit((data) => createMutation.mutate(data))} className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-xs font-bold uppercase">الكود</Label>
+                <Input
+                  {...form.register("code", { required: true })}
+                  placeholder="مثال: SUMMER2026"
+                  className="rounded-none uppercase"
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold uppercase">النوع</Label>
+                  <Select value={form.watch("type")} onValueChange={(val) => form.setValue("type", val as any)}>
+                    <SelectTrigger className="rounded-none">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="percentage">نسبة مئوية</SelectItem>
+                      <SelectItem value="fixed">مبلغ ثابت</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold uppercase">القيمة</Label>
+                  <Input
+                    type="number"
+                    {...form.register("value", { required: true })}
+                    placeholder="0"
+                    className="rounded-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold uppercase">حد الاستخدام (اختياري)</Label>
+                  <Input
+                    type="number"
+                    {...form.register("usageLimit")}
+                    placeholder="غير محدود"
+                    className="rounded-none"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold uppercase">الحد الأدنى للطلب (اختياري)</Label>
+                  <Input
+                    type="number"
+                    {...form.register("minOrderAmount")}
+                    placeholder="0 ر.س"
+                    className="rounded-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-secondary/10 rounded-none">
+                <Label className="text-xs font-bold uppercase">نشط</Label>
+                <Switch
+                  checked={form.watch("isActive")}
+                  onCheckedChange={(checked) => form.setValue("isActive", checked)}
+                />
+              </div>
+
+              <Button 
+                type="submit" 
+                disabled={createMutation.isPending}
+                className="w-full rounded-none font-bold uppercase tracking-widest"
+              >
+                {createMutation.isPending ? <Loader2 className="animate-spin ml-2" /> : "إضافة الكود"}
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
       <div className="rounded-none border border-black/5 overflow-hidden bg-white">
         <div className="p-6 grid grid-cols-5 font-black uppercase tracking-widest text-[10px] bg-secondary/10 text-black/40 border-b border-black/5">
