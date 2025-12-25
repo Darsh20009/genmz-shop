@@ -148,7 +148,6 @@ export function Layout({ children }: { children: ReactNode }) {
                 <DropdownMenuContent align={language === 'ar' ? "end" : "start"} className="w-56 rounded-none border-black/5 shadow-2xl bg-white">
                   <DropdownMenuLabel className={`${language === 'ar' ? 'text-right' : 'text-left'} font-black uppercase text-[10px] tracking-widest`}>{user.username}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <Link href="/dashboard"><DropdownMenuItem className={`justify-start text-xs font-bold uppercase ${language === 'en' ? 'tracking-wider' : ''}`}>{t('myAccount')}</DropdownMenuItem></Link>
                   {user?.role === 'admin' && (
                     <Link href="/admin"><DropdownMenuItem className={`justify-start text-xs font-bold uppercase text-primary ${language === 'en' ? 'tracking-wider' : ''}`}>{t('adminPanel')}</DropdownMenuItem></Link>
                   )}
