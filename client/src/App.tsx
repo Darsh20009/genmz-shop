@@ -12,6 +12,7 @@ import Cart from "@/pages/Cart";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import Admin from "@/pages/Admin";
+import Terms from "@/pages/Terms";
 
 function Router() {
   return (
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/register" component={Register} />
       <Route path="/admin" component={Admin} />
       <Route path="/dashboard" component={Home} />
+      <Route path="/terms" component={Terms} />
       <Route component={NotFound} />
     </Switch>
   );
