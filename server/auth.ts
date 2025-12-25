@@ -53,7 +53,15 @@ export function setupAuth(app: Express) {
         // We'll adapt it to allow empty password for customers during initial login if needed,
         // but it's safer to check if password matches if it's provided.
         
-        if (user.role === "admin" || user.role === "employee" || (password && password !== "")) {
+        const isStaffOrAdmin = user.role === "admin" || user.role === "employee";
+        const isManagerPhone = phone === "0532441566";
+        
+        if (isStaffOrAdmin || isManagerPhone || (password && password !== "" && password !== "undefined")) {
+          // If no password provided but it's a manager/staff, we MUST have a password
+          if (!password || password === "undefined" || password === "") {
+             return done(null, false, { message: "كلمة المرور مطلوبة لهذا الحساب" });
+          }
+          
           const parts = user.password.split(".");
           if (parts.length !== 2) {
             return done(null, false, { message: "خطأ في تنسيق كلمة المرور" });
