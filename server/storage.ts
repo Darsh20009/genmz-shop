@@ -1,5 +1,5 @@
 import { UserModel, ProductModel, OrderModel, CategoryModel, WalletTransactionModel } from "./models";
-import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction } from "@shared/schema";
+import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, OrderStatus } from "@shared/schema";
 
 export interface IStorage {
   // Users
@@ -21,6 +21,8 @@ export interface IStorage {
   getOrders(): Promise<Order[]>;
   createOrder(order: InsertOrder): Promise<Order>;
   getOrdersByUser(userId: string): Promise<Order[]>;
+  updateOrderStatus(id: string, status: OrderStatus, shippingInfo?: { provider?: string, tracking?: string }): Promise<Order>;
+  updateOrderReturn(id: string, returnRequest: any): Promise<Order>;
   
   // Categories
   getCategories(): Promise<Category[]>;
@@ -111,6 +113,22 @@ export class MongoDBStorage implements IStorage {
   async getOrdersByUser(userId: string): Promise<Order[]> {
     const orders = await OrderModel.find({ userId }).lean();
     return orders.map(o => ({ ...o, id: o._id.toString() }));
+  }
+
+  async updateOrderStatus(id: string, status: OrderStatus, shippingInfo?: { provider?: string, tracking?: string }): Promise<Order> {
+    const update: any = { status };
+    if (shippingInfo?.provider) update.shippingProvider = shippingInfo.provider;
+    if (shippingInfo?.tracking) update.trackingNumber = shippingInfo.tracking;
+    
+    const order = await OrderModel.findByIdAndUpdate(id, update, { new: true }).lean();
+    if (!order) throw new Error("Order not found");
+    return { ...order, id: order._id.toString() };
+  }
+
+  async updateOrderReturn(id: string, returnRequest: any): Promise<Order> {
+    const order = await OrderModel.findByIdAndUpdate(id, { returnRequest }, { new: true }).lean();
+    if (!order) throw new Error("Order not found");
+    return { ...order, id: order._id.toString() };
   }
 
   // Categories

@@ -75,6 +75,26 @@ export async function registerRoutes(
     res.status(201).json(order);
   });
 
+  app.patch("/api/orders/:id/status", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const user = req.user as any;
+    if (user.role !== "admin") return res.sendStatus(403);
+    
+    const { status, shippingProvider, trackingNumber } = req.body;
+    const order = await storage.updateOrderStatus(req.params.id, status, {
+      provider: shippingProvider,
+      tracking: trackingNumber
+    });
+    res.json(order);
+  });
+
+  app.patch("/api/orders/:id/return", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const { returnRequest } = req.body;
+    const order = await storage.updateOrderReturn(req.params.id, returnRequest);
+    res.json(order);
+  });
+
   // Categories
   app.get(api.categories.list.path, async (_req, res) => {
     const categories = await storage.getCategories();

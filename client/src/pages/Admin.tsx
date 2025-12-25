@@ -1,7 +1,7 @@
 import { Layout } from "@/components/Layout";
 import { useAuth } from "@/hooks/use-auth";
 import { useProducts, useCreateProduct } from "@/hooks/use-products";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,9 +13,11 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle } from 
 import React, { useState, useMemo, memo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertProductSchema, type InsertProduct } from "@shared/schema";
-import { Loader2, Plus, DollarSign, ShoppingCart, TrendingUp, BarChart3, ArrowUpRight, Trash2 } from "lucide-react";
+import { insertProductSchema, type InsertProduct, orderStatuses } from "@shared/schema";
+import { Loader2, Plus, DollarSign, ShoppingCart, TrendingUp, BarChart3, ArrowUpRight, Trash2, Search, Filter, ChevronDown, CheckCircle2, XCircle, Truck, PackageCheck, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import {
   BarChart,
   Bar,
@@ -255,6 +257,9 @@ const ProductsTable = memo(() => {
 });
 
 const OrdersTable = memo(() => {
+  const { toast } = useToast();
+  const [filter, setFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const { data: orders, isLoading } = useQuery({
     queryKey: ["/api/orders"],
     queryFn: async () => {
@@ -264,29 +269,156 @@ const OrdersTable = memo(() => {
     }
   });
 
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status, shippingProvider, trackingNumber }: any) => {
+      const res = await apiRequest("PATCH", `/api/orders/${id}/status`, { status, shippingProvider, trackingNumber });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+      toast({ title: "تم تحديث حالة الطلب" });
+    }
+  });
+
+  const filteredOrders = useMemo(() => {
+    if (!orders) return [];
+    return orders.filter((order: any) => {
+      const matchesStatus = filter === "all" || order.status === filter;
+      const matchesSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          (order.shippingAddress?.street?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+      return matchesStatus && matchesSearch;
+    });
+  }, [orders, filter, searchTerm]);
+
   if (isLoading) return <Loader2 className="animate-spin mx-auto" />;
 
+  const getStatusBadge = (status: string) => {
+    switch(status) {
+      case 'new': return <Badge className="bg-primary rounded-none">جديد</Badge>;
+      case 'processing': return <Badge className="bg-blue-500 rounded-none">تجهيز</Badge>;
+      case 'shipped': return <Badge className="bg-orange-500 rounded-none">تم الشحن</Badge>;
+      case 'completed': return <Badge className="bg-green-600 rounded-none">مكتمل</Badge>;
+      case 'cancelled': return <Badge variant="destructive" className="rounded-none">ملغي</Badge>;
+      default: return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
   return (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-bold uppercase tracking-tight">الطلبات</h2>
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <h2 className="text-2xl font-bold uppercase tracking-tight">إدارة الطلبات</h2>
+        <div className="flex w-full md:w-auto gap-4">
+          <div className="relative flex-1 md:w-64">
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40" />
+            <Input 
+              placeholder="بحث برقم الطلب..." 
+              className="rounded-none h-10 pr-10" 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <Select value={filter} onValueChange={setFilter}>
+            <SelectTrigger className="w-[180px] rounded-none h-10 border-black/10">
+              <Filter className="w-4 h-4 ml-2" />
+              <SelectValue placeholder="الحالة" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">الكل</SelectItem>
+              {orderStatuses.map(status => (
+                <SelectItem key={status} value={status}>
+                  {status === 'new' ? 'جديد' : 
+                   status === 'processing' ? 'تجهيز' : 
+                   status === 'shipped' ? 'تم الشحن' : 
+                   status === 'completed' ? 'مكتمل' : 'ملغي'}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <div className="rounded-none border border-black/5 overflow-hidden">
-        <div className="p-6 grid grid-cols-5 font-black uppercase tracking-widest text-[10px] bg-secondary/20 text-black/40 border-b border-black/5">
+        <div className="p-6 grid grid-cols-6 font-black uppercase tracking-widest text-[10px] bg-secondary/20 text-black/40 border-b border-black/5">
           <div className="text-right">رقم الطلب</div>
           <div className="text-right">العميل</div>
           <div className="text-right">المبلغ</div>
           <div className="text-right">الحالة</div>
           <div className="text-right">التاريخ</div>
+          <div className="text-center">إجراءات</div>
         </div>
         <div className="divide-y divide-black/5">
-          {orders?.map((order: any) => (
-            <div key={order.id} className="p-6 grid grid-cols-5 items-center hover:bg-secondary/10 transition-colors">
+          {filteredOrders.map((order: any) => (
+            <div key={order.id} className="p-6 grid grid-cols-6 items-center hover:bg-secondary/10 transition-colors">
               <div className="font-black">#{order.id.slice(-6).toUpperCase()}</div>
-              <div className="font-bold">عميل</div>
+              <div className="font-bold truncate">عميل</div>
               <div className="font-black tracking-tighter">{Number(order.total).toLocaleString()} ر.س</div>
-              <div>
-                <Badge className="rounded-none font-bold text-[8px] uppercase tracking-widest">{order.status}</Badge>
-              </div>
+              <div>{getStatusBadge(order.status)}</div>
               <div className="text-xs text-black/40">{new Date(order.createdAt).toLocaleDateString("ar-SA")}</div>
+              <div className="flex justify-center gap-2">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5 rounded-none">
+                      <ChevronDown className="w-4 h-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent dir="rtl" className="rounded-none max-w-lg">
+                    <DialogHeader>
+                      <DialogTitle className="text-right font-black">تحديث الطلب #{order.id.slice(-6).toUpperCase()}</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-6 pt-6">
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">تغيير الحالة</Label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {orderStatuses.map(s => (
+                            <Button 
+                              key={s} 
+                              variant={order.status === s ? 'default' : 'outline'}
+                              className="rounded-none text-[10px] h-10 font-bold"
+                              onClick={() => updateStatusMutation.mutate({ id: order.id, status: s })}
+                            >
+                              {s === 'new' ? 'جديد' : s === 'processing' ? 'تجهيز' : s === 'shipped' ? 'شحن' : s === 'completed' ? 'مكتمل' : 'إلغاء'}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="pt-6 border-t border-black/5 space-y-4">
+                        <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">تفاصيل الشحن</Label>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-[10px] font-bold">شركة الشحن</Label>
+                            <Input 
+                              placeholder="Storage Station" 
+                              defaultValue={order.shippingProvider} 
+                              className="rounded-none"
+                              id={`provider-${order.id}`}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-[10px] font-bold">رقم التتبع</Label>
+                            <Input 
+                              placeholder="TRK123..." 
+                              defaultValue={order.trackingNumber} 
+                              className="rounded-none"
+                              id={`tracking-${order.id}`}
+                            />
+                          </div>
+                        </div>
+                        <Button 
+                          className="w-full rounded-none font-bold"
+                          onClick={() => {
+                            const p = (document.getElementById(`provider-${order.id}`) as HTMLInputElement).value;
+                            const t = (document.getElementById(`tracking-${order.id}`) as HTMLInputElement).value;
+                            updateStatusMutation.mutate({ id: order.id, status: order.status, shippingProvider: p, trackingNumber: t });
+                          }}
+                        >
+                          تحديث معلومات الشحن
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
           ))}
         </div>
@@ -294,6 +426,50 @@ const OrdersTable = memo(() => {
     </div>
   );
 });
+
+const ReturnsTable = memo(() => {
+  const { data: orders } = useQuery({
+    queryKey: ["/api/orders"],
+    queryFn: async () => {
+      const res = await fetch("/api/orders");
+      return res.json();
+    }
+  });
+
+  const returnOrders = useMemo(() => {
+    return (orders || []).filter((o: any) => o.returnRequest && o.returnRequest.status !== 'none');
+  }, [orders]);
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold uppercase tracking-tight">الاسترجاع والاستبدال</h2>
+      <div className="rounded-none border border-black/5 overflow-hidden">
+        {returnOrders.length === 0 ? (
+          <div className="p-24 text-center text-black/20">
+            <AlertCircle className="w-12 h-12 mx-auto mb-4" />
+            <p className="font-bold uppercase tracking-widest text-xs">لا توجد طلبات استرجاع حالياً</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-black/5">
+            {returnOrders.map((order: any) => (
+              <div key={order.id} className="p-6 flex justify-between items-center hover:bg-secondary/10">
+                <div className="space-y-1">
+                  <p className="font-black text-sm">#{order.id.slice(-6).toUpperCase()}</p>
+                  <p className="text-[10px] font-bold uppercase text-black/40">{order.returnRequest.type === 'return' ? 'استرجاع' : 'استبدال'}</p>
+                </div>
+                <Badge variant="outline" className="rounded-none">{order.returnRequest.status}</Badge>
+                <Button variant="ghost" className="rounded-none text-xs font-bold border border-black/5">إدارة الطلب</Button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+});
+
+// ... (Rest of StatsCards, ProductsTable, CustomersTable)
+
 
 const CustomersTable = memo(() => {
   const { data: users, isLoading } = useQuery({
@@ -357,6 +533,7 @@ export default function Admin() {
             <TabsTrigger value="overview" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold">نظرة عامة</TabsTrigger>
             <TabsTrigger value="products" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold">المنتجات</TabsTrigger>
             <TabsTrigger value="orders" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold">الطلبات</TabsTrigger>
+            <TabsTrigger value="returns" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold">الاسترجاع</TabsTrigger>
             <TabsTrigger value="customers" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold">العملاء</TabsTrigger>
           </TabsList>
           
@@ -370,6 +547,10 @@ export default function Admin() {
 
           <TabsContent value="orders">
             <OrdersTable />
+          </TabsContent>
+
+          <TabsContent value="returns">
+            <ReturnsTable />
           </TabsContent>
 
           <TabsContent value="customers">

@@ -62,6 +62,14 @@ const orderSchema = new Schema<Order>(
     paymentMethod: { type: String, enum: ["cod", "bank_transfer", "apple_pay", "card"], required: true },
     bankTransferReceipt: String,
     paymentStatus: { type: String, default: "pending" },
+    shippingProvider: { type: String },
+    trackingNumber: { type: String },
+    returnRequest: {
+      status: { type: String, enum: ["none", "pending", "approved", "rejected"], default: "none" },
+      reason: String,
+      type: { type: String, enum: ["return", "exchange"] },
+      createdAt: Date,
+    },
   },
   { timestamps: true }
 );

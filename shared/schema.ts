@@ -79,6 +79,14 @@ export const insertOrderSchema = z.object({
   bankTransferReceipt: z.string().optional(),
   status: z.enum(orderStatuses).default("new"),
   paymentStatus: z.enum(["pending", "paid", "refunded"]).default("pending"),
+  shippingProvider: z.string().optional(), // e.g., "Storage Station"
+  trackingNumber: z.string().optional(),
+  returnRequest: z.object({
+    status: z.enum(["none", "pending", "approved", "rejected"]).default("none"),
+    reason: z.string().optional(),
+    type: z.enum(["return", "exchange"]).optional(),
+    createdAt: z.date().optional(),
+  }).optional(),
 });
 
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
