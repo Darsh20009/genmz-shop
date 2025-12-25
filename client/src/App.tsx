@@ -49,7 +49,7 @@ function AppContent() {
   );
 }
 
-function App() {
+export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
@@ -63,5 +63,3 @@ function App() {
     </QueryClientProvider>
   );
 }
-
-export default App;
