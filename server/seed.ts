@@ -1,7 +1,7 @@
 import { storage } from "./storage";
 import { scrypt, randomBytes } from "crypto";
 import { promisify } from "util";
-import { CategoryModel } from "./models";
+import { CategoryModel, UserModel } from "./models";
 
 const scryptAsync = promisify(scrypt);
 
@@ -12,7 +12,7 @@ async function hashPassword(password: string) {
 }
 
 export async function seed() {
-  const users = await storage.getUserByUsername("0532441566");
+  const users = await UserModel.findOne({ phone: "0532441566" });
   if (!users) {
     const password = await hashPassword("182009");
     await storage.createUser({

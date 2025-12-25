@@ -39,7 +39,7 @@ export function setupAuth(app: Express) {
     new LocalStrategy({ usernameField: 'phone' }, async (phone, password, done) => {
       try {
         // Root fix: Clean phone number and search only by phone
-        const cleanPhone = phone.trim();
+        const cleanPhone = phone.trim().replace(/\s/g, "");
         const user = await UserModel.findOne({ phone: cleanPhone }).lean().then(u => u ? { ...u, id: (u as any)._id.toString() } : undefined);
         
         if (!user) {
@@ -50,12 +50,15 @@ export function setupAuth(app: Express) {
         const isStaffOrAdmin = user.role === "admin" || user.role === "employee";
         
         if (isStaffOrAdmin || (password && password !== "" && password !== "undefined")) {
-          if (!password || password === "undefined" || password === "") {
+          // IMPORTANT: If no password provided but it's a manager/staff, we MUST have a password
+          if (isStaffOrAdmin && (!password || password === "undefined" || password === "")) {
              return done(null, false, { message: "كلمة المرور مطلوبة لهذا الحساب" });
           }
           
           const parts = user.password.split(".");
           if (parts.length !== 2) {
+            // If the password doesn't have a salt, it might be a legacy password
+            // or an incorrectly seeded one. For root stability, we handle this.
             return done(null, false, { message: "خطأ في نظام التشفير - يرجى التواصل مع الدعم" });
           }
           const [hashedPassword, salt] = parts;
@@ -67,8 +70,12 @@ export function setupAuth(app: Express) {
           }
         }
         
-        // For customer phone-only login (Legacy compatibility or simplified flow)
-        return done(null, user);
+        // For customer who registered with a password, but trying to login without one
+        if (user.password && user.password.includes(".") && (!password || password === "")) {
+           // We might want to allow this for "phone only" login if that's the desired UX
+           // but the user says it's not working, so let's enforce password if it exists
+           return done(null, false, { message: "كلمة المرور مطلوبة" });
+        }
       } catch (err) {
         return done(err);
       }
@@ -95,7 +102,7 @@ export function setupAuth(app: Express) {
         return res.status(400).send("جميع الحقول مطلوبة");
       }
 
-      const cleanPhone = phone.trim();
+      const cleanPhone = phone.trim().replace(/\s/g, "");
       const existingUser = await UserModel.findOne({ phone: cleanPhone }).lean();
       if (existingUser) {
         return res.status(400).send("رقم الهاتف مسجل مسبقاً");
