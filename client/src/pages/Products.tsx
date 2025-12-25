@@ -16,14 +16,17 @@ export default function Products() {
 
   return (
     <Layout>
-      <div className="container py-12">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
-          <h1 className="font-display text-4xl font-bold">جميع المنتجات</h1>
-          <div className="relative w-full md:w-96">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <div className="container py-20">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8 border-b border-black/5 pb-12">
+          <div className="text-right">
+            <h1 className="font-display text-5xl md:text-7xl font-black mb-4 uppercase tracking-tighter">المجموعة كاملة</h1>
+            <p className="text-muted-foreground text-lg font-light italic">تصفح أحدث التصاميم العصرية</p>
+          </div>
+          <div className="relative w-full md:w-[400px]">
+            <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-black/40" />
             <Input 
-              placeholder="ابحث عن منتج..." 
-              className="pr-10 bg-secondary/50 border-none h-12 rounded-xl"
+              placeholder="ابحث عن قطعة فنية..." 
+              className="pr-12 bg-white border border-black/10 h-14 rounded-none focus-visible:ring-black focus-visible:border-black text-lg"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -31,20 +34,20 @@ export default function Products() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-10">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <div key={i} className="aspect-[3/4] bg-muted animate-pulse rounded-xl" />
+              <div key={i} className="aspect-[3/4] bg-muted animate-pulse" />
             ))}
           </div>
         ) : filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-10">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-20 text-muted-foreground">
-            لا توجد منتجات تطابق بحثك.
+          <div className="text-center py-32">
+            <p className="text-2xl font-light text-muted-foreground italic">لا توجد قطع تطابق بحثك حالياً.</p>
           </div>
         )}
       </div>

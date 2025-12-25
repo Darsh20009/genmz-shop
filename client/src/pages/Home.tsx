@@ -27,17 +27,17 @@ export default function Home() {
             className="text-right z-20"
           >
             <span className="inline-block text-xs font-bold tracking-[0.2em] text-primary mb-4 uppercase">New Collection 2026</span>
-            <h1 className="font-display text-4xl md:text-7xl font-black leading-[1.1] mb-6 text-black">
+            <h1 className="font-display text-5xl md:text-8xl font-black leading-[0.9] mb-8 text-black tracking-tighter">
               GEN M & Z
-              <span className="block text-2xl md:text-4xl mt-2 font-medium text-muted-foreground italic font-serif">أناقة تتجاوز الحدود</span>
+              <span className="block text-2xl md:text-5xl mt-4 font-light text-muted-foreground italic font-serif">أناقة تتجاوز الحدود</span>
             </h1>
-            <p className="text-muted-foreground text-sm md:text-lg mb-8 max-w-md mr-0 ml-auto leading-relaxed">
+            <p className="text-muted-foreground text-base md:text-xl mb-12 max-w-md mr-0 ml-auto leading-relaxed font-light">
               نقدم لكم تشكيلة الهوديز الجديدة المصممة بعناية فائقة لتناسب أسلوب حياتكم العصري. جودة استثنائية وتفاصيل تروي قصة إبداع سعودي.
             </p>
-            <div className="flex gap-4 justify-end">
+            <div className="flex gap-6 justify-end">
               <Link href="/products">
-                <Button size="lg" className="px-8 py-6 text-sm font-bold uppercase tracking-wider rounded-none shadow-xl hover-elevate transition-all bg-black text-white border-none">
-                  اكتشف المجموعة <ChevronRight className="mr-2 h-4 w-4" />
+                <Button size="lg" className="px-10 py-8 text-sm font-bold uppercase tracking-[0.2em] rounded-none shadow-2xl hover-elevate transition-all bg-black text-white border-none active-elevate-2">
+                  اكتشف المجموعة <ChevronRight className="mr-3 h-5 w-5" />
                 </Button>
               </Link>
             </div>

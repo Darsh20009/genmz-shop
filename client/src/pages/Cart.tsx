@@ -26,50 +26,50 @@ export default function Cart() {
 
   return (
     <Layout>
-      <div className="container py-12">
-        <h1 className="font-display text-4xl font-bold mb-12">سلة المشتريات</h1>
+      <div className="container py-24">
+        <h1 className="font-display text-5xl md:text-7xl font-black mb-16 uppercase tracking-tighter text-right border-b border-black/5 pb-12">حقيبة التسوق</h1>
         
-        <div className="grid lg:grid-cols-3 gap-12">
+        <div className="grid lg:grid-cols-3 gap-16 items-start">
           {/* Cart Items */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-8 order-2 lg:order-1">
             {items.map((item) => (
-              <div key={`${item.productId}-${item.variantSku}`} className="flex gap-6 p-4 rounded-xl bg-card border border-border">
-                <div className="w-24 h-24 bg-secondary rounded-lg overflow-hidden shrink-0">
-                  <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+              <div key={`${item.productId}-${item.variantSku}`} className="flex flex-col sm:flex-row gap-8 p-6 bg-white border border-black/5 shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-full sm:w-32 aspect-[3/4] bg-white border border-black/5 overflow-hidden shrink-0">
+                  <img src={item.image} alt={item.title} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
                 </div>
                 
-                <div className="flex-1 flex flex-col justify-between">
+                <div className="flex-1 flex flex-col justify-between text-right">
                   <div>
-                    <h3 className="font-bold text-lg">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {item.color} / {item.size}
+                    <div className="flex justify-between items-start gap-4 mb-2">
+                      <span className="font-light text-xl tracking-tight">{(item.price * item.quantity).toLocaleString()} ر.س</span>
+                      <h3 className="font-black text-xl uppercase tracking-tight">{item.title}</h3>
+                    </div>
+                    <p className="text-xs font-bold uppercase tracking-widest text-black/40">
+                      {item.color} | {item.size}
                     </p>
                   </div>
                   
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-between mt-8">
+                    <button 
+                      onClick={() => removeItem(item.productId, item.variantSku)}
+                      className="text-black/40 hover:text-black transition-colors uppercase text-[10px] font-bold tracking-[0.2em] border-b border-black/20 pb-1"
+                    >
+                      إزالة القطعة
+                    </button>
+
+                    <div className="flex items-center gap-6">
                       <button 
                         onClick={() => updateQuantity(item.productId, item.variantSku, Math.max(1, item.quantity - 1))}
-                        className="w-8 h-8 rounded border flex items-center justify-center hover:bg-secondary"
+                        className="w-10 h-10 border border-black/10 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-xl font-light"
                       >
                         -
                       </button>
-                      <span className="font-mono w-4 text-center">{item.quantity}</span>
+                      <span className="text-xl font-light w-8 text-center">{item.quantity}</span>
                       <button 
                         onClick={() => updateQuantity(item.productId, item.variantSku, item.quantity + 1)}
-                        className="w-8 h-8 rounded border flex items-center justify-center hover:bg-secondary"
+                        className="w-10 h-10 border border-black/10 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-xl font-light"
                       >
                         +
-                      </button>
-                    </div>
-                    
-                    <div className="flex items-center gap-4">
-                      <span className="font-bold font-mono">{(item.price * item.quantity).toLocaleString()} ر.س</span>
-                      <button 
-                        onClick={() => removeItem(item.productId, item.variantSku)}
-                        className="text-destructive hover:bg-destructive/10 p-2 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
                   </div>
@@ -79,34 +79,34 @@ export default function Cart() {
           </div>
 
           {/* Summary */}
-          <div className="lg:col-span-1">
-            <div className="bg-card border border-border rounded-2xl p-6 sticky top-24">
-              <h3 className="font-display text-xl font-bold mb-6">ملخص الطلب</h3>
+          <div className="lg:col-span-1 order-1 lg:order-2">
+            <div className="bg-black text-white p-10 sticky top-24 shadow-2xl">
+              <h3 className="font-display text-2xl font-black mb-10 uppercase tracking-widest border-b border-white/10 pb-6">ملخص الحقيبة</h3>
               
-              <div className="space-y-4 mb-8">
-                <div className="flex justify-between text-muted-foreground">
-                  <span>المجموع الفرعي</span>
+              <div className="space-y-6 mb-12 text-sm font-light">
+                <div className="flex justify-between opacity-60">
                   <span>{total().toLocaleString()} ر.س</span>
+                  <span>المجموع الفرعي</span>
                 </div>
-                <div className="flex justify-between text-muted-foreground">
-                  <span>الضريبة (15%)</span>
+                <div className="flex justify-between opacity-60">
                   <span>{(total() * 0.15).toLocaleString()} ر.س</span>
+                  <span>الضريبة (١٥٪)</span>
                 </div>
-                <div className="flex justify-between text-muted-foreground">
-                  <span>الشحن</span>
-                  <span>مجاني</span>
-                </div>
-                <div className="border-t pt-4 flex justify-between font-bold text-xl">
-                  <span>الإجمالي</span>
+                <div className="flex justify-between border-t border-white/10 pt-6 font-bold text-2xl tracking-tighter">
                   <span className="text-primary">{(total() * 1.15).toLocaleString()} ر.س</span>
+                  <span>الإجمالي</span>
                 </div>
               </div>
 
               <Link href="/checkout">
-                <Button size="lg" className="w-full font-bold h-12">
-                  إتمام الشراء
+                <Button size="lg" className="w-full font-bold h-16 uppercase tracking-[0.3em] rounded-none bg-white text-black hover:bg-primary hover:text-white border-none transition-all">
+                  إتمام عملية الشراء
                 </Button>
               </Link>
+              
+              <div className="mt-8 text-[10px] uppercase tracking-[0.2em] opacity-40 text-center">
+                شحن مجاني على جميع الطلبات لفترة محدودة
+              </div>
             </div>
           </div>
         </div>
