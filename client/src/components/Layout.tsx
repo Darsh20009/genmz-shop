@@ -141,8 +141,6 @@ export function Layout({ children }: { children: ReactNode }) {
           <div>
             <h3 className="font-bold text-lg mb-6">المساعدة</h3>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li className="hover:text-primary cursor-pointer transition-colors">سياسة الشحن</li>
-              <li className="hover:text-primary cursor-pointer transition-colors">سياسة الاسترجاع</li>
               <li><Link href="/terms" className="hover:text-primary transition-colors">الشروط والأحكام</Link></li>
               <li className="hover:text-primary cursor-pointer transition-colors">الأسئلة الشائعة</li>
             </ul>
