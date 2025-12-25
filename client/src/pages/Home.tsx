@@ -241,7 +241,7 @@ export default function Home() {
               <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
                 <div className="text-center text-white">
                   <p className="text-sm uppercase tracking-widest mb-3 font-bold opacity-90">{language === 'ar' ? 'أكثر طلباً' : 'Best Sellers'}</p>
-                  <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight">{language === 'ar' ? 'الأزرق الكلاسيكي' : 'Classic Blue'}</h3>
+                  <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight">{language === 'ar' ? 'المجموعة الاكثر مبيعاً' : 'Most Sold Collection'}</h3>
                 </div>
               </div>
             </motion.div>
