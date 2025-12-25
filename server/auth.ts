@@ -44,7 +44,7 @@ export function setupAuth(app: Express) {
         
         // Find user by phone, username, or name (case-insensitive)
         const searchRegex = new RegExp(`^${cleanInput}$`, "i");
-        console.log(`[AUTH] Searching for user with regex: ${searchRegex}`);
+        console.log(`[AUTH] Login attempt for user: "${cleanInput}"`);
         let user = await UserModel.findOne({ 
           $or: [
             { phone: cleanInput },
@@ -57,10 +57,14 @@ export function setupAuth(app: Express) {
           user = { ...user, id: (user as any)._id.toString() };
         }
         
-        console.log(`[AUTH] User found: ${user ? user.username : 'null'} with role: ${user ? user.role : 'none'}`);
+        console.log(`[AUTH] User search result: ${user ? 'Found' : 'Not Found'}`);
+        if (user) {
+          console.log(`[AUTH] User details: ID=${user.id}, Username=${user.username}, Role=${user.role}, HasPassword=${!!user.password}`);
+        }
         
         // Check if user is staff/admin
         const isStaffOrAdmin = user ? ["admin", "employee", "support"].includes(user.role) : false;
+        console.log(`[AUTH] Is staff/admin: ${isStaffOrAdmin}`);
         
         // 1. If it's staff/admin, we require strict password check
         if (isStaffOrAdmin) {

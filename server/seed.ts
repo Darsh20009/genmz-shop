@@ -13,24 +13,24 @@ async function hashPassword(password: string) {
 
 export async function seed() {
   // Remove old phone number if exists
-  await UserModel.deleteOne({ phone: "0532441566" });
+  await UserModel.deleteMany({ phone: "0532441566" });
+  await UserModel.deleteMany({ phone: "0552469643" });
   
   // Create new admin user with new phone
-  const admin = await UserModel.findOne({ phone: "0552469643" });
-  if (!admin) {
-    const password = await hashPassword("20262030");
-    await storage.createUser({
-      phone: "0552469643",
-      password,
-      role: "admin",
-      name: "محمد",
-      username: "0552469643",
-      email: "admin@genmz.com",
-      walletBalance: "0",
-      addresses: [],
-    });
-    console.log("Admin user created with phone 0552469643");
-  }
+  console.log("Seeding admin user...");
+  const password = await hashPassword("20262030");
+  await storage.createUser({
+    phone: "0552469643",
+    password,
+    role: "admin",
+    name: "محمد",
+    username: "0552469643",
+    email: "admin@genmz.com",
+    walletBalance: "0",
+    addresses: [],
+    permissions: ["support", "orders", "products", "accounting", "customers"]
+  });
+  console.log("Admin user created with phone 0552469643 and password 20262030");
 
   const categories = await storage.getCategories();
   if (categories.length === 0) {
