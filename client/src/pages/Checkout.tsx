@@ -60,12 +60,18 @@ export default function Checkout() {
       }
       const orderData = {
         userId: user.id,
-        total: (total() * 1.15).toString(),
+        total: (total() * 1.15).toFixed(2),
+        subtotal: total().toFixed(2),
+        vatAmount: (total() * 0.15).toFixed(2),
+        shippingCost: (25).toFixed(2),
+        tapCommission: (total() * 1.15 * 0.02).toFixed(2),
+        netProfit: (total() * 1.15 * 0.1).toFixed(2),
         items: items.map(item => ({
           productId: item.productId,
           variantSku: item.variantSku,
           quantity: item.quantity,
           price: item.price,
+          cost: Math.round(item.price * 0.7),
           title: item.title,
         })),
         shippingMethod,

@@ -18,7 +18,13 @@ export function setupAuth(app: Express) {
     secret: process.env.SESSION_SECRET || "r3pl1t_s3cr3t_k3y",
     resave: false,
     saveUninitialized: false,
-    cookie: {},
+    rolling: true,
+    cookie: {
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: app.get("env") === "production"
+    },
     store: new MemoryStore({
       checkPeriod: 86400000,
     }),
