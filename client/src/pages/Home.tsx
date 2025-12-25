@@ -155,19 +155,14 @@ export default function Home() {
               ))}
             </div>
           ) : featuredProducts.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 auto-rows-max">
-              {featuredProducts.map((product, index) => (
-                <motion.div
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              {featuredProducts.map((product) => (
+                <div
                   key={product.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "0px 0px -100px 0px" }}
-                  transition={{ delay: (index % 4) * 0.1, duration: 0.5 }}
                   data-testid={`card-product-${product.id}`}
-                  className="group"
                 >
                   <ProductCard product={product} />
-                </motion.div>
+                </div>
               ))}
             </div>
           ) : (
