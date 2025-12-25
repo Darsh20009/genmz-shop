@@ -76,8 +76,8 @@ export function Layout({ children }: { children: ReactNode }) {
               </SheetContent>
             </Sheet>
 
-            <Link href="/" className="flex items-center">
-              <img src={logoImg} alt="Gen M & Z" className="h-10 w-auto md:h-12" />
+            <Link href="/" className="flex items-center py-2">
+              <img src={logoImg} alt="Gen M & Z" className="h-12 w-auto md:h-16 object-contain" />
             </Link>
 
             <div className="hidden md:flex items-center gap-6 text-sm font-bold">
@@ -157,7 +157,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="container grid grid-cols-1 md:grid-cols-4 gap-12 px-4">
           <div className="space-y-4">
             <Link href="/" className="flex items-center">
-              <img src={logoImg} alt="Gen M & Z" className="h-10 w-auto" />
+              <img src={logoImg} alt="Gen M & Z" className="h-14 w-auto object-contain" />
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
               الفخامة العصرية للجيل الجديد. تصميم سعودي بأعلى معايير الجودة والتفرد.

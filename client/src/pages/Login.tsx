@@ -42,7 +42,7 @@ export default function Login() {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <Link href="/">
-             <img src={logoImg} alt="Gen M & Z" className="h-16 w-auto mx-auto mb-4 cursor-pointer" />
+             <img src={logoImg} alt="Gen M & Z" className="h-24 w-auto mx-auto mb-6 cursor-pointer object-contain" />
           </Link>
           <p className="text-muted-foreground">سجل دخولك للمتابعة</p>
         </div>
