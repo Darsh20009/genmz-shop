@@ -37,10 +37,10 @@ export function Layout({ children }: { children: ReactNode }) {
               </SheetTrigger>
               <SheetContent side="right" className="w-full flex flex-col p-0 border-none bg-white">
                 <div className="flex flex-col gap-8 mt-20 px-8 flex-1" dir="rtl">
-                  <Link href="/" className={`text-4xl font-black uppercase tracking-tighter ${location === '/' ? 'text-black' : 'text-muted-foreground'}`}>الرئيسية</Link>
-                  <Link href="/products" className={`text-4xl font-black uppercase tracking-tighter ${location === '/products' ? 'text-black' : 'text-muted-foreground'}`}>المتجر</Link>
-                  <Link href="/categories/single-cab" className="text-4xl font-black uppercase tracking-tighter text-muted-foreground">سنقل كاب</Link>
-                  <Link href="/categories/double-cab" className="text-4xl font-black uppercase tracking-tighter text-muted-foreground">دبل كاب</Link>
+                  <Link href="/" className={`text-4xl font-black uppercase tracking-tighter transition-all hover:translate-x-2 ${location === '/' ? 'text-black' : 'text-muted-foreground'}`}>الرئيسية</Link>
+                  <Link href="/products" className={`text-4xl font-black uppercase tracking-tighter transition-all hover:translate-x-2 ${location === '/products' ? 'text-black' : 'text-muted-foreground'}`}>المتجر</Link>
+                  <Link href="/categories/single-cab" className="text-4xl font-black uppercase tracking-tighter transition-all hover:translate-x-2 text-muted-foreground">سنقل كاب</Link>
+                  <Link href="/categories/double-cab" className="text-4xl font-black uppercase tracking-tighter transition-all hover:translate-x-2 text-muted-foreground">دبل كاب</Link>
                 </div>
                 
                 <div className="p-8 border-t bg-[#fafafa]">

@@ -173,9 +173,9 @@ export default function Home() {
             <input 
               type="email" 
               placeholder="بريدك الإلكتروني" 
-              className="bg-transparent border-none text-white placeholder:text-white/40 focus:ring-0 flex-1 text-center py-4"
+              className="bg-transparent border-none text-white placeholder:text-white/40 focus:ring-0 flex-1 text-center py-4 text-lg"
             />
-            <button className="text-xs font-bold uppercase tracking-widest hover:text-primary transition-colors py-4 px-6">
+            <button className="text-xs font-black uppercase tracking-[0.2em] hover:text-primary transition-all duration-300 py-4 px-8 hover:bg-white hover:text-black">
               SUBSCRIBE
             </button>
           </form>
