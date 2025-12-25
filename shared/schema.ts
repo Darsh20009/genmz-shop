@@ -75,6 +75,7 @@ export const insertProductSchema = z.object({
     size: z.string(),
     sku: z.string(),
     stock: z.number(),
+    cost: z.number().default(0), // COGS per SKU
   })).default([]),
   isFeatured: z.boolean().default(false),
 });

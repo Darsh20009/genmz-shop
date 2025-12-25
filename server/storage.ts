@@ -188,7 +188,8 @@ export class MongoDBStorage implements IStorage {
       vatAmount: insertOrder.vatAmount || "0",
       shippingCost: insertOrder.shippingCost || "0",
       tapCommission: insertOrder.tapCommission || "0",
-      netProfit: insertOrder.netProfit || "0"
+      netProfit: insertOrder.netProfit || "0",
+      discountAmount: insertOrder.discountAmount || "0"
     });
     return { ...order.toObject(), id: order._id.toString() };
   }
