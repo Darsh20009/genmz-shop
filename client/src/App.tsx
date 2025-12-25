@@ -14,6 +14,7 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import Admin from "@/pages/Admin";
 import Dashboard from "@/pages/Dashboard";
+import Employees from "@/pages/Employees";
 import Orders from "@/pages/Orders";
 import Terms from "@/pages/Terms";
 import ForgotPassword from "@/pages/ForgotPassword";
@@ -31,6 +32,7 @@ function Router() {
       <Route path="/register" component={Register} />
       <Route path="/forgot-password" component={ForgotPassword} />
       <Route path="/orders" component={Orders} />
+      <Route path="/employees" component={Employees} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/admin" component={Admin} />
       <Route path="/terms" component={Terms} />

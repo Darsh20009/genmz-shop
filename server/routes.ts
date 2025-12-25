@@ -269,6 +269,23 @@ export async function registerRoutes(
     res.json(users);
   });
 
+  // Shipping Integration (Storage Station Stub)
+  app.post("/api/shipping/create-shipment", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const { orderId } = req.body;
+    
+    // This is a stub for Storage Station API
+    // Real integration would use an API Key and fetch shipment details
+    console.log(`Creating shipment for order ${orderId} via Storage Station`);
+    
+    const order = await storage.updateOrderStatus(orderId, "processing", {
+      provider: "Storage Station",
+      tracking: "SS-" + Math.random().toString(36).substring(7).toUpperCase()
+    });
+    
+    res.json({ success: true, trackingNumber: order.trackingNumber });
+  });
+
   app.patch("/api/admin/users/:id", async (req, res) => {
     if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
     const user = await storage.updateUser(req.params.id, req.body);

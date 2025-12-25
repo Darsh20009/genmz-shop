@@ -63,7 +63,8 @@ export default function Dashboard() {
     { title: "الرئيسية", icon: Home, url: "/dashboard", active: true },
     { title: "الطلبات", icon: ShoppingBag, url: "/orders" },
     { title: "المنتجات", icon: Box, url: "/products" },
-    { title: "العملاء", icon: Users, url: "#" },
+    { title: "الموظفين", icon: Users, url: "/employees" },
+    { title: "العملاء", icon: User, url: "#" },
     { title: "التقارير", icon: BarChart3, url: "#" },
   ];
 
