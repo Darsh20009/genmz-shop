@@ -127,24 +127,124 @@ export default function Home() {
       </section>
 
       {/* Featured Products showcase */}
-      <section className="py-32 bg-secondary/10">
+      <section className="py-32 bg-white">
         <div className="container px-4">
           <div className={`flex flex-col md:flex-row justify-between items-end gap-8 mb-20 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
             <div className="max-w-2xl">
+              <span className="inline-block text-xs font-bold tracking-[0.2em] text-primary mb-4 uppercase">{t('discoverCollection')}</span>
               <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-6">{t('exclusivePicks')}</h2>
               <p className="text-xl text-muted-foreground font-light italic">{t('heroDesc')}</p>
             </div>
             <Link href="/products">
-              <Button variant="outline" size="lg" className="rounded-none border-black hover:bg-black hover:text-white transition-all font-bold uppercase tracking-widest text-xs h-14 px-10 group">
+              <Button size="lg" className="rounded-none border-black font-bold uppercase tracking-widest text-xs h-14 px-10 group bg-black text-white hover:bg-black/80 transition-all">
                 {t('viewAllProducts')}
                 {language === 'ar' ? <ChevronLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" /> : <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />}
               </Button>
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-            {featuredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+          {isLoading ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="aspect-square bg-muted animate-pulse rounded-md" />
+              ))}
+            </div>
+          ) : featuredProducts.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+              {featuredProducts.map((product) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.1 }}
+                  data-testid={`card-product-${product.id}`}
+                >
+                  <ProductCard product={product} />
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20">
+              <ShoppingBag className="w-16 h-16 text-muted-foreground mx-auto mb-6 opacity-30" />
+              <p className="text-lg text-muted-foreground mb-8">{language === 'ar' ? 'قريباً: منتجات جديدة قادمة' : 'Coming Soon: New Products Coming'}</p>
+              <Link href="/products">
+                <Button variant="outline" size="lg">{language === 'ar' ? 'استكشف جميع المنتجات' : 'Explore All Products'}</Button>
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Collection Spotlight Section */}
+      <section className="py-32 bg-gradient-to-b from-white to-secondary/5">
+        <div className="container px-4">
+          <div className={`text-center max-w-3xl mx-auto mb-20 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+            <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-6">{language === 'ar' ? 'تصاميم حصرية' : 'Exclusive Designs'}</h2>
+            <p className="text-lg text-muted-foreground font-light italic">{language === 'ar' ? 'اكتشف مجموعتنا الأخيرة من الملابس والإكسسوارات المصممة خصيصاً لك' : 'Discover our latest collection of clothing and accessories designed just for you'}</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="group relative overflow-hidden rounded-lg aspect-square bg-muted hover-elevate"
+            >
+              <img 
+                src={tealImg} 
+                alt="Teal Collection" 
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                data-testid="img-teal-collection"
+              />
+              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
+                <div className="text-center text-white">
+                  <p className="text-sm uppercase tracking-widest mb-3 font-bold opacity-90">{language === 'ar' ? 'مجموعة جديدة' : 'New Collection'}</p>
+                  <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight">{language === 'ar' ? 'أزياء صيفية' : 'Summer Vibes'}</h3>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="group relative overflow-hidden rounded-lg aspect-square bg-muted hover-elevate"
+            >
+              <img 
+                src={greyImg} 
+                alt="Grey Collection" 
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                data-testid="img-grey-collection"
+              />
+              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
+                <div className="text-center text-white">
+                  <p className="text-sm uppercase tracking-widest mb-3 font-bold opacity-90">{language === 'ar' ? 'الكلاسيكيات' : 'Classics'}</p>
+                  <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight">{language === 'ar' ? 'الرمادي الفاخر' : 'Luxury Grey'}</h3>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="group relative overflow-hidden rounded-lg aspect-square bg-muted hover-elevate"
+            >
+              <img 
+                src={blueImg} 
+                alt="Blue Collection" 
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                data-testid="img-blue-collection"
+              />
+              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
+                <div className="text-center text-white">
+                  <p className="text-sm uppercase tracking-widest mb-3 font-bold opacity-90">{language === 'ar' ? 'أكثر طلباً' : 'Best Sellers'}</p>
+                  <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight">{language === 'ar' ? 'الأزرق الكلاسيكي' : 'Classic Blue'}</h3>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>

@@ -43,4 +43,77 @@ export async function seed() {
     ]);
     console.log("Categories seeded");
   }
+
+  // Seed featured products
+  const products = await storage.getProducts();
+  if (products.length === 0) {
+    await storage.createProduct({
+      name: "Burgundy Hoodie",
+      description: "Premium quality burgundy hoodie with comfortable fit",
+      price: "299.99",
+      cost: "150",
+      images: [
+        "https://images.unsplash.com/photo-1556821552-7f41c5d440db?auto=format&fit=crop&q=80",
+      ],
+      isFeatured: true,
+      variants: [
+        { color: "Burgundy", size: "S", sku: "BURG-S", stock: 10, cost: 150 },
+        { color: "Burgundy", size: "M", sku: "BURG-M", stock: 15, cost: 150 },
+        { color: "Burgundy", size: "L", sku: "BURG-L", stock: 12, cost: 150 },
+        { color: "Burgundy", size: "XL", sku: "BURG-XL", stock: 8, cost: 150 },
+      ]
+    });
+
+    await storage.createProduct({
+      name: "Teal Jacket",
+      description: "Stylish teal jacket perfect for any season",
+      price: "399.99",
+      cost: "200",
+      images: [
+        "https://images.unsplash.com/photo-1551028719-00167b16ebc5?auto=format&fit=crop&q=80",
+      ],
+      isFeatured: true,
+      variants: [
+        { color: "Teal", size: "S", sku: "TEAL-S", stock: 8, cost: 200 },
+        { color: "Teal", size: "M", sku: "TEAL-M", stock: 12, cost: 200 },
+        { color: "Teal", size: "L", sku: "TEAL-L", stock: 10, cost: 200 },
+      ]
+    });
+
+    await storage.createProduct({
+      name: "Grey Sweater",
+      description: "Cozy grey sweater made from premium materials",
+      price: "249.99",
+      cost: "120",
+      images: [
+        "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80",
+      ],
+      isFeatured: true,
+      variants: [
+        { color: "Grey", size: "XS", sku: "GREY-XS", stock: 6, cost: 120 },
+        { color: "Grey", size: "S", sku: "GREY-S", stock: 10, cost: 120 },
+        { color: "Grey", size: "M", sku: "GREY-M", stock: 14, cost: 120 },
+        { color: "Grey", size: "L", sku: "GREY-L", stock: 9, cost: 120 },
+        { color: "Grey", size: "XL", sku: "GREY-XL", stock: 7, cost: 120 },
+      ]
+    });
+
+    await storage.createProduct({
+      name: "Blue Hoodie",
+      description: "Classic blue hoodie with modern design",
+      price: "279.99",
+      cost: "140",
+      images: [
+        "https://images.unsplash.com/photo-1543163521-9efcc062db33?auto=format&fit=crop&q=80",
+      ],
+      isFeatured: true,
+      variants: [
+        { color: "Blue", size: "S", sku: "BLUE-S", stock: 11, cost: 140 },
+        { color: "Blue", size: "M", sku: "BLUE-M", stock: 16, cost: 140 },
+        { color: "Blue", size: "L", sku: "BLUE-L", stock: 13, cost: 140 },
+      ]
+    });
+
+    console.log("Featured products seeded");
+  }
 }
