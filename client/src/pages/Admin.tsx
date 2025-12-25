@@ -15,26 +15,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProductSchema, type InsertProduct } from "@shared/schema";
-import { Loader2, Plus, DollarSign, Package, Users, ShoppingCart } from "lucide-react";
-import { z } from "zod";
-
-import { Layout } from "@/components/Layout";
-import { useAuth } from "@/hooks/use-auth";
-import { useProducts, useCreateProduct } from "@/hooks/use-products";
-import { useQuery } from "@tanstack/react-query";
-import { api } from "@shared/routes";
-import { useLocation } from "wouter";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { insertProductSchema, type InsertProduct } from "@shared/schema";
 import { Loader2, Plus, DollarSign, Package, Users, ShoppingCart, TrendingUp, BarChart3, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { z } from "zod";
 import {
@@ -208,8 +188,6 @@ function ProductsTable() {
   });
 
   const onSubmit = (data: InsertProduct) => {
-    // Ensuring numbers are strings for decimal fields if schema expects strings, or handle conversion
-    // Our schema expects 'decimal' which is string in JS usually when using Drizzle
     createProduct.mutate(data, {
       onSuccess: () => {
         setOpen(false);
@@ -251,7 +229,6 @@ function ProductsTable() {
                 <Label>التكلفة (للحسابات)</Label>
                 <Input type="number" {...form.register("cost")} />
               </div>
-              {/* Simplified for demo - would need variant/image array handling UI */}
               <Button type="submit" disabled={createProduct.isPending}>
                 {createProduct.isPending ? "جاري الحفظ..." : "حفظ المنتج"}
               </Button>
@@ -308,7 +285,6 @@ export default function Admin() {
           
           <TabsContent value="overview">
             <StatsCards />
-            {/* Chart placeholders would go here */}
           </TabsContent>
           
           <TabsContent value="products">
