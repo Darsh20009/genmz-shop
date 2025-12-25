@@ -164,6 +164,14 @@ export async function registerRoutes(
     });
   });
 
+  app.get("/api/admin/users", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const user = req.user as any;
+    if (user.role !== "admin") return res.sendStatus(403);
+    const users = await storage.getUsers();
+    res.json(users);
+  });
+
   // Wallet
   app.get("/api/wallet/transactions", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
