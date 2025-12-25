@@ -77,6 +77,8 @@ export const insertOrderSchema = z.object({
   pickupBranch: z.string().optional(),
   paymentMethod: z.enum(["cod", "bank_transfer", "apple_pay", "card"]),
   bankTransferReceipt: z.string().optional(),
+  status: z.enum(orderStatuses).default("new"),
+  paymentStatus: z.enum(["pending", "paid", "refunded"]).default("pending"),
 });
 
 export type InsertOrder = z.infer<typeof insertOrderSchema>;

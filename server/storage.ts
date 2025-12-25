@@ -76,7 +76,11 @@ export class MongoDBStorage implements IStorage {
   }
 
   async createOrder(insertOrder: InsertOrder): Promise<Order> {
-    const order = await OrderModel.create(insertOrder);
+    const order = await OrderModel.create({
+      ...insertOrder,
+      status: insertOrder.status || "new",
+      paymentStatus: insertOrder.paymentStatus || "pending"
+    });
     return { ...order.toObject(), id: order._id.toString() };
   }
 
