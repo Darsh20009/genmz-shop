@@ -1,13 +1,60 @@
 import { Layout } from "@/components/Layout";
 import { useCart } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";
-import { Trash2, ShoppingBag, Check } from "lucide-react";
+import { Trash2, ShoppingBag, Check, AlertCircle } from "lucide-react";
 import { Link } from "wouter";
 import { useLanguage } from "@/hooks/use-language";
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Cart() {
   const { items, removeItem, updateQuantity, total } = useCart();
   const { t, language } = useLanguage();
+  const { toast } = useToast();
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  const applyCouponMutation = useMutation({
+    mutationFn: async (code: string) => {
+      setLoading(true);
+      const res = await fetch(`/api/coupons/${code}`);
+      if (!res.ok) throw new Error("كود الخصم غير صحيح أو منتهي");
+      return res.json();
+    },
+    onSuccess: (coupon) => {
+      setAppliedCoupon(coupon);
+      setCouponCode("");
+      toast({ title: "تمت إضافة كود الخصم بنجاح" });
+      setLoading(false);
+    },
+    onError: (err: any) => {
+      toast({ title: "خطأ", description: err.message || "فشل تطبيق الكود", variant: "destructive" });
+      setLoading(false);
+    }
+  });
+
+  const calculateDiscount = () => {
+    if (!appliedCoupon) return 0;
+    const subtotal = total();
+    
+    // Check minimum order amount
+    if (appliedCoupon.minOrderAmount && subtotal < appliedCoupon.minOrderAmount) {
+      return 0;
+    }
+
+    if (appliedCoupon.type === "percentage") {
+      return (subtotal * appliedCoupon.value) / 100;
+    } else {
+      return appliedCoupon.value;
+    }
+  };
+
+  const discountAmount = calculateDiscount();
+  const subtotal = total();
+  const tax = (subtotal * 0.15);
+  const finalTotal = subtotal + tax - discountAmount;
 
   if (items.length === 0) {
     return (
@@ -105,33 +152,70 @@ export default function Cart() {
                   
                   <div className="space-y-4 text-[11px] font-bold uppercase tracking-widest">
                     <div className={`flex justify-between ${language === 'ar' ? '' : 'flex-row-reverse'}`}>
-                      <span className="text-black">{total().toLocaleString()} {t('currency')}</span>
+                      <span className="text-black">{subtotal.toLocaleString()} {t('currency')}</span>
                       <span className="opacity-40">{t('subtotal')}</span>
                     </div>
                     <div className={`flex justify-between ${language === 'ar' ? '' : 'flex-row-reverse'}`}>
-                      <span className="text-black">{(total() * 0.15).toLocaleString()} {t('currency')}</span>
+                      <span className="text-black">{tax.toLocaleString()} {t('currency')}</span>
                       <span className="opacity-40">{t('tax')}</span>
                     </div>
+                    
+                    {appliedCoupon && discountAmount > 0 && (
+                      <div className={`flex justify-between text-green-600 ${language === 'ar' ? '' : 'flex-row-reverse'}`}>
+                        <span>-{discountAmount.toLocaleString()} {t('currency')}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="opacity-60">{t('discount')}</span>
+                          <button
+                            onClick={() => setAppliedCoupon(null)}
+                            className="opacity-40 hover:opacity-100 transition-opacity text-[9px]"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    
                     <div className={`flex justify-between pt-6 mt-6 border-t border-black/5 font-black text-3xl tracking-tighter text-black ${language === 'ar' ? '' : 'flex-row-reverse'}`}>
-                      <span className="text-primary">{(total() * 1.15).toLocaleString()} {t('currency')}</span>
+                      <span className="text-primary">{finalTotal.toLocaleString()} {t('currency')}</span>
                       <span>{t('total')}</span>
                     </div>
                   </div>
 
                   <div className="mt-10 space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-black/30 block">{t('discountCode')}</label>
-                      <div className="flex gap-2">
-                        <input 
-                          type="text" 
-                          placeholder={t('enterCoupon')}
-                          className="flex-1 bg-black/5 border-none p-4 text-xs focus:ring-1 focus:ring-black/10 transition-all uppercase tracking-widest"
-                        />
-                        <Button variant="outline" className="h-12 px-6 border-black/10 hover:bg-black hover:text-white transition-all rounded-none uppercase text-[10px] font-black tracking-widest">
-                          {t('apply')}
-                        </Button>
+                    {!appliedCoupon && (
+                      <div className="space-y-2">
+                        <label className="text-[9px] font-black uppercase tracking-[0.2em] text-black/30 block">{t('discountCode')}</label>
+                        <div className="flex gap-2">
+                          <input 
+                            type="text" 
+                            value={couponCode}
+                            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter' && couponCode.trim()) {
+                                applyCouponMutation.mutate(couponCode.trim());
+                              }
+                            }}
+                            placeholder={t('enterCoupon')}
+                            className="flex-1 bg-black/5 border-none p-4 text-xs focus:ring-1 focus:ring-black/10 transition-all uppercase tracking-widest disabled:opacity-50"
+                            disabled={loading}
+                            data-testid="input-coupon-code"
+                          />
+                          <Button 
+                            variant="outline" 
+                            onClick={() => {
+                              if (couponCode.trim()) {
+                                applyCouponMutation.mutate(couponCode.trim());
+                              }
+                            }}
+                            disabled={loading || !couponCode.trim()}
+                            className="h-12 px-6 border-black/10 hover:bg-black hover:text-white transition-all rounded-none uppercase text-[10px] font-black tracking-widest disabled:opacity-50"
+                            data-testid="button-apply-coupon"
+                          >
+                            {loading ? '...' : t('apply')}
+                          </Button>
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     <Link href="/checkout">
                       <Button size="lg" className="w-full font-black h-16 uppercase tracking-[0.4em] rounded-none bg-black text-white hover:bg-primary border-none transition-all text-xs shadow-xl shadow-black/10">
