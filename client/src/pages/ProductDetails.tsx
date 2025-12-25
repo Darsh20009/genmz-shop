@@ -6,6 +6,7 @@ import { useRoute } from "wouter";
 import { useState } from "react";
 import { ShoppingBag, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
 
 export default function ProductDetails() {
   const [, params] = useRoute("/products/:id");
