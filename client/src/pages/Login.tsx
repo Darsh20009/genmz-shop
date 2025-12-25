@@ -35,7 +35,10 @@ export default function Login() {
   });
 
   const onSubmit = (data: z.infer<typeof loginSchema>) => {
-    login({ phone: data.phone, password: data.password || "", username: data.phone } as any, {
+    login({ 
+      username: data.phone, 
+      password: data.password || "" 
+    }, {
       onSuccess: () => setLocation("/"),
     });
   };

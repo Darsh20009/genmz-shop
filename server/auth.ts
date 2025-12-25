@@ -53,7 +53,7 @@ export function setupAuth(app: Express) {
         // We'll adapt it to allow empty password for customers during initial login if needed,
         // but it's safer to check if password matches if it's provided.
         
-        if (user.role === "admin" || user.role === "employee" || password) {
+        if (user.role === "admin" || user.role === "employee" || (password && password !== "")) {
           const parts = user.password.split(".");
           if (parts.length !== 2) {
             return done(null, false, { message: "خطأ في تنسيق كلمة المرور" });
@@ -116,8 +116,17 @@ export function setupAuth(app: Express) {
     }
   });
 
-  app.post("/api/auth/login", passport.authenticate("local"), (req, res) => {
-    res.status(200).json(req.user);
+  app.post("/api/auth/login", (req, res, next) => {
+    passport.authenticate("local", (err: any, user: any, info: any) => {
+      if (err) return next(err);
+      if (!user) {
+        return res.status(401).send(info?.message || "فشل تسجيل الدخول");
+      }
+      req.login(user, (err) => {
+        if (err) return next(err);
+        res.status(200).json(user);
+      });
+    })(req, res, next);
   });
 
   app.post("/api/auth/logout", (req, res, next) => {
