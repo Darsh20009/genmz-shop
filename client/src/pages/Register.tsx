@@ -46,19 +46,19 @@ export default function Register() {
           <p className="text-muted-foreground">أنشئ حسابك الجديد</p>
         </div>
 
-        <div className="bg-card border border-border p-8 rounded-2xl shadow-xl">
+        <div className="bg-white border border-black/5 p-10 rounded-none shadow-2xl">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>الاسم الكامل</FormLabel>
+                  <FormItem className="text-right">
+                    <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">الاسم الكامل</FormLabel>
                     <FormControl>
-                      <Input placeholder="فلان الفلاني" {...field} className="h-10 bg-secondary/50" />
+                      <Input placeholder="فلان الفلاني" {...field} className="h-12 bg-white border-black/10 rounded-none focus-visible:ring-black" />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-[10px]" />
                   </FormItem>
                 )}
               />
@@ -66,12 +66,12 @@ export default function Register() {
                 control={form.control}
                 name="username"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>اسم المستخدم</FormLabel>
+                  <FormItem className="text-right">
+                    <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">اسم المستخدم</FormLabel>
                     <FormControl>
-                      <Input placeholder="username" {...field} className="h-10 bg-secondary/50" />
+                      <Input placeholder="username" {...field} className="h-12 bg-white border-black/10 rounded-none focus-visible:ring-black" />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-[10px]" />
                   </FormItem>
                 )}
               />
@@ -79,12 +79,12 @@ export default function Register() {
                 control={form.control}
                 name="email"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>البريد الإلكتروني</FormLabel>
+                  <FormItem className="text-right">
+                    <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">البريد الإلكتروني</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="email@example.com" {...field} className="h-10 bg-secondary/50" />
+                      <Input type="email" placeholder="email@example.com" {...field} className="h-12 bg-white border-black/10 rounded-none focus-visible:ring-black" />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-[10px]" />
                   </FormItem>
                 )}
               />
@@ -92,12 +92,12 @@ export default function Register() {
                 control={form.control}
                 name="phone"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>رقم الجوال</FormLabel>
+                  <FormItem className="text-right">
+                    <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">رقم الجوال</FormLabel>
                     <FormControl>
-                      <Input placeholder="05xxxxxxxx" {...field} value={field.value || ""} className="h-10 bg-secondary/50" />
+                      <Input placeholder="05xxxxxxxx" {...field} value={field.value || ""} className="h-12 bg-white border-black/10 rounded-none focus-visible:ring-black" />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-[10px]" />
                   </FormItem>
                 )}
               />
@@ -105,25 +105,25 @@ export default function Register() {
                 control={form.control}
                 name="password"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>كلمة المرور</FormLabel>
+                  <FormItem className="text-right">
+                    <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">كلمة المرور</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} className="h-10 bg-secondary/50" />
+                      <Input type="password" placeholder="••••••••" {...field} className="h-12 bg-white border-black/10 rounded-none focus-visible:ring-black" />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-[10px]" />
                   </FormItem>
                 )}
               />
 
-              <Button type="submit" className="w-full h-12 font-bold mt-4" disabled={isRegistering}>
+              <Button type="submit" className="w-full h-16 font-bold uppercase tracking-[0.3em] text-xs rounded-none bg-black text-white hover-elevate active-elevate-2 border-none mt-4" disabled={isRegistering}>
                 {isRegistering ? <Loader2 className="animate-spin" /> : "إنشاء الحساب"}
               </Button>
             </form>
           </Form>
 
-          <div className="mt-6 text-center text-sm">
+          <div className="mt-10 text-center text-[10px] font-bold uppercase tracking-widest text-black/40">
             لديك حساب بالفعل؟{" "}
-            <Link href="/login" className="text-primary font-bold hover:underline">
+            <Link href="/login" className="text-black hover:underline ml-1">
               سجل دخولك
             </Link>
           </div>

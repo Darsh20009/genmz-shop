@@ -47,19 +47,19 @@ export default function Login() {
           <p className="text-muted-foreground">سجل دخولك للمتابعة</p>
         </div>
 
-        <div className="bg-card border border-border p-8 rounded-2xl shadow-xl">
+        <div className="bg-white border border-black/5 p-10 rounded-none shadow-2xl">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
                 control={form.control}
                 name="username"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>اسم المستخدم</FormLabel>
+                  <FormItem className="text-right">
+                    <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">اسم المستخدم</FormLabel>
                     <FormControl>
-                      <Input placeholder="username" {...field} className="h-12 bg-secondary/50" />
+                      <Input placeholder="username" {...field} className="h-14 bg-white border-black/10 rounded-none focus-visible:ring-black" />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-[10px]" />
                   </FormItem>
                 )}
               />
@@ -67,27 +67,36 @@ export default function Login() {
                 control={form.control}
                 name="password"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>كلمة المرور</FormLabel>
+                  <FormItem className="text-right">
+                    <div className="flex justify-between items-center mb-1">
+                      <Link href="/forgot-password" size="sm" className="text-[10px] font-bold uppercase tracking-widest text-black/40 hover:text-black">نسيت كلمة المرور؟</Link>
+                      <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">كلمة المرور</FormLabel>
+                    </div>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} className="h-12 bg-secondary/50" />
+                      <Input type="password" placeholder="••••••••" {...field} className="h-14 bg-white border-black/10 rounded-none focus-visible:ring-black" />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-[10px]" />
                   </FormItem>
                 )}
               />
 
-              <Button type="submit" className="w-full h-12 font-bold" disabled={isLoggingIn}>
+              <Button type="submit" className="w-full h-16 font-bold uppercase tracking-[0.3em] text-xs rounded-none bg-black text-white hover-elevate active-elevate-2 border-none" disabled={isLoggingIn}>
                 {isLoggingIn ? <Loader2 className="animate-spin" /> : "تسجيل الدخول"}
               </Button>
             </form>
           </Form>
 
-          <div className="mt-6 text-center text-sm">
+          <div className="mt-10 text-center text-[10px] font-bold uppercase tracking-widest text-black/40">
             ليس لديك حساب؟{" "}
-            <Link href="/register" className="text-primary font-bold hover:underline">
+            <Link href="/register" className="text-black hover:underline ml-1">
               أنشئ حساب جديد
             </Link>
+          </div>
+          
+          <div className="mt-8 pt-8 border-t border-black/5 text-center">
+            <a href="https://api.whatsapp.com/send/?phone=966501906069" target="_blank" rel="noreferrer" className="text-[10px] font-bold uppercase tracking-widest text-black/40 hover:text-black transition-colors">
+              هل تواجه مشكلة؟ تواصل مع الدعم الفني
+            </a>
           </div>
         </div>
       </div>
