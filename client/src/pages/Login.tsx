@@ -69,7 +69,7 @@ export default function Login() {
                 render={({ field }) => (
                   <FormItem className="text-right">
                     <div className="flex justify-between items-center mb-1">
-                      <Link href="/forgot-password" size="sm" className="text-[10px] font-bold uppercase tracking-widest text-black/40 hover:text-black">نسيت كلمة المرور؟</Link>
+                      <Link href="/forgot-password" className="text-[10px] font-bold uppercase tracking-widest text-black/40 hover:text-black">نسيت كلمة المرور؟</Link>
                       <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">كلمة المرور</FormLabel>
                     </div>
                     <FormControl>
