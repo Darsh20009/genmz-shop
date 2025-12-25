@@ -16,6 +16,13 @@ export const insertUserSchema = z.object({
   email: z.string().email(),
   phone: z.string().optional(),
   walletBalance: z.string().default("0"),
+  addresses: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    city: z.string(),
+    street: z.string(),
+    isDefault: z.boolean().default(false),
+  })).default([]),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

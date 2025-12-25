@@ -10,6 +10,13 @@ const userSchema = new Schema<User>(
     email: { type: String, required: true },
     phone: { type: String },
     walletBalance: { type: String, default: "0" },
+    addresses: [{
+      id: String,
+      name: String,
+      city: String,
+      street: String,
+      isDefault: { type: Boolean, default: false },
+    }],
   },
   { timestamps: true }
 );
