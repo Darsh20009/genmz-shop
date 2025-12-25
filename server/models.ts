@@ -51,6 +51,7 @@ const orderSchema = new Schema<Order>(
       street: String,
       country: String,
     },
+    pickupBranch: String,
     paymentMethod: { type: String, enum: ["cod", "bank_transfer", "apple_pay", "card"], required: true },
     paymentStatus: { type: String, default: "pending" },
   },

@@ -67,6 +67,7 @@ export const insertOrderSchema = z.object({
     street: z.string().optional(),
     country: z.string().optional(),
   }).optional(),
+  pickupBranch: z.string().optional(),
   paymentMethod: z.enum(["cod", "bank_transfer", "apple_pay", "card"]),
 });
 
