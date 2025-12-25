@@ -204,7 +204,8 @@ const useLanguageStore = create<LanguageState>()(
       },
       t: (key) => {
         const { language } = get();
-        return (translationsFull[language] as any)[key] || key;
+        const dict = translationsFull[language] as any;
+        return dict[key] || key;
       },
     }),
     {
@@ -223,21 +224,12 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (context === undefined) {
-    // Return a safe default instead of throwing
+    // Return a completely static object to avoid any hook dependency if context is missing
     return {
       language: 'ar' as Language,
       setLanguage: () => {},
-      t: (keyPath: string) => {
-        const keys = keyPath.split('.');
-        let current: any = translationsFull['ar'];
-        for (const key of keys) {
-          if (current[key] === undefined) return keyPath;
-          current = current[key];
-        }
-        return current || keyPath;
-      }
+      t: (key: string) => key
     };
   }
   return context;
 };
-
