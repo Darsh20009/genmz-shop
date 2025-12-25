@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Truck, CreditCard, Building2, Apple, Landmark, Lock } from "lucide-react";
+import { MapPin, Truck, CreditCard, Building2, Apple, Landmark, Lock, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 export default function Checkout() {
@@ -97,232 +97,253 @@ export default function Checkout() {
 
   return (
     <Layout>
-      <div className="container py-24 text-right" dir="rtl">
-        <h1 className="font-display text-5xl font-black mb-16 uppercase tracking-tighter border-b border-black/5 pb-12">إتمام الطلب</h1>
-        
-        <div className="grid lg:grid-cols-3 gap-16 items-start">
-          <div className="lg:col-span-2 space-y-12">
-            {/* Security Banner */}
-            <div className="bg-green-50/50 border border-green-100 p-6 flex items-center gap-6 justify-end mb-8">
-              <div className="text-right">
-                <h3 className="text-sm font-black text-green-900 uppercase tracking-widest">تسوق آمن ١٠٠٪</h3>
-                <p className="text-[10px] text-green-700/70 mt-1 font-bold">تشفير بياناتك يتم بأعلى معايير الأمان العالمية SSL</p>
-              </div>
-              <div className="p-3 bg-white rounded-full shadow-sm">
-                <Lock className="h-6 w-6 text-green-600" />
-              </div>
+      <div className="bg-[#fcfcfc] min-h-screen">
+        <div className="container py-16 px-4 text-right" dir="rtl">
+          <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6 border-b border-black/5 pb-8">
+            <h1 className="font-display text-4xl md:text-5xl font-black uppercase tracking-tighter">إتمام الشراء</h1>
+            <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-black/40">
+              <span className="opacity-40">حقيبة التسوق</span>
+              <span className="opacity-20">/</span>
+              <span className="text-black">إتمام الطلب</span>
+              <span className="opacity-20">/</span>
+              <span>الدفع</span>
             </div>
-
-            {/* Shipping Method */}
-            <section>
-              <h2 className="text-2xl font-black mb-6 flex items-center gap-3 justify-end">
-                <span>طريقة الاستلام</span>
-                <Truck className="h-6 w-6" />
-              </h2>
-              <RadioGroup 
-                value={shippingMethod} 
-                onValueChange={(v) => setShippingMethod(v as any)}
-                className="grid sm:grid-cols-2 gap-4"
-              >
-                <div className={`relative flex items-center justify-between p-6 border ${shippingMethod === "delivery" ? "border-black bg-black text-white" : "border-black/10 hover:border-black/30"} transition-all cursor-pointer`} onClick={() => setShippingMethod("delivery")}>
-                  <div className="flex items-center gap-4">
-                    <RadioGroupItem value="delivery" id="delivery" className="sr-only" />
-                    <Truck className="h-5 w-5" />
-                    <Label htmlFor="delivery" className="font-bold text-lg cursor-pointer">توصيل (Storage Station)</Label>
+          </div>
+          
+          <div className="grid lg:grid-cols-12 gap-12 items-start">
+            <div className="lg:col-span-8 space-y-8">
+              {/* Security Banner */}
+              <div className="bg-white border border-black/5 p-6 flex items-center gap-6 justify-between shadow-sm">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-green-50 rounded-none">
+                    <Lock className="h-6 w-6 text-green-600" />
                   </div>
-                  {deliveryDetails && (
-                    <Badge className="bg-white text-black text-[8px] font-bold">متصل</Badge>
-                  )}
+                  <div className="text-right">
+                    <h3 className="text-sm font-black text-black uppercase tracking-widest">تسوق آمن ١٠٠٪</h3>
+                    <p className="text-[9px] text-black/40 mt-1 font-bold">تشفير بياناتك يتم بأعلى معايير الأمان العالمية SSL</p>
+                  </div>
+                </div>
+                <Check className="h-5 w-5 text-green-600" />
+              </div>
+
+              {/* Shipping Method */}
+              <section className="bg-white p-8 border border-black/5 shadow-sm space-y-8">
+                <div className="flex items-center justify-between border-b border-black/5 pb-6">
+                  <h2 className="text-xl font-black uppercase tracking-tighter flex items-center gap-3">
+                    <Truck className="h-5 w-5 text-primary" />
+                    <span>طريقة الاستلام</span>
+                  </h2>
                 </div>
                 
-                <div className={`relative flex items-center justify-between p-6 border ${shippingMethod === "pickup" ? "border-black bg-black text-white" : "border-black/10 hover:border-black/30"} transition-all cursor-pointer`} onClick={() => setShippingMethod("pickup")}>
-                  <div className="flex items-center gap-4">
-                    <RadioGroupItem value="pickup" id="pickup" className="sr-only" />
-                    <Building2 className="h-5 w-5" />
-                    <Label htmlFor="pickup" className="font-bold text-lg cursor-pointer">استلام من الفرع</Label>
-                  </div>
-                </div>
-              </RadioGroup>
-
-              {shippingMethod === "pickup" && (
-                <Card className="mt-4 p-6 border-black/10 rounded-none bg-secondary/30">
-                  <Label className="block mb-3 font-bold opacity-60">اختر الفرع</Label>
-                  <select 
-                    className="w-full h-12 bg-white border border-black/10 px-4 font-bold outline-none focus:border-black"
-                    value={pickupBranch}
-                    onChange={(e) => setPickupBranch(e.target.value)}
+                <RadioGroup 
+                  value={shippingMethod} 
+                  onValueChange={(v) => setShippingMethod(v as any)}
+                  className="grid sm:grid-cols-2 gap-4"
+                >
+                  <div 
+                    className={`group relative flex flex-col p-6 border transition-all cursor-pointer ${shippingMethod === "delivery" ? "border-black bg-black text-white" : "border-black/5 bg-[#fcfcfc] hover:border-black/20"}`} 
+                    onClick={() => setShippingMethod("delivery")}
                   >
-                    <option>الرياض - الفرع الرئيسي</option>
-                    <option>جدة - فرع رد سي مول</option>
-                    <option>الدمام - فرع النخيل مول</option>
-                  </select>
-                </Card>
-              )}
-            </section>
-
-            {/* Payment Method */}
-            <section>
-              <h2 className="text-2xl font-black mb-6 flex items-center gap-3 justify-end">
-                <span>طريقة الدفع</span>
-                <CreditCard className="h-6 w-6" />
-              </h2>
-              <RadioGroup 
-                value={paymentMethod} 
-                onValueChange={(v) => setPaymentMethod(v as any)}
-                className="grid sm:grid-cols-2 gap-4"
-              >
-                <div className={`relative flex items-center justify-between p-6 border ${paymentMethod === "cod" ? "border-black bg-black text-white" : "border-black/10 hover:border-black/30"} transition-all cursor-pointer`} onClick={() => setPaymentMethod("cod")}>
-                  <div className="flex items-center gap-4">
-                    <RadioGroupItem value="cod" id="cod" className="sr-only" />
-                    <MapPin className="h-5 w-5" />
-                    <Label htmlFor="cod" className="font-bold text-lg cursor-pointer">الدفع عند الاستلام</Label>
-                  </div>
-                </div>
-
-                <div className={`relative flex items-center justify-between p-6 border ${paymentMethod === "bank_transfer" ? "border-black bg-black text-white" : "border-black/10 hover:border-black/30"} transition-all cursor-pointer`} onClick={() => setPaymentMethod("bank_transfer")}>
-                  <div className="flex items-center gap-4">
-                    <RadioGroupItem value="bank_transfer" id="bank_transfer" className="sr-only" />
-                    <Landmark className="h-5 w-5" />
-                    <Label htmlFor="bank_transfer" className="font-bold text-lg cursor-pointer">تحويل بنكي</Label>
-                  </div>
-                </div>
-
-                <div className={`relative flex items-center justify-between p-6 border ${paymentMethod === "apple_pay" ? "border-black bg-black text-white" : "border-black/10 hover:border-black/30"} transition-all cursor-pointer`} onClick={() => setPaymentMethod("apple_pay")}>
-                  <div className="flex items-center gap-4">
-                    <RadioGroupItem value="apple_pay" id="apple_pay" className="sr-only" />
-                    <Apple className="h-5 w-5" />
-                    <Label htmlFor="apple_pay" className="font-bold text-lg cursor-pointer">Apple Pay</Label>
-                  </div>
-                </div>
-
-                <div className={`relative flex items-center justify-between p-6 border ${paymentMethod === "card" ? "border-black bg-black text-white" : "border-black/10 hover:border-black/30"} transition-all cursor-pointer`} onClick={() => setPaymentMethod("card")}>
-                  <div className="flex items-center gap-4">
-                    <RadioGroupItem value="card" id="card" className="sr-only" />
-                    <CreditCard className="h-5 w-5" />
-                    <Label htmlFor="card" className="font-bold text-lg cursor-pointer">بطاقة بنكية (Tap)</Label>
-                  </div>
-                </div>
-              </RadioGroup>
-
-              {paymentMethod === "bank_transfer" && (
-                <Card className="mt-4 p-6 border-black/10 rounded-none bg-secondary/30">
-                  <h3 className="font-bold mb-4">تفاصيل التحويل البنكي</h3>
-                  <div className="space-y-4 text-sm mb-6">
-                    <div className="flex justify-between border-b border-black/5 pb-2">
-                      <span className="font-bold">مصرف الراجحي</span>
-                      <span className="opacity-60">اسم البنك</span>
+                    <div className="flex justify-between items-start mb-4">
+                      <Truck className={`h-6 w-6 ${shippingMethod === "delivery" ? "text-white" : "text-black/20"}`} />
+                      <RadioGroupItem value="delivery" id="delivery" className="sr-only" />
+                      {deliveryDetails && <Badge className="bg-primary text-white text-[8px] font-bold rounded-none">متصل</Badge>}
                     </div>
-                    <div className="flex justify-between border-b border-black/5 pb-2">
-                      <span className="font-bold tracking-widest">SA 12 3456 7890 1234 5678 9012</span>
-                      <span className="opacity-60">رقم الآيبان (IBAN)</span>
-                    </div>
-                    <div className="flex justify-between border-b border-black/5 pb-2">
-                      <span className="font-bold">مؤسسة جين إم آند زد للتجارة</span>
-                      <span className="opacity-60">اسم المستفيد</span>
-                    </div>
+                    <Label htmlFor="delivery" className="font-black text-sm uppercase tracking-widest cursor-pointer mb-2">توصيل (Storage Station)</Label>
+                    <p className={`text-[10px] ${shippingMethod === "delivery" ? "text-white/60" : "text-black/40"}`}>توصيل سريع لباب المنزل</p>
                   </div>
+                  
+                  <div 
+                    className={`group relative flex flex-col p-6 border transition-all cursor-pointer ${shippingMethod === "pickup" ? "border-black bg-black text-white" : "border-black/5 bg-[#fcfcfc] hover:border-black/20"}`} 
+                    onClick={() => setShippingMethod("pickup")}
+                  >
+                    <div className="flex justify-between items-start mb-4">
+                      <Building2 className={`h-6 w-6 ${shippingMethod === "pickup" ? "text-white" : "text-black/20"}`} />
+                      <RadioGroupItem value="pickup" id="pickup" className="sr-only" />
+                    </div>
+                    <Label htmlFor="pickup" className="font-black text-sm uppercase tracking-widest cursor-pointer mb-2">استلام من الفرع</Label>
+                    <p className={`text-[10px] ${shippingMethod === "pickup" ? "text-white/60" : "text-black/40"}`}>استلم طلبك من أقرب فرع لك</p>
+                  </div>
+                </RadioGroup>
 
-                  <Label className="block mb-3 font-bold opacity-60 text-xs uppercase tracking-widest">رفع إيصال التحويل</Label>
-                  <div className="relative">
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onloadend = () => setReceiptImage(reader.result as string);
-                          reader.readAsDataURL(file);
-                        }
-                      }}
-                      className="hidden" 
-                      id="receipt-upload" 
-                    />
-                    <label 
-                      htmlFor="receipt-upload" 
-                      className="w-full h-12 bg-white border border-dashed border-black/20 flex items-center justify-center font-bold cursor-pointer hover:border-black transition-all gap-2"
+                {shippingMethod === "pickup" && (
+                  <div className="mt-6 p-6 bg-black/5 space-y-4">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">اختر الفرع المناسب</Label>
+                    <select 
+                      className="w-full h-14 bg-white border border-black/5 px-4 font-black text-sm outline-none focus:ring-1 focus:ring-black/10 transition-all"
+                      value={pickupBranch}
+                      onChange={(e) => setPickupBranch(e.target.value)}
                     >
-                      <Landmark className="h-4 w-4" />
-                      {receiptImage ? "تم اختيار الصورة" : "اضغط لرفع صورة الإيصال"}
-                    </label>
+                      <option>الرياض - الفرع الرئيسي</option>
+                      <option>جدة - فرع رد سي مول</option>
+                      <option>الدمام - فرع النخيل مول</option>
+                    </select>
                   </div>
-                  {receiptImage && (
-                    <div className="mt-4 aspect-video border border-black/10 overflow-hidden relative group">
-                      <img src={receiptImage} alt="Receipt preview" className="w-full h-full object-cover" />
-                      <button 
-                        onClick={() => setReceiptImage(null)}
-                        className="absolute top-2 right-2 bg-black text-white p-2 text-xs font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        حذف
-                      </button>
-                    </div>
-                  )}
-                </Card>
-              )}
-              {showPasswordVerification && (
-                <section className="bg-white p-10 border border-black/5">
-                  <h2 className="text-2xl font-black mb-6 flex items-center gap-3 justify-end">
-                    <span>تأكيد الهوية</span>
-                    <Lock className="h-6 w-6" />
+                )}
+              </section>
+
+              {/* Payment Method */}
+              <section className="bg-white p-8 border border-black/5 shadow-sm space-y-8">
+                <div className="flex items-center justify-between border-b border-black/5 pb-6">
+                  <h2 className="text-xl font-black uppercase tracking-tighter flex items-center gap-3">
+                    <CreditCard className="h-5 w-5 text-primary" />
+                    <span>طريقة الدفع</span>
                   </h2>
-                  <div className="space-y-4">
-                    <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">أدخل كلمة المرور لإتمام الشراء</Label>
+                </div>
+
+                <RadioGroup 
+                  value={paymentMethod} 
+                  onValueChange={(v) => setPaymentMethod(v as any)}
+                  className="grid sm:grid-cols-2 gap-4"
+                >
+                  {[
+                    { id: "cod", label: "الدفع عند الاستلام", icon: MapPin },
+                    { id: "bank_transfer", label: "تحويل بنكي", icon: Landmark },
+                    { id: "apple_pay", label: "Apple Pay", icon: Apple },
+                    { id: "card", label: "بطاقة بنكية (Tap)", icon: CreditCard }
+                  ].map((method) => (
+                    <div 
+                      key={method.id}
+                      className={`group relative flex flex-col p-6 border transition-all cursor-pointer ${paymentMethod === method.id ? "border-black bg-black text-white" : "border-black/5 bg-[#fcfcfc] hover:border-black/20"}`} 
+                      onClick={() => setPaymentMethod(method.id as any)}
+                    >
+                      <div className="flex justify-between items-start mb-4">
+                        <method.icon className={`h-6 w-6 ${paymentMethod === method.id ? "text-white" : "text-black/20"}`} />
+                        <RadioGroupItem value={method.id} id={method.id} className="sr-only" />
+                      </div>
+                      <Label htmlFor={method.id} className="font-black text-sm uppercase tracking-widest cursor-pointer mb-2">{method.label}</Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+
+                {paymentMethod === "bank_transfer" && (
+                  <div className="mt-6 p-8 bg-black/5 space-y-6">
+                    <h3 className="font-black text-sm uppercase tracking-widest">تفاصيل الحساب البنكي</h3>
+                    <div className="space-y-4">
+                      {[
+                        { label: "اسم البنك", value: "مصرف الراجحي" },
+                        { label: "رقم الآيبان (IBAN)", value: "SA 12 3456 7890 1234 5678 9012", isIban: true },
+                        { label: "اسم المستفيد", value: "مؤسسة جين إم آند زد للتجارة" }
+                      ].map((info, i) => (
+                        <div key={i} className="flex justify-between items-center border-b border-black/5 pb-3">
+                          <span className={`font-black text-sm ${info.isIban ? "tracking-widest" : ""}`}>{info.value}</span>
+                          <span className="text-[10px] font-bold uppercase tracking-widest opacity-40">{info.label}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="pt-4">
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-3 block">إيصال التحويل</Label>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => setReceiptImage(reader.result as string);
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        className="hidden" 
+                        id="receipt-upload" 
+                      />
+                      <label 
+                        htmlFor="receipt-upload" 
+                        className="w-full h-14 bg-white border border-dashed border-black/10 flex items-center justify-center font-black text-[10px] uppercase tracking-widest cursor-pointer hover:border-black/30 transition-all gap-3 shadow-sm"
+                      >
+                        <Landmark className="h-4 w-4 opacity-40" />
+                        {receiptImage ? "تم اختيار الصورة" : "رفع صورة الإيصال"}
+                      </label>
+                      {receiptImage && (
+                        <div className="mt-4 relative group aspect-video bg-white p-2 border border-black/5 shadow-md">
+                          <img src={receiptImage} alt="Receipt" className="w-full h-full object-contain" />
+                          <button 
+                            onClick={() => setReceiptImage(null)}
+                            className="absolute top-4 left-4 bg-black text-white p-2 text-[10px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            حذف الإيصال
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {showPasswordVerification && (
+                  <div className="mt-8 p-8 border border-black/5 bg-black/5 space-y-4">
+                    <h3 className="font-black text-sm uppercase tracking-widest flex items-center gap-2">
+                      <Lock className="h-4 w-4" />
+                      <span>تأكيد الهوية</span>
+                    </h3>
+                    <p className="text-[10px] font-bold uppercase tracking-widest opacity-40">أدخل كلمة المرور لإتمام عملية الشراء بأمان</p>
                     <Input 
                       type="password" 
                       placeholder="••••••••" 
                       value={passwordVerification}
                       onChange={(e) => setPasswordVerification(e.target.value)}
-                      className="h-14 bg-white border-black/10 rounded-none focus-visible:ring-black"
+                      className="h-14 bg-white border-black/5 rounded-none focus-visible:ring-black"
                     />
                   </div>
-                </section>
-              )}
-            </section>
-          </div>
+                )}
+              </section>
+            </div>
 
-          {/* Sidebar Summary */}
-          <div className="lg:col-span-1">
-            <div className="bg-black text-white p-10 sticky top-24 shadow-2xl">
-              <h3 className="font-display text-2xl font-black mb-10 uppercase tracking-widest border-b border-white/10 pb-6">ملخص الطلب</h3>
-              
-              <div className="space-y-4 mb-10 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
-                {items.map(item => (
-                  <div key={item.variantSku} className="flex justify-between text-xs opacity-60">
-                    <span>{item.quantity}x {item.price.toLocaleString()} ر.س</span>
-                    <span>{item.title}</span>
+            {/* Sidebar Summary */}
+            <div className="lg:col-span-4">
+              <div className="sticky top-24 space-y-6">
+                <div className="bg-white p-8 border border-black/5 shadow-xl">
+                  <h3 className="font-black text-lg uppercase tracking-tighter mb-8 pb-4 border-b border-black/5">ملخص الطلب</h3>
+                  
+                  <div className="space-y-6 mb-10 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                    {items.map(item => (
+                      <div key={item.variantSku} className="flex gap-4 items-center">
+                        <div className="w-16 aspect-[3/4] bg-muted shrink-0 border border-black/5">
+                          <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <div className="flex justify-between items-start">
+                            <span className="font-black text-[11px] leading-tight max-w-[120px]">{item.title}</span>
+                            <span className="font-black text-[11px]">{item.price.toLocaleString()} ر.س</span>
+                          </div>
+                          <p className="text-[9px] font-bold opacity-40 uppercase tracking-widest">{item.quantity}x <span className="mx-1">|</span> {item.color} <span className="mx-1">|</span> {item.size}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
 
-              <div className="space-y-6 mb-12 text-sm font-light">
-                <div className="flex justify-between opacity-60">
-                  <span>{total().toLocaleString()} ر.س</span>
-                  <span>المجموع الفرعي</span>
-                </div>
-                <div className="flex justify-between opacity-60">
-                  <span>{(total() * 0.15).toLocaleString()} ر.س</span>
-                  <span>الضريبة (١٥٪)</span>
-                </div>
-                <div className="flex justify-between border-t border-white/10 pt-6 font-bold text-2xl tracking-tighter">
-                  <span className="text-primary">{(total() * 1.15).toLocaleString()} ر.س</span>
-                  <span>الإجمالي النهائي</span>
+                  <div className="space-y-4 mb-10 text-[11px] font-bold uppercase tracking-widest">
+                    <div className="flex justify-between opacity-40">
+                      <span>{total().toLocaleString()} ر.س</span>
+                      <span>المجموع الفرعي</span>
+                    </div>
+                    <div className="flex justify-between opacity-40">
+                      <span>{(total() * 0.15).toLocaleString()} ر.س</span>
+                      <span>الضريبة (١٥٪)</span>
+                    </div>
+                    <div className="flex justify-between border-t border-black/5 pt-6 font-black text-3xl tracking-tighter text-black">
+                      <span className="text-primary">{(total() * 1.15).toLocaleString()} ر.س</span>
+                      <span>الإجمالي</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 justify-center py-4 bg-black/[0.02] border border-black/5 opacity-40 text-[9px] font-black uppercase tracking-widest mb-4">
+                      <Lock className="h-3 w-3" />
+                      <span>دفع آمن ١٠٠٪ ومحمي</span>
+                    </div>
+
+                    <Button 
+                      onClick={handleCheckout}
+                      disabled={isSubmitting || isStorageStationLoading}
+                      className="w-full font-black h-16 uppercase tracking-[0.4em] rounded-none bg-black text-white hover:bg-primary border-none transition-all disabled:opacity-50 text-[10px] shadow-xl shadow-black/10"
+                    >
+                      {isSubmitting ? "جاري المعالجة..." : 
+                       isStorageStationLoading ? "جاري الربط مع الشحن..." :
+                       (shippingMethod === "delivery" && !deliveryDetails) ? "إعداد الشحن" : "تأكيد الطلب"}
+                    </Button>
+                  </div>
                 </div>
               </div>
-
-              <div className="flex items-center gap-2 justify-center mb-6 opacity-40 text-[10px] font-black uppercase tracking-widest">
-                <Lock className="h-3 w-3" />
-                <span>دفع آمن ومحمي</span>
-              </div>
-
-              <Button 
-                onClick={handleCheckout}
-                disabled={isSubmitting || isStorageStationLoading}
-                className="w-full font-bold h-16 uppercase tracking-[0.3em] rounded-none bg-white text-black hover:bg-primary hover:text-white border-none transition-all disabled:opacity-50"
-              >
-                {isSubmitting ? "جاري تنفيذ الطلب..." : 
-                 isStorageStationLoading ? "جاري الربط مع Storage Station..." :
-                 (shippingMethod === "delivery" && !deliveryDetails) ? "ربط الشحن والتوصيل" : "تأكيد الطلب"}
-              </Button>
             </div>
           </div>
         </div>
