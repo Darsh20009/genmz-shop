@@ -302,12 +302,49 @@ export async function registerRoutes(
         action: "password_reset",
         targetType: "user",
         targetId: req.params.id,
-        details: `إعادة تعيين كلمة المرor للموظف من قبل ${(req.user as any).name}`
+        details: `تم إعادة تعيين كلمة المرور للموظف من قبل ${(req.user as any).name}`
       });
 
       res.json({ message: "تم تحديث كلمة المرور بنجاح" });
     } catch (err: any) {
       res.status(500).send(err.message);
+    }
+  });
+
+  app.patch("/api/admin/users/:id/status", checkPermission("staff.manage"), async (req, res) => {
+    const { isActive } = req.body;
+    try {
+      const user = await storage.updateUser(req.params.id, { isActive });
+      
+      await storage.createActivityLog({
+        employeeId: (req.user as any).id,
+        action: isActive ? "staff_activate" : "staff_deactivate",
+        targetType: "user",
+        targetId: req.params.id,
+        details: `${isActive ? 'تفعيل' : 'تعطيل'} حساب الموظف`
+      });
+
+      res.json(user);
+    } catch (err: any) {
+      res.status(400).send(err.message);
+    }
+  });
+
+  app.delete("/api/admin/users/:id", checkPermission("staff.manage"), async (req, res) => {
+    try {
+      await storage.deleteUser(req.params.id);
+      
+      await storage.createActivityLog({
+        employeeId: (req.user as any).id,
+        action: "staff_delete",
+        targetType: "user",
+        targetId: req.params.id,
+        details: "حذف حساب الموظف"
+      });
+
+      res.sendStatus(200);
+    } catch (err: any) {
+      res.status(400).send(err.message);
     }
   });
 

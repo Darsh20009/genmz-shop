@@ -260,17 +260,20 @@ export function setupAuth(app: Express) {
         if (err) return next(err);
         const userObj = userToLogin as any;
         
-        // Check login type access
+        // Check login type access and role
         const isDashboardAccess = ["dashboard", "both"].includes(userObj.loginType);
         const isPosAccess = ["pos", "both"].includes(userObj.loginType);
         
-        // Default redirect logic
         let redirectTo = "/";
         if (["admin", "employee", "support"].includes(userObj.role)) {
           if (isDashboardAccess) {
             redirectTo = "/admin";
           } else if (isPosAccess) {
-            redirectTo = "/pos"; // Assuming a POS route exists
+            redirectTo = "/pos";
+          } else {
+            // No valid login type for this role
+            req.logout(() => {});
+            return res.status(403).json({ message: "هذا الحساب لا يملك صلاحية الدخول للوحة التحكم أو نظام البيع" });
           }
         }
 
