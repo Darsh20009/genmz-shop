@@ -30,7 +30,9 @@ export async function seed() {
     email: "admin@genmz.com",
     walletBalance: "0",
     addresses: [],
-    permissions: ["support", "orders", "products", "accounting", "customers"]
+    permissions: ["support", "orders", "products", "accounting", "customers"],
+    loginType: "both",
+    isActive: true
   });
   console.log("Admin user created with phone 567326086 and password 20262030");
 
