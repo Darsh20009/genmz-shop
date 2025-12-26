@@ -263,7 +263,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 <span className="bg-primary/10 p-2.5 rounded-lg text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors"><Phone className="h-4 w-4" /></span>
                 <div className="flex flex-col">
                   <span className="text-[10px] text-muted-foreground font-medium">{t('callUs')}</span>
-                  <span dir="ltr" className="font-bold">+966 56 732 6086</span>
+                  <span dir="ltr" className="font-bold">966 56 732 6086</span>
                 </div>
               </a>
               <a 
@@ -282,7 +282,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 <span className="bg-primary/10 p-2.5 rounded-lg text-primary"><SiWhatsapp className="h-4 w-4" /></span>
                 <div className="flex flex-col">
                   <span className="text-[10px] text-muted-foreground font-medium">{t('whatsapp')}</span>
-                  <a href="https://api.whatsapp.com/send/?phone=966567326086" target="_blank" rel="noreferrer" dir="ltr" className="font-bold hover:text-primary transition-colors">+966 56 732 6086</a>
+                  <a href="https://api.whatsapp.com/send/?phone=966567326086" target="_blank" rel="noreferrer" dir="ltr" className="font-bold hover:text-primary transition-colors">966 56 732 6086</a>
                 </div>
               </div>
             </div>
