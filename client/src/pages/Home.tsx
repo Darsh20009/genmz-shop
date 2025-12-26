@@ -45,6 +45,45 @@ export default function Home() {
 
   return (
     <Layout>
+      {/* Image Carousel Section */}
+      <section className="relative py-16 md:py-32 bg-white overflow-hidden">
+        <div className="container px-4">
+          <div className="relative w-full max-w-4xl mx-auto">
+            <div className="overflow-hidden bg-gray-100 rounded-lg">
+              <motion.div
+                animate={{ x: `-${currentImageIndex * 100}%` }}
+                transition={{ duration: 0.8, ease: "easeInOut" }}
+                className="flex w-full"
+              >
+                {heroImages.map((img, index) => (
+                  <div key={index} className="w-full flex-shrink-0 flex items-center justify-center bg-white">
+                    <img 
+                      src={img} 
+                      alt={`Hero ${index + 1}`}
+                      className="w-full h-auto object-contain"
+                    />
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+            
+            {/* Carousel indicators */}
+            <div className="flex justify-center gap-2 mt-6">
+              {heroImages.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentImageIndex(index)}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    index === currentImageIndex ? 'bg-black w-8' : 'bg-gray-300'
+                  }`}
+                  data-testid={`carousel-indicator-${index}`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Creative Hero Section */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-white">
         <div className="container relative z-10 grid lg:grid-cols-2 gap-8 items-center px-4 pt-20">
@@ -77,9 +116,10 @@ export default function Home() {
              transition={{ duration: 1, delay: 0.2 }}
              className="relative"
           >
-            <div className="relative w-full max-w-2xl mx-auto group bg-white rounded-lg overflow-hidden aspect-square">
+            <div className="relative aspect-[3/4] md:aspect-square max-w-xl mx-auto group">
+              <div className="absolute inset-0 border-[20px] border-primary/5 -m-10 hidden md:block" />
               <img 
-                src={heroImages[currentImageIndex]} 
+                src={heroImg} 
                 alt="Gen M & Z Hero" 
                 className="w-full h-full object-cover shadow-2xl transition-all duration-1000"
               />
