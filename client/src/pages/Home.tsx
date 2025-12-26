@@ -12,6 +12,11 @@ import heroImg from "@assets/Screenshot_2025-12-25_100613_1766646961781.png";
 import heroImg2 from "@assets/Screenshot_2025-12-26_014345_1766730066129.png";
 import heroImg3 from "@assets/Screenshot_2025-12-26_014353_1766730066129.png";
 import heroImg4 from "@assets/Screenshot_2025-12-26_014400_1766730066130.png";
+import mergeImg from "@assets/Screenshot_2025-12-25_100626_1766731300665.png";
+import doubleLayerImg from "@assets/Screenshot_2025-12-25_100641_1766731300665.png";
+import shoppingImg from "@assets/Screenshot_2025-12-25_100700_1766731300666.png";
+import womenImg from "@assets/Screenshot_2025-12-25_100724_1766731300667.png";
+import burgundyImg from "@assets/Screenshot_2025-12-25_100738_1766731300668.png";
 
 export default function Home() {
   const { user } = useAuth();
@@ -210,6 +215,123 @@ export default function Home() {
         </div>
       </section>
 
+
+      {/* Collection Showcase Section */}
+      <section className="relative py-32 bg-gradient-to-b from-white to-gray-50 overflow-hidden">
+        <div className="container px-4">
+          <div className={`text-center max-w-3xl mx-auto mb-24 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+            <span className="inline-block text-xs font-bold tracking-[0.2em] text-primary mb-4 uppercase">{t('newCollection')}</span>
+            <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-6">{language === 'ar' ? 'تشكيلتنا الحصرية' : 'Our Exclusive Collection'}</h2>
+            <p className="text-xl text-muted-foreground font-light italic">{language === 'ar' ? 'اكتشف التنوع والإبداع في كل قطعة' : 'Discover diversity and creativity in every piece'}</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {/* Merge Style - Left Large */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="lg:row-span-2 group relative overflow-hidden rounded-xl bg-gray-100 hover-elevate transition-all"
+            >
+              <img 
+                src={mergeImg} 
+                alt="Merge Style" 
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors opacity-0 group-hover:opacity-100 flex items-end p-6">
+                <div className="text-white">
+                  <p className="text-xs uppercase tracking-widest font-bold opacity-80">{language === 'ar' ? 'النمط' : 'Style'}</p>
+                  <p className="text-lg font-black">MERGE</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Double Layer */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="group relative overflow-hidden rounded-xl bg-gray-100 hover-elevate transition-all"
+            >
+              <img 
+                src={doubleLayerImg} 
+                alt="Double Layer Hood" 
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors opacity-0 group-hover:opacity-100 flex items-end p-4">
+                <div className="text-white">
+                  <p className="text-[10px] uppercase tracking-widest font-bold opacity-80">{language === 'ar' ? 'مزدوج' : 'Double Layer'}</p>
+                  <p className="text-sm font-black">HOOD</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Shopping Bag */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="group relative overflow-hidden rounded-xl bg-gray-100 hover-elevate transition-all"
+            >
+              <img 
+                src={shoppingImg} 
+                alt="Shopping Experience" 
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors opacity-0 group-hover:opacity-100 flex items-end p-4">
+                <div className="text-white">
+                  <p className="text-[10px] uppercase tracking-widest font-bold opacity-80">{language === 'ar' ? 'تجربة' : 'Experience'}</p>
+                  <p className="text-sm font-black">SHOPPING</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Women Style */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="group relative overflow-hidden rounded-xl bg-gray-100 hover-elevate transition-all"
+            >
+              <img 
+                src={womenImg} 
+                alt="Women Collection" 
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors opacity-0 group-hover:opacity-100 flex items-end p-4">
+                <div className="text-white">
+                  <p className="text-[10px] uppercase tracking-widest font-bold opacity-80">{language === 'ar' ? 'نساء' : 'Women'}</p>
+                  <p className="text-sm font-black">ELEGANT</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Burgundy - Right Large */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="lg:row-span-2 group relative overflow-hidden rounded-xl bg-gray-100 hover-elevate transition-all"
+            >
+              <img 
+                src={burgundyImg} 
+                alt="Burgundy Single Layer" 
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors opacity-0 group-hover:opacity-100 flex items-end p-6">
+                <div className="text-white">
+                  <p className="text-xs uppercase tracking-widest font-bold opacity-80">{language === 'ar' ? 'العنابي' : 'Premium'}</p>
+                  <p className="text-lg font-black">BURGUNDY</p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
 
       {/* Brand Story / CTA */}
       <section className="relative py-48 overflow-hidden bg-black text-white">
