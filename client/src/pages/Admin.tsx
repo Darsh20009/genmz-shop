@@ -1116,8 +1116,10 @@ const CustomersTable = memo(() => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
 
   const updateWalletMutation = useMutation({
-    mutationFn: async ({ id, amount }: { id: string, amount: string }) => {
-      await apiRequest("PATCH", `/api/admin/users/${id}`, { walletBalance: amount });
+    mutationFn: async ({ id, amount, type }: { id: string, amount: string, type: 'deposit' | 'set' }) => {
+      const endpoint = type === 'deposit' ? `/api/admin/users/${id}/deposit` : `/api/admin/users/${id}`;
+      const payload = type === 'deposit' ? { amount: Number(amount) } : { walletBalance: amount };
+      await apiRequest(type === 'deposit' ? "POST" : "PATCH", endpoint, payload);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
@@ -1149,37 +1151,71 @@ const CustomersTable = memo(() => {
                 <span className="text-[10px] font-black uppercase tracking-widest text-black/40">رصيد المحفظة</span>
                 <span className="font-black text-green-600">{u.walletBalance} ر.س</span>
               </div>
-              <Dialog open={selectedUser?.id === u.id} onOpenChange={(open) => !open && setSelectedUser(null)}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" onClick={() => setSelectedUser(u)} className="w-full rounded-none font-black text-[10px] uppercase h-8">
-                    تعديل المحفظة
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="rounded-none max-w-sm" dir="rtl">
-                  <DialogHeader>
-                    <DialogTitle>تعديل رصيد {u.name}</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4 pt-4">
-                    <div className="space-y-2">
-                      <Label className="text-xs font-bold uppercase">الرصيد الجديد</Label>
-                      <Input 
-                        type="number" 
-                        value={walletAmount} 
-                        onChange={(e) => setWalletAmount(e.target.value)} 
-                        placeholder="0"
-                        className="rounded-none"
-                      />
-                    </div>
-                    <Button 
-                      className="w-full rounded-none font-black"
-                      onClick={() => updateWalletMutation.mutate({ id: u.id, amount: walletAmount })}
-                      disabled={!walletAmount || updateWalletMutation.isPending}
-                    >
-                      {updateWalletMutation.isPending ? <Loader2 className="animate-spin" /> : "تحديث الرصيد"}
+              <div className="flex gap-2">
+                <Dialog open={selectedUser?.id === u.id && selectedUser?.action === 'deposit'} onOpenChange={(open) => !open && setSelectedUser(null)}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" onClick={() => setSelectedUser({ ...u, action: 'deposit' })} className="flex-1 rounded-none font-black text-[10px] uppercase h-8">
+                      إيداع رصيد
                     </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
+                  </DialogTrigger>
+                  <DialogContent className="rounded-none max-w-sm" dir="rtl">
+                    <DialogHeader>
+                      <DialogTitle>إيداع رصيد لـ {u.name}</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 pt-4">
+                      <div className="space-y-2">
+                        <Label className="text-xs font-bold uppercase">المبلغ المراد إيداعه</Label>
+                        <Input 
+                          type="number" 
+                          value={walletAmount} 
+                          onChange={(e) => setWalletAmount(e.target.value)} 
+                          placeholder="0"
+                          className="rounded-none"
+                        />
+                      </div>
+                      <Button 
+                        className="w-full rounded-none font-black"
+                        onClick={() => updateWalletMutation.mutate({ id: u.id, amount: walletAmount, type: 'deposit' })}
+                        disabled={!walletAmount || updateWalletMutation.isPending}
+                      >
+                        {updateWalletMutation.isPending ? <Loader2 className="animate-spin" /> : "إيداع الآن"}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+                
+                <Dialog open={selectedUser?.id === u.id && selectedUser?.action === 'set'} onOpenChange={(open) => !open && setSelectedUser(null)}>
+                  <DialogTrigger asChild>
+                    <Button variant="ghost" onClick={() => setSelectedUser({ ...u, action: 'set' })} className="flex-1 rounded-none font-black text-[10px] uppercase h-8 border border-black/5">
+                      تعديل الرصيد
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="rounded-none max-w-sm" dir="rtl">
+                    <DialogHeader>
+                      <DialogTitle>تعديل رصيد {u.name}</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 pt-4">
+                      <div className="space-y-2">
+                        <Label className="text-xs font-bold uppercase">الرصيد الكلي الجديد</Label>
+                        <Input 
+                          type="number" 
+                          value={walletAmount} 
+                          onChange={(e) => setWalletAmount(e.target.value)} 
+                          placeholder="0"
+                          className="rounded-none"
+                        />
+                      </div>
+                      <Button 
+                        className="w-full rounded-none font-black"
+                        onClick={() => updateWalletMutation.mutate({ id: u.id, amount: walletAmount, type: 'set' })}
+                        disabled={!walletAmount || updateWalletMutation.isPending}
+                      >
+                        {updateWalletMutation.isPending ? <Loader2 className="animate-spin" /> : "تحديث الرصيد"}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </CardContent>
           </Card>
         ))}
