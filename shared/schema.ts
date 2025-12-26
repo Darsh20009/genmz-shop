@@ -13,7 +13,7 @@ export type OrderStatus = typeof orderStatuses[number];
 // User Schema
 export const insertUserSchema = z.object({
   name: z.string().min(1, "اسم العميل مطلوب"),
-  phone: z.string().min(10, "رقم الهاتف غير صحيح"),
+  phone: z.string().regex(/^5\d{8}$/, "رقم الهاتف يجب أن يبدأ بـ 5 ويتكون من 9 أرقام"),
   email: z.string().email("البريد الإلكتروني غير صحيح"),
   password: z.string().optional().default(""),
   role: z.enum(userRoles).default("customer"),
