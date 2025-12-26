@@ -377,6 +377,16 @@ export async function registerRoutes(
     }
   });
 
+  app.patch("/api/admin/users/:id", async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+    try {
+      const user = await storage.updateUser(req.params.id, req.body);
+      res.json(user);
+    } catch (err: any) {
+      res.status(400).send(err.message);
+    }
+  });
+
   app.delete("/api/admin/users/:id", async (req, res) => {
     if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
     await storage.deleteUser(req.params.id);
@@ -434,6 +444,54 @@ export async function registerRoutes(
     if (!Array.isArray(addresses)) return res.status(400).json({ message: "Invalid addresses format" });
     const updatedUser = await storage.updateUserAddresses(user.id, addresses);
     res.json(updatedUser);
+  });
+
+  // Branches
+  app.get("/api/branches", async (_req, res) => {
+    const branches = await storage.getBranches();
+    res.json(branches);
+  });
+
+  app.post("/api/branches", async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+    const branch = await storage.createBranch(req.body);
+    res.json(branch);
+  });
+
+  app.patch("/api/branches/:id", async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+    const branch = await storage.updateBranch(req.params.id, req.body);
+    res.json(branch);
+  });
+
+  app.delete("/api/branches/:id", async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+    await storage.deleteBranch(req.params.id);
+    res.sendStatus(200);
+  });
+
+  // Banners
+  app.get("/api/banners", async (_req, res) => {
+    const banners = await storage.getBanners();
+    res.json(banners);
+  });
+
+  app.post("/api/banners", async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+    const banner = await storage.createBanner(req.body);
+    res.json(banner);
+  });
+
+  app.patch("/api/banners/:id", async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+    const banner = await storage.updateBanner(req.params.id, req.body);
+    res.json(banner);
+  });
+
+  app.delete("/api/banners/:id", async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+    await storage.deleteBanner(req.params.id);
+    res.sendStatus(200);
   });
 
   return httpServer;

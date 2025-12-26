@@ -156,6 +156,29 @@ export const insertWalletTransactionSchema = z.object({
 export type InsertWalletTransaction = z.infer<typeof insertWalletTransactionSchema>;
 export type WalletTransaction = InsertWalletTransaction & { _id: string; id: string; createdAt: Date };
 
+// Branch Schema
+export const insertBranchSchema = z.object({
+  name: z.string().min(1, "اسم الفرع مطلوب"),
+  location: z.string().optional(),
+  phone: z.string().optional(),
+  isActive: z.boolean().default(true),
+});
+
+export type InsertBranch = z.infer<typeof insertBranchSchema>;
+export type Branch = InsertBranch & { _id: string; id: string };
+
+// Banner Schema
+export const insertBannerSchema = z.object({
+  title: z.string().min(1, "العنوان مطلوب"),
+  image: z.string().min(1, "الصورة مطلوبة"),
+  link: z.string().optional(),
+  type: z.enum(["banner", "popup"]).default("banner"),
+  isActive: z.boolean().default(true),
+});
+
+export type InsertBanner = z.infer<typeof insertBannerSchema>;
+export type Banner = InsertBanner & { _id: string; id: string };
+
 // API Types
 export type LoginRequest = { username: string; password: string };
 export type AuthResponse = User;

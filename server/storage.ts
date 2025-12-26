@@ -1,5 +1,5 @@
-import { UserModel, ProductModel, OrderModel, CategoryModel, WalletTransactionModel, ActivityLogModel, CouponModel } from "./models";
-import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, OrderStatus, ActivityLog, InsertActivityLog, Coupon, InsertCoupon } from "@shared/schema";
+import { UserModel, ProductModel, OrderModel, CategoryModel, WalletTransactionModel, ActivityLogModel, CouponModel, BranchModel, BannerModel } from "./models";
+import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, OrderStatus, ActivityLog, InsertActivityLog, Coupon, InsertCoupon, Branch, InsertBranch, Banner, InsertBanner } from "@shared/schema";
 
 export interface IStorage {
   // Users
@@ -47,6 +47,18 @@ export interface IStorage {
   // Wallet Transactions
   getWalletTransactions(userId: string): Promise<WalletTransaction[]>;
   createWalletTransaction(transaction: InsertWalletTransaction): Promise<WalletTransaction>;
+
+  // Branches
+  getBranches(): Promise<Branch[]>;
+  createBranch(branch: InsertBranch): Promise<Branch>;
+  updateBranch(id: string, branch: Partial<InsertBranch>): Promise<Branch>;
+  deleteBranch(id: string): Promise<void>;
+
+  // Banners
+  getBanners(): Promise<Banner[]>;
+  createBanner(banner: InsertBanner): Promise<Banner>;
+  updateBanner(id: string, banner: Partial<InsertBanner>): Promise<Banner>;
+  deleteBanner(id: string): Promise<void>;
 }
 
 export class MongoDBStorage implements IStorage {
@@ -104,7 +116,19 @@ export class MongoDBStorage implements IStorage {
 
   async getCouponByCode(code: string): Promise<Coupon | undefined> {
     const coupon = await CouponModel.findOne({ code, isActive: true }).lean();
-    return coupon ? { ...coupon, id: coupon._id.toString() } : undefined;
+    if (!coupon) return undefined;
+
+    // Check expiry
+    if (coupon.expiryDate && new Date(coupon.expiryDate) < new Date()) {
+      return undefined;
+    }
+
+    // Check usage limit
+    if (coupon.usageLimit && (coupon.usageCount || 0) >= coupon.usageLimit) {
+      return undefined;
+    }
+
+    return { ...coupon, id: coupon._id.toString() };
   }
 
   async createCoupon(insertCoupon: InsertCoupon): Promise<Coupon> {
@@ -258,6 +282,48 @@ export class MongoDBStorage implements IStorage {
   async createWalletTransaction(insertTransaction: InsertWalletTransaction): Promise<WalletTransaction> {
     const transaction = await WalletTransactionModel.create(insertTransaction);
     return { ...transaction.toObject(), id: transaction._id.toString() };
+  }
+
+  // Branches
+  async getBranches(): Promise<Branch[]> {
+    const branches = await BranchModel.find().lean();
+    return branches.map(b => ({ ...b, id: (b as any)._id.toString() } as any));
+  }
+
+  async createBranch(insertBranch: InsertBranch): Promise<Branch> {
+    const branch = await BranchModel.create(insertBranch);
+    return { ...branch.toObject(), id: branch._id.toString() };
+  }
+
+  async updateBranch(id: string, update: Partial<InsertBranch>): Promise<Branch> {
+    const branch = await BranchModel.findByIdAndUpdate(id, update, { new: true }).lean();
+    if (!branch) throw new Error("Branch not found");
+    return { ...branch, id: branch._id.toString() };
+  }
+
+  async deleteBranch(id: string): Promise<void> {
+    await BranchModel.findByIdAndDelete(id);
+  }
+
+  // Banners
+  async getBanners(): Promise<Banner[]> {
+    const banners = await BannerModel.find().lean();
+    return banners.map(b => ({ ...b, id: (b as any)._id.toString() } as any));
+  }
+
+  async createBanner(insertBanner: InsertBanner): Promise<Banner> {
+    const banner = await BannerModel.create(insertBanner);
+    return { ...banner.toObject(), id: banner._id.toString() };
+  }
+
+  async updateBanner(id: string, update: Partial<InsertBanner>): Promise<Banner> {
+    const banner = await BannerModel.findByIdAndUpdate(id, update, { new: true }).lean();
+    if (!banner) throw new Error("Banner not found");
+    return { ...banner, id: banner._id.toString() };
+  }
+
+  async deleteBanner(id: string): Promise<void> {
+    await BannerModel.findByIdAndDelete(id);
   }
 }
 

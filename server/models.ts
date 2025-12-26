@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import type { User, Product, Order, Category, WalletTransaction } from "@shared/schema";
+import type { User, Product, Order, Category, WalletTransaction, ActivityLog, Coupon, Branch, Banner } from "@shared/schema";
 
 const userSchema = new Schema<User>(
   {
@@ -133,6 +133,27 @@ const couponSchema = new Schema<Coupon>(
   { timestamps: true }
 );
 
+const branchSchema = new Schema<Branch>(
+  {
+    name: { type: String, required: true },
+    location: String,
+    phone: String,
+    isActive: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
+
+const bannerSchema = new Schema<Banner>(
+  {
+    title: { type: String, required: true },
+    image: { type: String, required: true },
+    link: String,
+    type: { type: String, enum: ["banner", "popup"], default: "banner" },
+    isActive: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
+
 export const UserModel = mongoose.model<User>("User", userSchema);
 export const ProductModel = mongoose.model<Product>("Product", productSchema);
 export const OrderModel = mongoose.model<Order>("Order", orderSchema);
@@ -140,3 +161,5 @@ export const CategoryModel = mongoose.model<Category>("Category", categorySchema
 export const WalletTransactionModel = mongoose.model<WalletTransaction>("WalletTransaction", walletTransactionSchema);
 export const ActivityLogModel = mongoose.model<ActivityLog>("ActivityLog", activityLogSchema);
 export const CouponModel = mongoose.model<Coupon>("Coupon", couponSchema);
+export const BranchModel = mongoose.model<Branch>("Branch", branchSchema);
+export const BannerModel = mongoose.model<Banner>("Banner", bannerSchema);
