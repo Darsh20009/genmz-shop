@@ -28,11 +28,11 @@ export default function Home() {
     }
   }, [user, setLocation]);
 
-  // Rotate hero images every 2 seconds
+  // Rotate hero images every 4 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
-    }, 2000);
+    }, 4000);
     
     return () => clearInterval(interval);
   }, [heroImages.length]);
@@ -44,24 +44,20 @@ export default function Home() {
       {/* Image Carousel Section */}
       <section className="relative py-16 md:py-32 bg-white overflow-hidden">
         <div className="container px-4">
-          <div className="relative w-full mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-              {heroImages.map((img, index) => (
-                <motion.div 
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-gray-100 rounded-lg overflow-hidden"
-                >
-                  <img 
-                    src={img} 
-                    alt={`Hero ${index + 1}`}
-                    className="w-full h-auto object-contain"
-                  />
-                </motion.div>
-              ))}
-            </div>
+          <div className="relative w-full max-w-2xl mx-auto">
+            <motion.div
+              key={currentImageIndex}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6 }}
+              className="bg-gray-100 rounded-lg overflow-hidden"
+            >
+              <img 
+                src={heroImages[currentImageIndex]} 
+                alt={`Hero ${currentImageIndex + 1}`}
+                className="w-full h-auto object-contain"
+              />
+            </motion.div>
           </div>
         </div>
       </section>
