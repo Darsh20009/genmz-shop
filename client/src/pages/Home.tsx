@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect, useState } from "react";
+import { MarketingBanners } from "@/components/marketing-banners";
 import heroImg from "@assets/Screenshot_2025-12-25_100613_1766646961781.png";
 import heroImg2 from "@assets/Screenshot_2025-12-26_014345_1766730066129.png";
 import heroImg3 from "@assets/Screenshot_2025-12-26_014353_1766730066129.png";
@@ -63,6 +64,7 @@ export default function Home() {
 
   return (
     <Layout>
+      <MarketingBanners />
       {/* Image Carousel Section */}
       <section className="relative py-16 md:py-32 bg-white overflow-hidden">
         <div className="container px-4">

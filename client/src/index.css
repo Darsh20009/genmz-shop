@@ -104,6 +104,43 @@
   text-align: right;
 }
 
+/* Phone Input custom styles */
+.phone-input-container .react-tel-input .form-control {
+  font-family: inherit;
+  font-size: 14px;
+  padding-left: 48px !important;
+  width: 100% !important;
+  border-radius: 0 !important;
+}
+
+.phone-input-container .react-tel-input .flag-dropdown {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+}
+
+.phone-input-container .react-tel-input .selected-flag {
+  background-color: transparent !important;
+  padding: 0 12px !important;
+  border-radius: 0 !important;
+}
+
+.phone-input-container .react-tel-input .country-list {
+  border-radius: 0 !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1) !important;
+  text-align: left;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

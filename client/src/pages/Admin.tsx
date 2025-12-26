@@ -1648,7 +1648,7 @@ const EmployeesManagement = () => {
 };
 
 const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChange: (tab: string) => void }) => {
-  const { logoutMutation } = useAuth();
+  const { logout } = useAuth();
 
   const menuItems = [
     { id: "overview", label: "نظرة عامة", icon: BarChart3 },
@@ -1693,7 +1693,7 @@ const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChan
           <Button 
             variant="ghost" 
             className="w-full h-12 px-6 rounded-none text-white/70 hover:text-white hover:bg-black/20 justify-start gap-3"
-            onClick={() => logoutMutation.mutate()}
+            onClick={() => logout()}
           >
             <LogOut className="h-4 w-4" />
             <span className="font-bold text-xs uppercase tracking-widest">تسجيل الخروج</span>

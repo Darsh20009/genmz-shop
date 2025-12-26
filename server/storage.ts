@@ -115,16 +115,20 @@ export class MongoDBStorage implements IStorage {
   }
 
   async getCouponByCode(code: string): Promise<Coupon | undefined> {
-    const coupon = await CouponModel.findOne({ code, isActive: true }).lean();
+    const coupon = await CouponModel.findOne({ 
+      code: { $regex: new RegExp(`^${code}$`, 'i') }, 
+      isActive: true 
+    }).lean();
+    
     if (!coupon) return undefined;
 
     // Check expiry
-    if (coupon.expiryDate && new Date(coupon.expiryDate) < new Date()) {
+    if (coupon.expiryDate && new Date(coupon.expiryDate).getTime() < Date.now()) {
       return undefined;
     }
 
     // Check usage limit
-    if (coupon.usageLimit && (coupon.usageCount || 0) >= coupon.usageLimit) {
+    if (coupon.usageLimit !== undefined && coupon.usageLimit !== null && (coupon.usageCount || 0) >= coupon.usageLimit) {
       return undefined;
     }
 
