@@ -81,7 +81,7 @@ export default function Home() {
               <img 
                 src={heroImages[currentImageIndex]} 
                 alt="Gen M & Z Hero" 
-                className="w-full h-auto object-contain shadow-2xl grayscale hover:grayscale-0 transition-all duration-1000"
+                className="w-full h-auto object-contain shadow-2xl transition-all duration-1000"
               />
               <div className={`absolute -bottom-6 ${language === 'ar' ? '-right-6' : '-left-6'} bg-black text-white p-6 hidden md:block`}>
                 <p className="text-[10px] tracking-widest uppercase font-bold mb-1">{t('featuredItem')}</p>
