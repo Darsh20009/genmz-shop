@@ -52,7 +52,7 @@ const StatsCards = memo(() => {
   );
 
   return (
-    <React.Fragment>
+    <div>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <Card className="hover-elevate border-black/5 bg-white shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -164,7 +164,7 @@ const StatsCards = memo(() => {
           </div>
         </Card>
       </div>
-    </React.Fragment>
+    </div>
   );
 });
 
@@ -1384,14 +1384,48 @@ const LogsTable = memo(() => {
 const EmployeesManagement = () => {
   const { toast } = useToast();
   const { data: users, isLoading } = useQuery<any[]>({ queryKey: ["/api/admin/users"] });
+  const { data: branches } = useQuery<any[]>({ queryKey: ["/api/branches"] });
   const [open, setOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [newPassword, setNewPassword] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
+    password: "",
+    role: "employee",
+    branchId: "",
+    loginType: "dashboard",
+    permissions: ["orders"]
+  });
 
   const employees = useMemo(() => 
     users?.filter(u => ["admin", "employee", "support"].includes(u.role)) || []
   , [users]);
+
+  const createEmployeeMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const res = await apiRequest("POST", "/api/admin/users", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "تم إضافة الموظف بنجاح" });
+      setOpen(false);
+      setFormData({
+        name: "",
+        phone: "",
+        password: "",
+        role: "employee",
+        branchId: "",
+        loginType: "dashboard",
+        permissions: ["orders"]
+      });
+    },
+    onError: (err: any) => {
+      toast({ title: "خطأ", description: err.message || "فشلت الإضافة", variant: "destructive" });
+    }
+  });
 
   const toggleActiveMutation = useMutation({
     mutationFn: async ({ id, isActive }: { id: string, isActive: boolean }) => {
@@ -1420,9 +1454,74 @@ const EmployeesManagement = () => {
     <div className="space-y-6" dir="rtl">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-black uppercase tracking-tight">إدارة الموظفين</h2>
-        <Button onClick={() => { setEditingUser(null); setOpen(true); }} className="rounded-none font-bold text-xs h-10 px-6">
-          <Plus className="ml-2 h-4 w-4" /> إضافة موظف جديد
-        </Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button onClick={() => { setEditingUser(null); setOpen(true); }} className="rounded-none font-bold text-xs h-10 px-6">
+              <Plus className="ml-2 h-4 w-4" /> إضافة موظف جديد
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-md rounded-none">
+            <DialogHeader>
+              <DialogTitle className="text-right">إضافة موظف جديد</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 mt-4" dir="rtl">
+              <div className="space-y-2">
+                <Label className="text-right block">الاسم</Label>
+                <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="text-right" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-right block">رقم الهاتف</Label>
+                <Input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="text-right" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-right block">كلمة المرور</Label>
+                <Input type="password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="text-right" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-right block">الدور</Label>
+                  <Select value={formData.role} onValueChange={v => setFormData({...formData, role: v})}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="employee">موظف</SelectItem>
+                      <SelectItem value="support">دعم</SelectItem>
+                      <SelectItem value="admin">مدير</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-right block">نوع الدخول</Label>
+                  <Select value={formData.loginType} onValueChange={v => setFormData({...formData, loginType: v})}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="dashboard">لوحة التحكم</SelectItem>
+                      <SelectItem value="pos">POS فقط</SelectItem>
+                      <SelectItem value="both">الاثنين</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-right block">الفرع</Label>
+                <Select value={formData.branchId} onValueChange={v => setFormData({...formData, branchId: v})}>
+                  <SelectTrigger><SelectValue placeholder="اختر الفرع" /></SelectTrigger>
+                  <SelectContent>
+                    {branches?.map(b => (
+                      <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button 
+                className="w-full h-12 rounded-none font-black" 
+                onClick={() => createEmployeeMutation.mutate(formData)}
+                disabled={createEmployeeMutation.isPending}
+              >
+                {createEmployeeMutation.isPending ? <Loader2 className="animate-spin" /> : "إضافة الموظف"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
