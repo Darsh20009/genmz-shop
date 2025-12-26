@@ -1,3 +1,5 @@
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 import { useAuth } from "@/hooks/use-auth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -74,7 +76,18 @@ export default function Register() {
                   <FormItem className="text-right">
                     <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">رقم الجوال</FormLabel>
                     <FormControl>
-                      <Input placeholder="05xxxxxxxx" {...field} value={field.value || ""} className="h-12 bg-white border-black/10 rounded-none focus-visible:ring-black" />
+                      <div dir="ltr" className="phone-input-container">
+                        <PhoneInput
+                          country={'sa'}
+                          value={field.value}
+                          onChange={(phone) => field.onChange(phone)}
+                          containerClass="!w-full !rounded-none"
+                          inputClass="!w-full !h-12 !bg-white !border-black/10 !rounded-none !focus:ring-black !text-left"
+                          buttonClass="!border-black/10 !rounded-none !bg-white"
+                          placeholder="5xxxxxxxx"
+                          onlyCountries={['sa', 'ae', 'kw', 'qa', 'bh', 'om', 'eg', 'jo']}
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage className="text-[10px]" />
                   </FormItem>

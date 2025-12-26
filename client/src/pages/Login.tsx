@@ -1,3 +1,5 @@
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 import logoImg from "@assets/Gen_M&Z_LOGO_1766644527859.png";
 import { useAuth } from "@/hooks/use-auth";
 import { useForm } from "react-hook-form";
@@ -79,15 +81,21 @@ export default function Login() {
                   <FormItem className="text-right">
                     <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">رقم الهاتف</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="05xxxxxxxx" 
-                        {...field} 
-                        onChange={(e) => {
-                          field.onChange(e);
-                          checkIsStaff(e.target.value);
-                        }}
-                        className="h-14 bg-white border-black/10 rounded-none focus-visible:ring-black" 
-                      />
+                      <div dir="ltr" className="phone-input-container">
+                        <PhoneInput
+                          country={'sa'}
+                          value={field.value}
+                          onChange={(phone) => {
+                            field.onChange(phone);
+                            checkIsStaff(phone);
+                          }}
+                          containerClass="!w-full !rounded-none"
+                          inputClass="!w-full !h-14 !bg-white !border-black/10 !rounded-none !focus:ring-black !text-left"
+                          buttonClass="!border-black/10 !rounded-none !bg-white"
+                          placeholder="5xxxxxxxx"
+                          onlyCountries={['sa', 'ae', 'kw', 'qa', 'bh', 'om', 'eg', 'jo']}
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage className="text-[10px]" />
                   </FormItem>
