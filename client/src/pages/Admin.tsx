@@ -1,4 +1,5 @@
 import { Layout } from "@/components/Layout";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/use-auth";
 import { useProducts, useCreateProduct } from "@/hooks/use-products";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -1078,7 +1079,7 @@ const OrdersManagement = memo(() => {
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="rounded-none font-bold text-xs" dir="rtl">
+                    <DropdownMenuContent align="end" className="rounded-none font-bold text-xs">
                       {orderStatuses.map((status) => (
                         <DropdownMenuItem 
                           key={status} 
@@ -1510,9 +1511,6 @@ const EmployeesManagement = () => {
     </div>
   );
 };
-
-// ... imports
-import { SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar";
 
 const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChange: (tab: string) => void }) => {
   const menuItems = [
