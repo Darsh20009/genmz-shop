@@ -46,12 +46,21 @@ export function setupAuth(app: Express) {
   passport.use(
     new LocalStrategy({ usernameField: 'username', passwordField: 'password', passReqToCallback: false }, async (username, password, done) => {
       try {
-        console.log(`[AUTH] Login attempt for: "${username}"`);
-        const cleanInput = (username || "").trim().replace(/\s/g, "");
+        let cleanInput = (username || "").trim().replace(/\s/g, "").replace(/\+/g, "");
+        
+        // Handle 966 prefix
+        if (cleanInput.startsWith("966")) {
+          cleanInput = cleanInput.substring(3);
+        }
+        // Handle leading zero
+        if (cleanInput.startsWith("0")) {
+          cleanInput = cleanInput.substring(1);
+        }
+        
+        console.log(`[AUTH] Login attempt for cleaned input: "${cleanInput}"`);
         
         // Find user by phone, username, or name (case-insensitive)
         const searchRegex = new RegExp(`^${cleanInput}$`, "i");
-        console.log(`[AUTH] Login attempt for user: "${cleanInput}"`);
         let user = await UserModel.findOne({ 
           $or: [
             { phone: cleanInput },
@@ -191,8 +200,19 @@ export function setupAuth(app: Express) {
         return res.status(400).send("رقم الهاتف مطلوب");
       }
 
-      const cleanInput = (username || "").trim().replace(/\s/g, "");
+      let cleanInput = (username || "").trim().replace(/\s/g, "").replace(/\+/g, "");
       
+      // Handle 966 prefix
+      if (cleanInput.startsWith("966")) {
+        cleanInput = cleanInput.substring(3);
+      }
+      // Handle leading zero
+      if (cleanInput.startsWith("0")) {
+        cleanInput = cleanInput.substring(1);
+      }
+      
+      console.log(`[AUTH] Final clean input for login: "${cleanInput}"`);
+
       // Try to find user first
       let user = await UserModel.findOne({ 
         $or: [
@@ -200,6 +220,8 @@ export function setupAuth(app: Express) {
           { username: new RegExp(`^${cleanInput}$`, "i") }
         ]
       }).lean();
+
+      console.log(`[AUTH] User found: ${user ? 'Yes' : 'No'} (${user?.role})`);
 
       // If staff/admin, validate password
       if (user && ["admin", "employee", "support"].includes(user.role)) {
