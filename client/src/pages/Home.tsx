@@ -44,36 +44,22 @@ export default function Home() {
       {/* Image Carousel Section */}
       <section className="relative py-16 md:py-32 bg-white overflow-hidden">
         <div className="container px-4">
-          <div className="relative w-full max-w-4xl mx-auto">
-            <div className="overflow-hidden bg-gray-100 rounded-lg">
-              <motion.div
-                animate={{ x: `-${currentImageIndex * 100}%` }}
-                transition={{ duration: 0.8, ease: "easeInOut" }}
-                className="flex w-full"
-              >
-                {heroImages.map((img, index) => (
-                  <div key={index} className="w-full flex-shrink-0 flex items-center justify-center bg-white">
-                    <img 
-                      src={img} 
-                      alt={`Hero ${index + 1}`}
-                      className="w-full h-auto object-contain"
-                    />
-                  </div>
-                ))}
-              </motion.div>
-            </div>
-            
-            {/* Carousel indicators */}
-            <div className="flex justify-center gap-2 mt-6">
-              {heroImages.map((_, index) => (
-                <button
+          <div className="relative w-full mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+              {heroImages.map((img, index) => (
+                <motion.div 
                   key={index}
-                  onClick={() => setCurrentImageIndex(index)}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    index === currentImageIndex ? 'bg-black w-8' : 'bg-gray-300'
-                  }`}
-                  data-testid={`carousel-indicator-${index}`}
-                />
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-gray-100 rounded-lg overflow-hidden"
+                >
+                  <img 
+                    src={img} 
+                    alt={`Hero ${index + 1}`}
+                    className="w-full h-auto object-contain"
+                  />
+                </motion.div>
               ))}
             </div>
           </div>
