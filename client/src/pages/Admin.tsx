@@ -1023,6 +1023,11 @@ const ReturnsTable = memo(() => {
 
 // ... (Rest of StatsCards, ProductsTable, CustomersTable)
 
+// ... imports
+import { SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar";
+import { Wallet, MoreVertical } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
 const OrdersManagement = memo(() => {
   const { data: orders, isLoading } = useQuery({
     queryKey: ["/api/orders"],
@@ -1032,81 +1037,64 @@ const OrdersManagement = memo(() => {
     }
   });
 
-  if (isLoading) return <Loader2 className="animate-spin mx-auto" />;
+  const { toast } = useToast();
 
-  const filteredOrders = orders || [];
-
-  return (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-bold uppercase tracking-tight">الطلبات</h2>
-      <div className="rounded-none border border-black/5 overflow-hidden">
-        <div className="p-6 grid grid-cols-5 font-black uppercase tracking-widest text-[10px] bg-secondary/20 text-black/40 border-b border-black/5">
-          <div className="text-right">رقم الطلب</div>
-          <div className="text-right">العميل</div>
-          <div className="text-right">المبلغ</div>
-          <div className="text-right">الحالة</div>
-          <div className="text-right">الإجراءات</div>
-        </div>
-        <div className="divide-y divide-black/5">
-          {filteredOrders.map((order: any) => (
-            <div key={order.id} className="p-6 grid grid-cols-5 items-center hover:bg-secondary/10 transition-colors">
-              <div className="font-bold">#{order.id.slice(-6).toUpperCase()}</div>
-              <div className="text-sm">{order.customerName || "عميل زائر"}</div>
-              <div className="font-black">{order.total} ر.س</div>
-              <div>
-                <Badge variant="outline" className="rounded-none text-[8px] uppercase">{order.status}</Badge>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-none">
-                  <Edit className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          ))}
-          {filteredOrders.length === 0 && (
-            <div className="p-12 text-center text-black/20 font-bold uppercase tracking-widest text-[10px]">
-              لا توجد طلبات حالياً
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-});
-
-const CategoriesManagement = memo(() => {
-  const { data: categories, isLoading } = useQuery({
-    queryKey: ["/api/categories"],
-    queryFn: async () => {
-      const res = await fetch("/api/categories");
-      return res.json();
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string, status: string }) => {
+      await apiRequest("PATCH", `/api/orders/${id}/status`, { status });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+      toast({ title: "تم تحديث حالة الطلب بنجاح" });
     }
   });
 
   if (isLoading) return <Loader2 className="animate-spin mx-auto" />;
 
+  const filteredOrders = orders || [];
+
   return (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-bold uppercase tracking-tight">الفئات</h2>
-      <div className="rounded-none border border-black/5 overflow-hidden">
-        <div className="p-6 grid grid-cols-3 font-black uppercase tracking-widest text-[10px] bg-secondary/20 text-black/40 border-b border-black/5">
-          <div className="text-right">اسم الفئة</div>
-          <div className="text-right">عدد المنتجات</div>
-          <div className="text-right">الإجراءات</div>
-        </div>
-        <div className="divide-y divide-black/5">
-          {categories?.map((cat: any) => (
-            <div key={cat.id} className="p-6 grid grid-cols-3 items-center hover:bg-secondary/10 transition-colors">
-              <div className="font-bold">{cat.name}</div>
-              <div className="text-sm">{cat.productCount || 0}</div>
-              <div className="flex gap-2">
-                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-none">
-                  <Edit className="h-4 w-4" />
-                </Button>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-black uppercase tracking-tight">إدارة الطلبات</h2>
+      </div>
+      <div className="grid grid-cols-1 gap-4">
+        {filteredOrders.map((order: any) => (
+          <Card key={order.id} className="rounded-none border-black/5 hover-elevate overflow-hidden">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-center">
+                <div className="space-y-1">
+                  <p className="font-black text-sm">#{order.id.slice(-6).toUpperCase()}</p>
+                  <p className="text-xs font-bold text-black/40 uppercase">{order.customerName || "عميل زائر"}</p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <p className="font-black text-sm">{order.total} ر.س</p>
+                    <Badge variant="outline" className="rounded-none text-[8px] uppercase">{order.status}</Badge>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-none border border-black/5">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="rounded-none font-bold text-xs" dir="rtl">
+                      {orderStatuses.map((status) => (
+                        <DropdownMenuItem 
+                          key={status} 
+                          onClick={() => updateStatusMutation.mutate({ id: order.id, status })}
+                          className="text-right"
+                        >
+                          تغيير إلى {status}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );
@@ -1122,36 +1110,78 @@ const CustomersTable = memo(() => {
     }
   });
 
+  const { toast } = useToast();
+  const [walletAmount, setWalletAmount] = useState("");
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+
+  const updateWalletMutation = useMutation({
+    mutationFn: async ({ id, amount }: { id: string, amount: string }) => {
+      await apiRequest("PATCH", `/api/admin/users/${id}`, { walletBalance: amount });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "تم تحديث المحفظة بنجاح" });
+      setSelectedUser(null);
+      setWalletAmount("");
+    }
+  });
+
   if (isLoading) return <Loader2 className="animate-spin mx-auto" />;
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-bold uppercase tracking-tight">المستخدمين</h2>
-      <div className="rounded-none border border-black/5 overflow-hidden">
-        <div className="p-6 grid grid-cols-5 font-black uppercase tracking-widest text-[10px] bg-secondary/20 text-black/40 border-b border-black/5">
-          <div className="text-right">الاسم</div>
-          <div className="text-right">رقم الهاتف</div>
-          <div className="text-right">الدور</div>
-          <div className="text-right">المحفظة</div>
-          <div className="text-right">الإجراءات</div>
-        </div>
-        <div className="divide-y divide-black/5">
-          {users?.map((u: any) => (
-            <div key={u.id} className="p-6 grid grid-cols-5 items-center hover:bg-secondary/10 transition-colors">
-              <div className="font-bold">{u.name}</div>
-              <div className="text-sm font-bold">{u.phone || "-"}</div>
-              <div>
-                <Badge variant="outline" className="rounded-none text-[8px] uppercase">{u.role}</Badge>
+    <div className="space-y-6">
+      <h2 className="text-2xl font-black uppercase tracking-tight">إدارة العملاء</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {users?.filter((u: any) => u.role === 'customer').map((u: any) => (
+          <Card key={u.id} className="border-black/5 hover-elevate overflow-hidden">
+            <CardContent className="p-6 space-y-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="font-black text-lg">{u.name}</p>
+                  <p className="text-xs font-bold text-black/40">{u.phone || "-"}</p>
+                </div>
+                <div className="p-2 bg-green-50 rounded-lg">
+                  <Wallet className="h-4 w-4 text-green-600" />
+                </div>
               </div>
-              <div className="font-black tracking-tighter text-green-600">{u.walletBalance} ر.س</div>
-              <div className="flex gap-2">
-                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black hover:text-white rounded-none transition-all">
-                  <Edit className="h-4 w-4" />
-                </Button>
+              <div className="flex justify-between items-center p-3 bg-secondary/10 border border-black/5">
+                <span className="text-[10px] font-black uppercase tracking-widest text-black/40">رصيد المحفظة</span>
+                <span className="font-black text-green-600">{u.walletBalance} ر.س</span>
               </div>
-            </div>
-          ))}
-        </div>
+              <Dialog open={selectedUser?.id === u.id} onOpenChange={(open) => !open && setSelectedUser(null)}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" onClick={() => setSelectedUser(u)} className="w-full rounded-none font-black text-[10px] uppercase h-8">
+                    تعديل المحفظة
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="rounded-none max-w-sm" dir="rtl">
+                  <DialogHeader>
+                    <DialogTitle>تعديل رصيد {u.name}</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 pt-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs font-bold uppercase">الرصيد الجديد</Label>
+                      <Input 
+                        type="number" 
+                        value={walletAmount} 
+                        onChange={(e) => setWalletAmount(e.target.value)} 
+                        placeholder="0"
+                        className="rounded-none"
+                      />
+                    </div>
+                    <Button 
+                      className="w-full rounded-none font-black"
+                      onClick={() => updateWalletMutation.mutate({ id: u.id, amount: walletAmount })}
+                      disabled={!walletAmount || updateWalletMutation.isPending}
+                    >
+                      {updateWalletMutation.isPending ? <Loader2 className="animate-spin" /> : "تحديث الرصيد"}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );
@@ -1481,71 +1511,100 @@ const EmployeesManagement = () => {
   );
 };
 
-export default function Admin() {
-  const { user, isLoading } = useAuth();
-  const [, setLocation] = useLocation();
+// ... imports
+import { SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar";
 
-  if (isLoading) return (
-    <div className="h-screen flex items-center justify-center">
-      <Loader2 className="animate-spin" />
-    </div>
+const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChange: (tab: string) => void }) => {
+  const menuItems = [
+    { id: "overview", label: "نظرة عامة", icon: BarChart3 },
+    { id: "products", label: "المنتجات", icon: PackageCheck },
+    { id: "orders", label: "الطلبات", icon: ShoppingCart },
+    { id: "employees", label: "الموظفين", icon: CheckCircle2 },
+    { id: "customers", label: "المستخدمين", icon: Tag },
+    { id: "coupons", label: "أكواد الخصم", icon: DollarSign },
+    { id: "logs", label: "سجل العمليات", icon: AlertCircle },
+  ];
+
+  return (
+    <Sidebar className="border-l border-black/5">
+      <SidebarContent>
+        <div className="p-6">
+          <h2 className="text-xl font-black uppercase tracking-tighter">M&Z STORE</h2>
+          <p className="text-[8px] font-bold text-black/40 uppercase tracking-widest mt-1">Control Panel</p>
+        </div>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {menuItems.map((item) => (
+                <SidebarMenuItem key={item.id}>
+                  <SidebarMenuButton 
+                    onClick={() => onTabChange(item.id)}
+                    data-active={activeTab === item.id}
+                    className="h-12 px-6 rounded-none data-[active=true]:bg-black data-[active=true]:text-white hover-elevate transition-all"
+                  >
+                    <item.icon className="h-4 w-4 ml-3" />
+                    <span className="font-bold text-xs uppercase tracking-widest">{item.label}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
   );
-  
-  if (!user || user.role !== 'admin') {
-    setLocation("/");
-    return null;
-  }
+};
+
+export default function Admin() {
+  const { user, isLoading: authLoading } = useAuth();
+  const [, setLocation] = useLocation();
+  const [activeTab, setActiveTab] = useState("overview");
+
+  if (authLoading) return <div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin" /></div>;
+  if (!user || user.role !== 'admin') { setLocation("/"); return null; }
+
+  const sidebarStyle = {
+    "--sidebar-width": "16rem",
+    "--sidebar-width-icon": "4rem",
+  };
 
   return (
     <Layout>
-      <div className="container py-12 text-right" dir="rtl">
-        <h1 className="font-display text-4xl font-bold mb-12 uppercase tracking-tighter">لوحة التحكم</h1>
-        
-          <Tabs defaultValue="overview" className="space-y-8">
-            <TabsList className="w-full justify-start bg-transparent border-b rounded-none h-12 p-0 space-x-reverse space-x-8 flex overflow-x-auto no-scrollbar">
-              <TabsTrigger value="overview" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">نظرة عامة</TabsTrigger>
-              <TabsTrigger value="products" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">المنتجات</TabsTrigger>
-              <TabsTrigger value="orders" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">الطلبات</TabsTrigger>
-              <TabsTrigger value="employees" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">الموظفين</TabsTrigger>
-              <TabsTrigger value="returns" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">الاسترجاع</TabsTrigger>
-              <TabsTrigger value="customers" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">المستخدمين</TabsTrigger>
-              <TabsTrigger value="coupons" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">أكواد الخصم</TabsTrigger>
-              <TabsTrigger value="logs" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent font-bold min-w-[100px]">سجل العمليات</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="overview">
-              <StatsCards />
-            </TabsContent>
-            
-            <TabsContent value="products">
-              <ProductsTable />
-            </TabsContent>
+      <SidebarProvider style={sidebarStyle as React.CSSProperties}>
+        <div className="flex h-screen w-full bg-secondary/5" dir="rtl">
+          <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+          
+          <main className="flex-1 flex flex-col overflow-hidden">
+            <header className="h-16 border-b border-black/5 bg-white flex items-center justify-between px-8 shrink-0">
+              <div className="flex items-center gap-4">
+                <SidebarTrigger />
+                <h1 className="text-lg font-black uppercase tracking-tight">
+                  {activeTab === "overview" && "نظرة عامة"}
+                  {activeTab === "products" && "إدارة المنتجات"}
+                  {activeTab === "orders" && "الطلبات"}
+                  {activeTab === "employees" && "الموظفين"}
+                  {activeTab === "customers" && "المستخدمين"}
+                  {activeTab === "coupons" && "أكواد الخصم"}
+                  {activeTab === "logs" && "سجل العمليات"}
+                </h1>
+              </div>
+              <ThemeToggle />
+            </header>
 
-            <TabsContent value="orders">
-              <OrdersManagement />
-            </TabsContent>
-
-            <TabsContent value="employees">
-              <EmployeesManagement />
-            </TabsContent>
-
-            <TabsContent value="returns">
-              <ReturnsTable />
-            </TabsContent>
-
-            <TabsContent value="customers">
-              <CustomersTable />
-            </TabsContent>
-
-            <TabsContent value="coupons">
-              <CouponsTable />
-            </TabsContent>
-
-            <TabsContent value="logs">
-              <LogsTable />
-            </TabsContent>
-          </Tabs>
-      </div>
+            <div className="flex-1 overflow-y-auto p-8 no-scrollbar">
+              <div className="max-w-7xl mx-auto space-y-8">
+                {activeTab === "overview" && <StatsCards />}
+                {activeTab === "products" && <ProductsTable />}
+                {activeTab === "orders" && <OrdersManagement />}
+                {activeTab === "employees" && <EmployeesManagement />}
+                {activeTab === "customers" && <CustomersTable />}
+                {activeTab === "coupons" && <CouponsTable />}
+                {activeTab === "logs" && <LogsTable />}
+              </div>
+            </div>
+          </main>
+        </div>
+      </SidebarProvider>
     </Layout>
   );
 }

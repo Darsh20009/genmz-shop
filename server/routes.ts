@@ -348,10 +348,33 @@ export async function registerRoutes(
     res.json({ success: true, trackingNumber: order.trackingNumber });
   });
 
-  app.patch("/api/admin/users/:id", async (req, res) => {
+  // Create employee
+  app.post("/api/admin/users", async (req, res) => {
     if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
-    const user = await storage.updateUser(req.params.id, req.body);
-    res.json(user);
+    try {
+      const user = await storage.createUser({
+        ...req.body,
+        role: req.body.role || "employee",
+        walletBalance: "0",
+        addresses: [],
+        permissions: req.body.permissions || []
+      });
+      res.status(201).json(user);
+    } catch (err: any) {
+      res.status(400).send(err.message);
+    }
+  });
+
+  // Update order status
+  app.patch("/api/orders/:id/status", async (req, res) => {
+    if (!req.isAuthenticated() || !["admin", "employee"].includes((req.user as any).role)) return res.sendStatus(403);
+    try {
+      const { status } = req.body;
+      const updated = await storage.updateOrder(req.params.id, { status });
+      res.json(updated);
+    } catch (err: any) {
+      res.status(400).send(err.message);
+    }
   });
 
   app.delete("/api/admin/users/:id", async (req, res) => {
