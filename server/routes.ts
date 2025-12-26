@@ -428,6 +428,12 @@ export async function registerRoutes(
     res.json(logs);
   });
 
+  app.patch("/api/user", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const updatedUser = await storage.updateUser((req.user as any).id, req.body);
+    res.json(updatedUser);
+  });
+
   // Wallet
   app.post("/api/admin/users/:id/deposit", async (req, res) => {
     if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
