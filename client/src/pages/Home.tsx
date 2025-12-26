@@ -32,11 +32,11 @@ export default function Home() {
     }
   }, [user, setLocation]);
 
-  // Rotate hero images every 5 seconds
+  // Rotate hero images every 2 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
-    }, 5000);
+    }, 2000);
     
     return () => clearInterval(interval);
   }, [heroImages.length]);
