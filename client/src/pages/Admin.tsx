@@ -1023,6 +1023,94 @@ const ReturnsTable = memo(() => {
 
 // ... (Rest of StatsCards, ProductsTable, CustomersTable)
 
+const OrdersManagement = memo(() => {
+  const { data: orders, isLoading } = useQuery({
+    queryKey: ["/api/orders"],
+    queryFn: async () => {
+      const res = await fetch("/api/orders");
+      return res.json();
+    }
+  });
+
+  if (isLoading) return <Loader2 className="animate-spin mx-auto" />;
+
+  const filteredOrders = orders || [];
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-2xl font-bold uppercase tracking-tight">الطلبات</h2>
+      <div className="rounded-none border border-black/5 overflow-hidden">
+        <div className="p-6 grid grid-cols-5 font-black uppercase tracking-widest text-[10px] bg-secondary/20 text-black/40 border-b border-black/5">
+          <div className="text-right">رقم الطلب</div>
+          <div className="text-right">العميل</div>
+          <div className="text-right">المبلغ</div>
+          <div className="text-right">الحالة</div>
+          <div className="text-right">الإجراءات</div>
+        </div>
+        <div className="divide-y divide-black/5">
+          {filteredOrders.map((order: any) => (
+            <div key={order.id} className="p-6 grid grid-cols-5 items-center hover:bg-secondary/10 transition-colors">
+              <div className="font-bold">#{order.id.slice(-6).toUpperCase()}</div>
+              <div className="text-sm">{order.customerName || "عميل زائر"}</div>
+              <div className="font-black">{order.total} ر.س</div>
+              <div>
+                <Badge variant="outline" className="rounded-none text-[8px] uppercase">{order.status}</Badge>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-none">
+                  <Edit className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ))}
+          {filteredOrders.length === 0 && (
+            <div className="p-12 text-center text-black/20 font-bold uppercase tracking-widest text-[10px]">
+              لا توجد طلبات حالياً
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+const CategoriesManagement = memo(() => {
+  const { data: categories, isLoading } = useQuery({
+    queryKey: ["/api/categories"],
+    queryFn: async () => {
+      const res = await fetch("/api/categories");
+      return res.json();
+    }
+  });
+
+  if (isLoading) return <Loader2 className="animate-spin mx-auto" />;
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-2xl font-bold uppercase tracking-tight">الفئات</h2>
+      <div className="rounded-none border border-black/5 overflow-hidden">
+        <div className="p-6 grid grid-cols-3 font-black uppercase tracking-widest text-[10px] bg-secondary/20 text-black/40 border-b border-black/5">
+          <div className="text-right">اسم الفئة</div>
+          <div className="text-right">عدد المنتجات</div>
+          <div className="text-right">الإجراءات</div>
+        </div>
+        <div className="divide-y divide-black/5">
+          {categories?.map((cat: any) => (
+            <div key={cat.id} className="p-6 grid grid-cols-3 items-center hover:bg-secondary/10 transition-colors">
+              <div className="font-bold">{cat.name}</div>
+              <div className="text-sm">{cat.productCount || 0}</div>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-none">
+                  <Edit className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+});
 
 const CustomersTable = memo(() => {
   const { data: users, isLoading } = useQuery({
@@ -1434,7 +1522,7 @@ export default function Admin() {
             </TabsContent>
 
             <TabsContent value="orders">
-              <OrdersTable />
+              <OrdersManagement />
             </TabsContent>
 
             <TabsContent value="employees">
