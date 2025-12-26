@@ -47,9 +47,10 @@ export default function Home() {
           <div className="relative w-full max-w-2xl mx-auto">
             <motion.div
               key={currentImageIndex}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6 }}
+              initial={{ x: 100, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -100, opacity: 0 }}
+              transition={{ duration: 0.8, ease: "easeInOut" }}
               className="bg-gray-100 rounded-lg overflow-hidden"
             >
               <img 
