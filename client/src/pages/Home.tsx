@@ -242,9 +242,9 @@ export default function Home() {
             <p className="text-xl text-muted-foreground font-light italic">{language === 'ar' ? 'اكتشف التنوع والإبداع في كل قطعة' : 'Discover diversity and creativity in every piece'}</p>
           </div>
           
-          <div className="relative w-full max-w-3xl mx-auto">
+          <div className="relative w-full max-w-5xl mx-auto">
             {/* Carousel Container */}
-            <div className="relative h-96 md:h-[500px] bg-gray-100 rounded-2xl overflow-hidden shadow-2xl">
+            <div className="relative h-[500px] md:h-[700px] bg-gray-100 rounded-2xl overflow-hidden shadow-2xl">
               <motion.div
                 key={collectionIndex}
                 initial={{ x: language === 'ar' ? -300 : 300, opacity: 0, scale: 0.8 }}
