@@ -77,12 +77,11 @@ export default function Home() {
              transition={{ duration: 1, delay: 0.2 }}
              className="relative"
           >
-            <div className="relative aspect-[3/4] md:aspect-square max-w-xl mx-auto group">
-              <div className="absolute inset-0 border-[20px] border-primary/5 -m-10 hidden md:block" />
+            <div className="relative w-full max-w-2xl mx-auto group bg-white rounded-lg overflow-hidden">
               <img 
                 src={heroImages[currentImageIndex]} 
                 alt="Gen M & Z Hero" 
-                className="w-full h-full object-cover shadow-2xl grayscale hover:grayscale-0 transition-all duration-1000"
+                className="w-full h-auto object-contain shadow-2xl grayscale hover:grayscale-0 transition-all duration-1000"
               />
               <div className={`absolute -bottom-6 ${language === 'ar' ? '-right-6' : '-left-6'} bg-black text-white p-6 hidden md:block`}>
                 <p className="text-[10px] tracking-widest uppercase font-bold mb-1">{t('featuredItem')}</p>
