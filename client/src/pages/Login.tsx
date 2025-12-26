@@ -13,7 +13,7 @@ import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 
 const loginSchema = z.object({
-  phone: z.string().min(10, "رقم الهاتف مطلوب"),
+  phone: z.string().min(9, "رقم الهاتف يجب أن يتكون من 9 أرقام").regex(/^5/, "رقم الهاتف يجب أن يبدأ بـ 5"),
   password: z.string().optional(),
 });
 
@@ -81,19 +81,21 @@ export default function Login() {
                   <FormItem className="text-right">
                     <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">رقم الهاتف</FormLabel>
                     <FormControl>
-                      <div dir="ltr" className="phone-input-container">
-                        <PhoneInput
-                          country={'sa'}
-                          value={field.value}
-                          onChange={(phone) => {
-                            field.onChange(phone);
-                            checkIsStaff(phone);
+                      <div dir="ltr" className="flex items-center gap-2 h-14 bg-white border border-black/10 px-4">
+                        <span className="text-sm font-bold text-black/40 border-r border-black/10 pr-2">+966</span>
+                        <input
+                          type="text"
+                          className="flex-1 h-full bg-transparent border-none focus:outline-none text-sm font-bold tracking-widest"
+                          placeholder="5x xxx xxxx"
+                          maxLength={11} // 9 digits + 2 spaces
+                          value={field.value.replace(/(\d{2})(\d{3})(\d{4})/, "$1 $2 $3").trim()}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, "");
+                            if (val.length <= 9) {
+                              field.onChange(val);
+                              checkIsStaff(val);
+                            }
                           }}
-                          containerClass="!w-full !rounded-none"
-                          inputClass="!w-full !h-14 !bg-white !border-black/10 !rounded-none !focus:ring-black !text-left"
-                          buttonClass="!border-black/10 !rounded-none !bg-white"
-                          placeholder="5xxxxxxxx"
-                          onlyCountries={['sa', 'ae', 'kw', 'qa', 'bh', 'om', 'eg', 'jo']}
                         />
                       </div>
                     </FormControl>
