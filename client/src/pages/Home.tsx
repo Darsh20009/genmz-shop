@@ -24,8 +24,16 @@ export default function Home() {
   const { data: products, isLoading } = useProducts();
   const { t, language } = useLanguage();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [collectionIndex, setCollectionIndex] = useState(0);
   
   const heroImages = [heroImg2, heroImg3, heroImg4];
+  const collectionImages = [
+    { src: mergeImg, label: language === 'ar' ? 'النمط' : 'Style', title: 'MERGE' },
+    { src: doubleLayerImg, label: language === 'ar' ? 'مزدوج' : 'Double Layer', title: 'HOOD' },
+    { src: shoppingImg, label: language === 'ar' ? 'تجربة' : 'Experience', title: 'SHOPPING' },
+    { src: womenImg, label: language === 'ar' ? 'نساء' : 'Women', title: 'ELEGANT' },
+    { src: burgundyImg, label: language === 'ar' ? 'العنابي' : 'Premium', title: 'BURGUNDY' }
+  ];
 
   useEffect(() => {
     if (user && ["admin", "employee", "support"].includes(user.role)) {
@@ -41,6 +49,15 @@ export default function Home() {
     
     return () => clearInterval(interval);
   }, [heroImages.length]);
+
+  // Rotate collection images every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCollectionIndex((prev) => (prev + 1) % collectionImages.length);
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, [collectionImages.length]);
 
   const featuredProducts = products?.slice(0, 8) || [];
 
@@ -225,110 +242,79 @@ export default function Home() {
             <p className="text-xl text-muted-foreground font-light italic">{language === 'ar' ? 'اكتشف التنوع والإبداع في كل قطعة' : 'Discover diversity and creativity in every piece'}</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            {/* Merge Style - Left Large */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="lg:row-span-2 group relative overflow-hidden rounded-xl bg-gray-100 hover-elevate transition-all"
-            >
-              <img 
-                src={mergeImg} 
-                alt="Merge Style" 
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors opacity-0 group-hover:opacity-100 flex items-end p-6">
-                <div className="text-white">
-                  <p className="text-xs uppercase tracking-widest font-bold opacity-80">{language === 'ar' ? 'النمط' : 'Style'}</p>
-                  <p className="text-lg font-black">MERGE</p>
-                </div>
-              </div>
-            </motion.div>
+          <div className="relative w-full max-w-3xl mx-auto">
+            {/* Carousel Container */}
+            <div className="relative h-96 md:h-[500px] bg-gray-100 rounded-2xl overflow-hidden shadow-2xl">
+              <motion.div
+                key={collectionIndex}
+                initial={{ x: language === 'ar' ? -300 : 300, opacity: 0, scale: 0.8 }}
+                animate={{ x: 0, opacity: 1, scale: 1 }}
+                exit={{ x: language === 'ar' ? 300 : -300, opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.9, ease: "easeInOut" }}
+                className="absolute inset-0 flex items-center justify-center"
+              >
+                <img 
+                  src={collectionImages[collectionIndex].src} 
+                  alt={collectionImages[collectionIndex].title}
+                  className="w-full h-full object-cover"
+                />
+              </motion.div>
 
-            {/* Double Layer */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="group relative overflow-hidden rounded-xl bg-gray-100 hover-elevate transition-all"
-            >
-              <img 
-                src={doubleLayerImg} 
-                alt="Double Layer Hood" 
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors opacity-0 group-hover:opacity-100 flex items-end p-4">
-                <div className="text-white">
-                  <p className="text-[10px] uppercase tracking-widest font-bold opacity-80">{language === 'ar' ? 'مزدوج' : 'Double Layer'}</p>
-                  <p className="text-sm font-black">HOOD</p>
+              {/* Overlay with Info */}
+              <motion.div
+                key={`overlay-${collectionIndex}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex flex-col items-end justify-end p-8"
+              >
+                <div className={`text-white ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+                  <p className="text-sm uppercase tracking-widest font-bold opacity-80">{collectionImages[collectionIndex].label}</p>
+                  <p className="text-4xl md:text-5xl font-black">{collectionImages[collectionIndex].title}</p>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
 
-            {/* Shopping Bag */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="group relative overflow-hidden rounded-xl bg-gray-100 hover-elevate transition-all"
-            >
-              <img 
-                src={shoppingImg} 
-                alt="Shopping Experience" 
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors opacity-0 group-hover:opacity-100 flex items-end p-4">
-                <div className="text-white">
-                  <p className="text-[10px] uppercase tracking-widest font-bold opacity-80">{language === 'ar' ? 'تجربة' : 'Experience'}</p>
-                  <p className="text-sm font-black">SHOPPING</p>
-                </div>
-              </div>
-            </motion.div>
+            {/* Navigation Indicators */}
+            <div className="flex justify-center gap-3 mt-8">
+              {collectionImages.map((_, index) => (
+                <motion.button
+                  key={index}
+                  onClick={() => setCollectionIndex(index)}
+                  whileHover={{ scale: 1.2 }}
+                  whileTap={{ scale: 0.9 }}
+                  className={`rounded-full transition-all ${
+                    index === collectionIndex 
+                      ? 'w-10 h-3 bg-black' 
+                      : 'w-3 h-3 bg-gray-300 hover:bg-gray-400'
+                  }`}
+                  data-testid={`carousel-indicator-${index}`}
+                />
+              ))}
+            </div>
 
-            {/* Women Style */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="group relative overflow-hidden rounded-xl bg-gray-100 hover-elevate transition-all"
-            >
-              <img 
-                src={womenImg} 
-                alt="Women Collection" 
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors opacity-0 group-hover:opacity-100 flex items-end p-4">
-                <div className="text-white">
-                  <p className="text-[10px] uppercase tracking-widest font-bold opacity-80">{language === 'ar' ? 'نساء' : 'Women'}</p>
-                  <p className="text-sm font-black">ELEGANT</p>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Burgundy - Right Large */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4 }}
-              className="lg:row-span-2 group relative overflow-hidden rounded-xl bg-gray-100 hover-elevate transition-all"
-            >
-              <img 
-                src={burgundyImg} 
-                alt="Burgundy Single Layer" 
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors opacity-0 group-hover:opacity-100 flex items-end p-6">
-                <div className="text-white">
-                  <p className="text-xs uppercase tracking-widest font-bold opacity-80">{language === 'ar' ? 'العنابي' : 'Premium'}</p>
-                  <p className="text-lg font-black">BURGUNDY</p>
-                </div>
-              </div>
-            </motion.div>
+            {/* Navigation Buttons */}
+            <div className="flex justify-between items-center mt-8 px-4">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setCollectionIndex((prev) => (prev - 1 + collectionImages.length) % collectionImages.length)}
+                className="p-3 rounded-full bg-black text-white hover-elevate transition-all"
+                data-testid="button-collection-prev"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </motion.button>
+              
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setCollectionIndex((prev) => (prev + 1) % collectionImages.length)}
+                className="p-3 rounded-full bg-black text-white hover-elevate transition-all"
+                data-testid="button-collection-next"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </motion.button>
+            </div>
           </div>
         </div>
       </section>
