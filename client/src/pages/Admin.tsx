@@ -1525,7 +1525,7 @@ const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChan
 
   return (
     <Sidebar className="border-l border-black/5">
-      <SidebarContent>
+      <SidebarContent className="bg-[#059467]">
         <div className="p-6">
           <h2 className="text-xl font-black uppercase tracking-tighter">M&Z STORE</h2>
           <p className="text-[8px] font-bold text-black/40 uppercase tracking-widest mt-1">Control Panel</p>
