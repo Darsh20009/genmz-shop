@@ -12,10 +12,6 @@ import heroImg from "@assets/Screenshot_2025-12-25_100613_1766646961781.png";
 import heroImg2 from "@assets/Screenshot_2025-12-26_014345_1766730066129.png";
 import heroImg3 from "@assets/Screenshot_2025-12-26_014353_1766730066129.png";
 import heroImg4 from "@assets/Screenshot_2025-12-26_014400_1766730066130.png";
-import tealImg from "@assets/Screenshot_2025-12-25_100641_1766646961781.png";
-import greyImg from "@assets/Screenshot_2025-12-25_100700_1766646961782.png";
-import burgundyImg from "@assets/Screenshot_2025-12-25_100738_1766646961782.png";
-import blueImg from "@assets/Screenshot_2025-12-25_100724_1766646961782.png";
 
 export default function Home() {
   const { user } = useAuth();
@@ -24,7 +20,7 @@ export default function Home() {
   const { t, language } = useLanguage();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
-  const heroImages = [heroImg, heroImg2, heroImg3, heroImg4];
+  const heroImages = [heroImg2, heroImg3, heroImg4];
 
   useEffect(() => {
     if (user && ["admin", "employee", "support"].includes(user.role)) {
@@ -231,79 +227,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Collection Spotlight Section */}
-      <section className="py-32 bg-gradient-to-b from-white to-secondary/5">
-        <div className="container px-4">
-          <div className={`text-center max-w-3xl mx-auto mb-20 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-            <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-6">{language === 'ar' ? 'تصاميم حصرية' : 'Exclusive Designs'}</h2>
-            <p className="text-lg text-muted-foreground font-light italic">{language === 'ar' ? 'اكتشف مجموعتنا الأخيرة من الملابس والإكسسوارات المصممة خصيصاً لك' : 'Discover our latest collection of clothing and accessories designed just for you'}</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="group relative overflow-hidden rounded-lg aspect-square bg-muted hover-elevate"
-            >
-              <img 
-                src={tealImg} 
-                alt="Teal Collection" 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                data-testid="img-teal-collection"
-              />
-              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
-                <div className="text-center text-white">
-                  <p className="text-sm uppercase tracking-widest mb-3 font-bold opacity-90">{language === 'ar' ? 'مجموعة جديدة' : 'New Collection'}</p>
-                  <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight">{language === 'ar' ? '2026' : '2026'}</h3>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="group relative overflow-hidden rounded-lg aspect-square bg-muted hover-elevate"
-            >
-              <img 
-                src={greyImg} 
-                alt="Grey Collection" 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                data-testid="img-grey-collection"
-              />
-              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
-                <div className="text-center text-white">
-                  <p className="text-sm uppercase tracking-widest mb-3 font-bold opacity-90">{language === 'ar' ? 'الكلاسيكيات' : 'Classics'}</p>
-                  <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight">{language === 'ar' ? 'الرمادي الفاخر' : 'Luxury Grey'}</h3>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="group relative overflow-hidden rounded-lg aspect-square bg-muted hover-elevate"
-            >
-              <img 
-                src={blueImg} 
-                alt="Blue Collection" 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                data-testid="img-blue-collection"
-              />
-              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
-                <div className="text-center text-white">
-                  <p className="text-sm uppercase tracking-widest mb-3 font-bold opacity-90">{language === 'ar' ? 'أكثر طلباً' : 'Best Sellers'}</p>
-                  <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight">{language === 'ar' ? 'المجموعة الاكثر مبيعاً' : 'Most Sold Collection'}</h3>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
 
       {/* Brand Story / CTA */}
       <section className="relative py-48 overflow-hidden bg-black text-white">
