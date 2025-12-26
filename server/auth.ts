@@ -103,29 +103,10 @@ export function setupAuth(app: Express) {
           }
         }
 
-        // 2. For regular customers - auto-create if doesn't exist
+        // 2. For regular customers
         if (!user) {
-          console.log(`[AUTH] Creating auto customer account for: ${cleanInput}`);
-          try {
-            const newUser = await storage.createUser({
-              phone: cleanInput,
-              name: cleanInput,
-              password: "",
-              username: cleanInput,
-              email: `${cleanInput}@genmz.com`,
-              role: "customer",
-              walletBalance: "0",
-              addresses: [],
-              permissions: [],
-              loginType: "dashboard",
-              isActive: true
-            });
-            console.log(`[AUTH] Success: New customer created and logged in ${cleanInput}`);
-            return done(null, newUser);
-          } catch (err) {
-            console.error(`[AUTH] Failed to create customer:`, err);
-            return done(null, false, { message: "فشل إنشاء الحساب" });
-          }
+          console.log(`[AUTH] User not found: ${cleanInput}`);
+          return done(null, false, { message: "الحساب غير موجود، يرجى إنشاء حساب جديد" });
         }
 
         // 3. Existing customer login
@@ -239,25 +220,7 @@ export function setupAuth(app: Express) {
           }
         }
       } else if (!user) {
-        // Auto-create customer account
-        // Use phone number as password for customers
-        const salt = randomBytes(16).toString("hex");
-        const buffer = (await scryptAsync(cleanInput, salt, 64)) as Buffer;
-        const hashedPassword = `${buffer.toString("hex")}.${salt}`;
-        
-        user = await storage.createUser({
-          phone: cleanInput,
-          name: cleanInput,
-          password: hashedPassword,
-          username: cleanInput,
-          email: `${cleanInput}@genmz.com`,
-          role: "customer",
-          walletBalance: "0",
-          addresses: [],
-          permissions: [],
-          loginType: "dashboard",
-          isActive: true
-        });
+        return res.status(401).send("الحساب غير موجود، يرجى إنشاء حساب جديد");
       }
 
       // Login the user (user is guaranteed to exist at this point)
