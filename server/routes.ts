@@ -67,6 +67,18 @@ export async function registerRoutes(
     console.error("Seeding failed:", err);
   }
 
+  // Middleware for granular permissions
+  const checkPermission = (permission: string) => {
+    return (req: any, res: any, next: any) => {
+      if (!req.isAuthenticated()) return res.sendStatus(401);
+      const user = req.user as any;
+      if (user.role === "admin" || (user.permissions && user.permissions.includes(permission))) {
+        return next();
+      }
+      res.status(403).json({ message: "ليس لديك صلاحية للقيام بهذا الإجراء" });
+    };
+  };
+
   // Products
   app.get(api.products.list.path, async (_req, res) => {
     const products = await storage.getProducts();
@@ -91,23 +103,23 @@ export async function registerRoutes(
     res.status(201).json(product);
   });
 
-  app.patch("/api/products/:id", async (req, res) => {
-    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+  app.patch("/api/products/:id", checkPermission("products.edit"), async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
     const product = await storage.updateProduct(req.params.id, req.body);
     res.json(product);
   });
 
-  app.delete("/api/products/:id", async (req, res) => {
-    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+  app.delete("/api/products/:id", checkPermission("products.edit"), async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
     await storage.deleteProduct(req.params.id);
     res.sendStatus(200);
   });
 
   // Orders
-  app.get(api.orders.list.path, async (req, res) => {
+  app.get(api.orders.list.path, checkPermission("orders.view"), async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     const user = req.user as any;
-    if (user.role === "admin") {
+    if (user.role === "admin" || (user.permissions && user.permissions.includes("orders.view"))) {
       const orders = await storage.getOrders();
       res.json(orders);
     } else {
@@ -261,10 +273,8 @@ export async function registerRoutes(
     });
   });
 
-  app.get("/api/admin/users", async (req, res) => {
+  app.get("/api/admin/users", checkPermission("staff.manage"), async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
-    const user = req.user as any;
-    if (user.role !== "admin") return res.sendStatus(403);
     const users = await storage.getUsers();
     // Return all users for admin management
     res.json(users);
@@ -287,10 +297,8 @@ export async function registerRoutes(
     res.json({ message: "Password reset successfully" });
   });
 
-  app.post("/api/admin/wallet/deposit", async (req, res) => {
+  app.post("/api/admin/wallet/deposit", checkPermission("wallet.adjust"), async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
-    const user = req.user as any;
-    if (user.role !== "admin") return res.sendStatus(403);
 
     const { userId, amount, description } = req.body;
     if (!userId || !amount) return res.status(400).send("بيانات غير مكتملة");
@@ -352,9 +360,8 @@ export async function registerRoutes(
     res.json({ success: true, trackingNumber: order.trackingNumber });
   });
 
-  // Create employee
-  app.post("/api/admin/users", async (req, res) => {
-    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+  app.post("/api/admin/users", checkPermission("staff.manage"), async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
     try {
       const user = await storage.createUser({
         ...req.body,

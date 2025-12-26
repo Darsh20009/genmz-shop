@@ -30,7 +30,13 @@ export async function seed() {
     email: "admin@genmz.com",
     walletBalance: "0",
     addresses: [],
-    permissions: ["support", "orders", "products", "accounting", "customers"],
+    permissions: [
+      "orders.view", "orders.edit", "orders.refund",
+      "products.view", "products.edit",
+      "customers.view", "wallet.adjust",
+      "reports.view", "staff.manage",
+      "pos.access", "settings.manage"
+    ],
     loginType: "both",
     isActive: true
   });
