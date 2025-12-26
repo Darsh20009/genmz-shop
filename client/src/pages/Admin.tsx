@@ -1657,6 +1657,7 @@ const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChan
     { id: "employees", label: "الموظفين", icon: CheckCircle2 },
     { id: "customers", label: "المستخدمين", icon: Tag },
     { id: "coupons", label: "أكواد الخصم", icon: DollarSign },
+    { id: "marketing", label: "التسويق", icon: LayoutGrid },
     { id: "logs", label: "سجل العمليات", icon: AlertCircle },
   ];
 
@@ -1747,6 +1748,7 @@ export default function Admin() {
                 {activeTab === "employees" && <EmployeesManagement />}
                 {activeTab === "customers" && <CustomersTable />}
                 {activeTab === "coupons" && <CouponsTable />}
+                {activeTab === "marketing" && <MarketingManagement />}
                 {activeTab === "logs" && <LogsTable />}
               </div>
             </div>
@@ -1756,3 +1758,116 @@ export default function Admin() {
     </Layout>
   );
 }
+
+const MarketingManagement = () => {
+  const { toast } = useToast();
+  const { data: marketing, isLoading } = useQuery<any[]>({ queryKey: ["/api/admin/marketing"] });
+  const [open, setOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    image: "",
+    link: "",
+    type: "banner" as const,
+    isActive: true
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (data: any) => {
+      await apiRequest("POST", "/api/admin/marketing", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/marketing"] });
+      toast({ title: "تمت إضافة العنصر التسويقي بنجاح" });
+      setOpen(false);
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest("DELETE", `/api/admin/marketing/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/marketing"] });
+      toast({ title: "تم حذف العنصر بنجاح" });
+    }
+  });
+
+  if (isLoading) return <Loader2 className="animate-spin mx-auto" />;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-black uppercase tracking-tight">إدارة التسويق</h2>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button className="rounded-none font-bold text-xs h-10 px-6">
+              <Plus className="ml-2 h-4 w-4" /> إضافة بانر / بوب أب
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-md rounded-none">
+            <DialogHeader>
+              <DialogTitle className="text-right">إضافة عنصر تسويقي</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 mt-4" dir="rtl">
+              <div className="space-y-2">
+                <Label className="text-right block">العنوان</Label>
+                <Input value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="text-right" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-right block">رابط الصورة</Label>
+                <Input value={formData.image} onChange={e => setFormData({...formData, image: e.target.value})} className="text-right" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-right block">رابط التوجيه (اختياري)</Label>
+                <Input value={formData.link} onChange={e => setFormData({...formData, link: e.target.value})} className="text-right" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-right block">النوع</Label>
+                <Select value={formData.type} onValueChange={(v: any) => setFormData({...formData, type: v})}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="banner">بانر</SelectItem>
+                    <SelectItem value="popup">بوب أب (نافذة منبثقة)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button 
+                className="w-full h-12 rounded-none font-black" 
+                onClick={() => createMutation.mutate(formData)}
+                disabled={createMutation.isPending}
+              >
+                {createMutation.isPending ? <Loader2 className="animate-spin" /> : "حفظ"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {marketing?.map((item: any) => (
+          <Card key={item.id} className="border-black/5 hover-elevate overflow-hidden">
+            <div className="aspect-video relative overflow-hidden">
+              <img src={item.image} alt={item.title} className="object-cover w-full h-full" />
+              <div className="absolute top-2 right-2 flex gap-2">
+                <Badge variant="default" className="rounded-none font-bold uppercase tracking-widest text-[8px]">
+                  {item.type === 'banner' ? 'بانر' : 'بوب أب'}
+                </Badge>
+                <Button 
+                  size="icon" 
+                  variant="destructive" 
+                  className="h-8 w-8 rounded-none"
+                  onClick={() => deleteMutation.mutate(item.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <CardHeader className="p-4">
+              <CardTitle className="text-sm font-black">{item.title}</CardTitle>
+            </CardHeader>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+};

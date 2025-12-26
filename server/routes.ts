@@ -429,6 +429,28 @@ export async function registerRoutes(
   });
 
   // Wallet
+  app.post("/api/admin/users/:id/deposit", async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+    const { amount } = req.body;
+    if (typeof amount !== 'number' || amount <= 0) return res.status(400).json({ message: "Invalid amount" });
+    
+    const user = await storage.getUser(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    
+    const newBalance = (Number(user.walletBalance) + amount).toString();
+    const updatedUser = await storage.updateUserWallet(user.id, newBalance);
+    
+    await storage.createWalletTransaction({
+      userId: user.id,
+      amount,
+      type: "deposit",
+      description: "إيداع من قبل الإدارة",
+      createdAt: new Date()
+    });
+    
+    res.json(updatedUser);
+  });
+
   app.get("/api/wallet/transactions", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     const user = req.user as any;
