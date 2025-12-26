@@ -8,10 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useMutation } from "@tanstack/react-query";
-import { MapPin, User as UserIcon, Plus, Trash2, X } from "lucide-react";
+import { MapPin, User as UserIcon, Plus, Trash2, X, ChevronRight } from "lucide-react";
 import { z } from "zod";
 import { useState } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
+import { useLocation } from "wouter";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "@/map.css";
@@ -52,6 +53,7 @@ function LocationMarker({ position, setPosition }: { position: L.LatLng | null, 
 export default function Profile() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [showMap, setShowMap] = useState(false);
   const [markerPosition, setMarkerPosition] = useState<L.LatLng | null>(null);
   const [addressName, setAddressName] = useState("");
@@ -137,7 +139,17 @@ export default function Profile() {
 
   return (
     <div className="container mx-auto px-4 py-8" dir="rtl">
-      <h1 className="text-3xl font-black mb-8 uppercase tracking-widest">حسابي</h1>
+      <div className="flex items-center gap-4 mb-8">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="rounded-full hover:bg-black/5"
+          onClick={() => setLocation("/")}
+        >
+          <ChevronRight className="h-6 w-6" />
+        </Button>
+        <h1 className="text-3xl font-black uppercase tracking-widest">حسابي</h1>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card className="rounded-none border-black/10 shadow-none">
