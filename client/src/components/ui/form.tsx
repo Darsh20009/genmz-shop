@@ -50,9 +50,26 @@ const useFormField = () => {
     throw new Error("useFormField should be used within <FormField>")
   }
 
-  const { getFieldState, formState } = context || {
-    getFieldState: () => ({}),
-    formState: {}
+  const { getFieldState, formState } = (context as any) || {
+    getFieldState: () => ({
+      invalid: false,
+      isDirty: false,
+      isTouched: false,
+      error: undefined,
+    }),
+    formState: {
+      isDirty: false,
+      isLoading: false,
+      isSubmitted: false,
+      isSubmitSuccessful: false,
+      isSubmitting: false,
+      isValidating: false,
+      isValid: false,
+      submitCount: 0,
+      dirtyFields: {},
+      touchedFields: {},
+      errors: {},
+    }
   }
 
   const fieldState = getFieldState ? getFieldState(fieldContext.name, formState) : {}
@@ -65,6 +82,10 @@ const useFormField = () => {
     formItemId: `${id}-form-item`,
     formDescriptionId: `${id}-form-item-description`,
     formMessageId: `${id}-form-item-message`,
+    error: undefined,
+    invalid: false,
+    isDirty: false,
+    isTouched: false,
     ...fieldState,
   }
 }
