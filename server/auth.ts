@@ -116,7 +116,9 @@ export function setupAuth(app: Express) {
               role: "customer",
               walletBalance: "0",
               addresses: [],
-              permissions: []
+              permissions: [],
+              loginType: "dashboard",
+              isActive: true
             });
             console.log(`[AUTH] Success: New customer created and logged in ${cleanInput}`);
             return done(null, newUser);
@@ -187,7 +189,9 @@ export function setupAuth(app: Express) {
         role: "customer",
         walletBalance: "0",
         addresses: [],
-        permissions: []
+        permissions: [],
+        loginType: "dashboard",
+        isActive: true
       });
 
       req.login(user, (err) => {
@@ -250,7 +254,9 @@ export function setupAuth(app: Express) {
           role: "customer",
           walletBalance: "0",
           addresses: [],
-          permissions: []
+          permissions: [],
+          loginType: "dashboard",
+          isActive: true
         });
       }
 
@@ -259,7 +265,11 @@ export function setupAuth(app: Express) {
         return res.status(500).send("خطأ في النظام");
       }
 
-      const userToLogin = { ...user, id: (user as any)._id?.toString() || (user as any).id };
+      const userToLogin = { 
+        ...user, 
+        id: (user as any)._id?.toString() || (user as any).id,
+        __v: (user as any).__v
+      };
 
       req.login(userToLogin as any, (err) => {
         if (err) return next(err);

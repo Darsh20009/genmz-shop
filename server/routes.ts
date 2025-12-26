@@ -370,7 +370,7 @@ export async function registerRoutes(
     if (!req.isAuthenticated() || !["admin", "employee"].includes((req.user as any).role)) return res.sendStatus(403);
     try {
       const { status } = req.body;
-      const updated = await storage.updateOrder(req.params.id, { status });
+      const updated = await storage.updateOrderStatus(req.params.id, status);
       res.json(updated);
     } catch (err: any) {
       res.status(400).send(err.message);

@@ -33,7 +33,7 @@ export const insertUserSchema = z.object({
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = InsertUser & { _id: string; id: string; createdAt: Date };
+export type User = InsertUser & { _id: string; id: string; createdAt: Date; __v?: number };
 
 // Employee Activity Log
 export const insertActivityLogSchema = z.object({
