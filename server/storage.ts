@@ -1,5 +1,5 @@
-import { UserModel, ProductModel, OrderModel, CategoryModel, WalletTransactionModel, ActivityLogModel, CouponModel, BranchModel, BannerModel } from "./models";
-import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, OrderStatus, ActivityLog, InsertActivityLog, Coupon, InsertCoupon, Branch, InsertBranch, Banner, InsertBanner } from "@shared/schema";
+import { UserModel, ProductModel, OrderModel, CategoryModel, WalletTransactionModel, ActivityLogModel, CouponModel, BranchModel, BannerModel, CashShiftModel } from "./models";
+import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, OrderStatus, ActivityLog, InsertActivityLog, Coupon, InsertCoupon, Branch, InsertBranch, Banner, InsertBanner, CashShift, InsertCashShift } from "@shared/schema";
 
 export interface IStorage {
   // Users
@@ -59,6 +59,12 @@ export interface IStorage {
   createBanner(banner: InsertBanner): Promise<Banner>;
   updateBanner(id: string, banner: Partial<InsertBanner>): Promise<Banner>;
   deleteBanner(id: string): Promise<void>;
+
+  // Cash Shifts
+  getCashShifts(branchId?: string): Promise<CashShift[]>;
+  createCashShift(shift: InsertCashShift): Promise<CashShift>;
+  updateCashShift(id: string, shift: Partial<InsertCashShift>): Promise<CashShift>;
+  getActiveShift(cashierId: string): Promise<CashShift | undefined>;
 }
 
 export class MongoDBStorage implements IStorage {
@@ -328,6 +334,29 @@ export class MongoDBStorage implements IStorage {
 
   async deleteBanner(id: string): Promise<void> {
     await BannerModel.findByIdAndDelete(id);
+  }
+
+  // Cash Shifts
+  async getCashShifts(branchId?: string): Promise<CashShift[]> {
+    const query = branchId ? { branchId } : {};
+    const shifts = await CashShiftModel.find(query).sort({ openedAt: -1 }).lean();
+    return shifts.map(s => ({ ...s, id: (s as any)._id.toString() } as any));
+  }
+
+  async createCashShift(insertShift: InsertCashShift): Promise<CashShift> {
+    const shift = await CashShiftModel.create(insertShift);
+    return { ...shift.toObject(), id: shift._id.toString() };
+  }
+
+  async updateCashShift(id: string, update: Partial<InsertCashShift>): Promise<CashShift> {
+    const shift = await CashShiftModel.findByIdAndUpdate(id, update, { new: true }).lean();
+    if (!shift) throw new Error("Shift not found");
+    return { ...shift, id: shift._id.toString() };
+  }
+
+  async getActiveShift(cashierId: string): Promise<CashShift | undefined> {
+    const shift = await CashShiftModel.findOne({ cashierId, status: "open" }).lean();
+    return shift ? { ...shift, id: shift._id.toString() } : undefined;
   }
 }
 

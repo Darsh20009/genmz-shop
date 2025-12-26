@@ -4,11 +4,20 @@ import { z } from "zod";
 export const userRoles = ["admin", "employee", "customer", "support"] as const;
 export type UserRole = typeof userRoles[number];
 
-export const employeePermissions = ["orders", "products", "support", "accounting", "customers"] as const;
+export const employeePermissions = [
+  "orders.view", "orders.edit", "orders.refund",
+  "products.view", "products.edit",
+  "customers.view", "wallet.adjust",
+  "reports.view", "staff.manage",
+  "pos.access", "settings.manage"
+] as const;
 export type EmployeePermission = typeof employeePermissions[number];
 
 export const orderStatuses = ["new", "processing", "shipped", "completed", "cancelled"] as const;
 export type OrderStatus = typeof orderStatuses[number];
+
+export const orderTypes = ["online", "pos"] as const;
+export type OrderType = typeof orderTypes[number];
 
 // User Schema
 export const insertUserSchema = z.object({
@@ -17,7 +26,7 @@ export const insertUserSchema = z.object({
   email: z.string().email("البريد الإلكتروني غير صحيح"),
   password: z.string().optional().default(""),
   role: z.enum(userRoles).default("customer"),
-  permissions: z.array(z.enum(employeePermissions)).default([]),
+  permissions: z.array(z.string()).default([]),
   branchId: z.string().optional(),
   loginType: z.enum(["dashboard", "pos", "both"]).default("dashboard"),
   isActive: z.boolean().default(true),
@@ -34,6 +43,22 @@ export const insertUserSchema = z.object({
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = InsertUser & { _id: string; id: string; createdAt: Date; __v?: number };
+
+// Cash Shift Schema
+export const insertCashShiftSchema = z.object({
+  branchId: z.string(),
+  cashierId: z.string(),
+  status: z.enum(["open", "closed"]).default("open"),
+  openingBalance: z.number(),
+  closingBalance: z.number().optional(),
+  actualCash: z.number().optional(),
+  difference: z.number().optional(),
+  openedAt: z.date().optional(),
+  closedAt: z.date().optional(),
+});
+
+export type InsertCashShift = z.infer<typeof insertCashShiftSchema>;
+export type CashShift = InsertCashShift & { _id: string; id: string };
 
 // Employee Activity Log
 export const insertActivityLogSchema = z.object({
@@ -98,6 +123,9 @@ export type Category = InsertCategory & { _id: string; id: string };
 // Order Schema
 export const insertOrderSchema = z.object({
   userId: z.string(),
+  type: z.enum(orderTypes).default("online"),
+  branchId: z.string().optional(),
+  cashierId: z.string().optional(),
   total: z.string(),
   subtotal: z.string(),
   vatAmount: z.string(),
@@ -121,7 +149,7 @@ export const insertOrderSchema = z.object({
     country: z.string().optional(),
   }).optional(),
   pickupBranch: z.string().optional(),
-  paymentMethod: z.enum(["cod", "bank_transfer", "apple_pay", "card"]),
+  paymentMethod: z.enum(["cod", "bank_transfer", "apple_pay", "card", "cash", "wallet"]),
   bankTransferReceipt: z.string().optional(),
   status: z.enum(orderStatuses).default("new"),
   paymentStatus: z.enum(["pending", "paid", "refunded"]).default("pending"),

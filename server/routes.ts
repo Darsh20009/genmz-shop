@@ -526,5 +526,32 @@ export async function registerRoutes(
     res.sendStatus(200);
   });
 
+  // POS & Shifts
+  app.get("/api/pos/active-shift", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const shift = await storage.getActiveShift((req.user as any).id);
+    res.json(shift || null);
+  });
+
+  app.post("/api/pos/shifts", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const shift = await storage.createCashShift({
+      ...req.body,
+      cashierId: (req.user as any).id,
+      status: "open",
+      openedAt: new Date()
+    });
+    res.status(201).json(shift);
+  });
+
+  app.patch("/api/pos/shifts/:id", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const shift = await storage.updateCashShift(req.params.id, {
+      ...req.body,
+      closedAt: req.body.status === "closed" ? new Date() : undefined
+    });
+    res.json(shift);
+  });
+
   return httpServer;
 }

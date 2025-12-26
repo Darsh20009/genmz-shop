@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import type { User, Product, Order, Category, WalletTransaction, ActivityLog, Coupon, Branch, Banner } from "@shared/schema";
+import type { User, Product, Order, Category, WalletTransaction, ActivityLog, Coupon, Branch, Banner, CashShift } from "@shared/schema";
 
 const userSchema = new Schema<User>(
   {
@@ -21,6 +21,21 @@ const userSchema = new Schema<User>(
       street: String,
       isDefault: { type: Boolean, default: false },
     }],
+  },
+  { timestamps: true }
+);
+
+const cashShiftSchema = new Schema<CashShift>(
+  {
+    branchId: { type: String, required: true },
+    cashierId: { type: String, required: true },
+    status: { type: String, enum: ["open", "closed"], default: "open" },
+    openingBalance: { type: Number, required: true },
+    closingBalance: Number,
+    actualCash: Number,
+    difference: Number,
+    openedAt: { type: Date, default: Date.now },
+    closedAt: Date,
   },
   { timestamps: true }
 );
@@ -48,6 +63,9 @@ const productSchema = new Schema<Product>(
 const orderSchema = new Schema<Order>(
   {
     userId: { type: String, required: true },
+    type: { type: String, enum: ["online", "pos"], default: "online" },
+    branchId: String,
+    cashierId: String,
     status: { type: String, enum: ["new", "processing", "shipped", "completed", "cancelled"], default: "new" },
     total: { type: String, required: true },
     subtotal: { type: String, required: true },
@@ -72,7 +90,7 @@ const orderSchema = new Schema<Order>(
       country: String,
     },
     pickupBranch: String,
-    paymentMethod: { type: String, enum: ["cod", "bank_transfer", "apple_pay", "card"], required: true },
+    paymentMethod: { type: String, enum: ["cod", "bank_transfer", "apple_pay", "card", "cash", "wallet"], required: true },
     bankTransferReceipt: String,
     paymentStatus: { type: String, default: "pending" },
     shippingProvider: { type: String },
@@ -163,3 +181,4 @@ export const ActivityLogModel = mongoose.model<ActivityLog>("ActivityLog", activ
 export const CouponModel = mongoose.model<Coupon>("Coupon", couponSchema);
 export const BranchModel = mongoose.model<Branch>("Branch", branchSchema);
 export const BannerModel = mongoose.model<Banner>("Banner", bannerSchema);
+export const CashShiftModel = mongoose.model<CashShift>("CashShift", cashShiftSchema);
