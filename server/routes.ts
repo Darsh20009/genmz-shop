@@ -266,7 +266,25 @@ export async function registerRoutes(
     const user = req.user as any;
     if (user.role !== "admin") return res.sendStatus(403);
     const users = await storage.getUsers();
+    // Return all users for admin management
     res.json(users);
+  });
+
+  app.patch("/api/admin/users/:id/reset-password", async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+    const { password } = req.body;
+    if (!password) return res.status(400).send("Password is required");
+
+    const { scrypt, randomBytes } = await import("crypto");
+    const { promisify } = await import("util");
+    const scryptAsync = promisify(scrypt);
+    
+    const salt = randomBytes(16).toString("hex");
+    const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
+    const hashedPassword = `${buffer.toString("hex")}.${salt}`;
+    
+    await storage.updateUserPassword(req.params.id, hashedPassword);
+    res.json({ message: "Password reset successfully" });
   });
 
   app.post("/api/admin/wallet/deposit", async (req, res) => {

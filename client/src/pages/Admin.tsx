@@ -1262,6 +1262,137 @@ const LogsTable = memo(() => {
   );
 });
 
+const EmployeesManagement = () => {
+  const { toast } = useToast();
+  const { data: users, isLoading } = useQuery<any[]>({ queryKey: ["/api/admin/users"] });
+  const [open, setOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+
+  const employees = useMemo(() => 
+    users?.filter(u => ["admin", "employee", "support"].includes(u.role)) || []
+  , [users]);
+
+  const toggleActiveMutation = useMutation({
+    mutationFn: async ({ id, isActive }: { id: string, isActive: boolean }) => {
+      await apiRequest("PATCH", `/api/admin/users/${id}`, { isActive });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "تم تحديث حالة الموظف" });
+    }
+  });
+
+  const resetPasswordMutation = useMutation({
+    mutationFn: async ({ id, password }: any) => {
+      await apiRequest("PATCH", `/api/admin/users/${id}/reset-password`, { password });
+    },
+    onSuccess: () => {
+      toast({ title: "تم إعادة تعيين كلمة المرور بنجاح" });
+      setResetDialogOpen(false);
+      setNewPassword("");
+    }
+  });
+
+  if (isLoading) return <Loader2 className="animate-spin" />;
+
+  return (
+    <div className="space-y-6" dir="rtl">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-black uppercase tracking-tight">إدارة الموظفين</h2>
+        <Button onClick={() => { setEditingUser(null); setOpen(true); }} className="rounded-none font-bold text-xs h-10 px-6">
+          <Plus className="ml-2 h-4 w-4" /> إضافة موظف جديد
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {employees.map((emp: any) => (
+          <Card key={emp.id} className="border-black/5 hover-elevate overflow-hidden">
+            <CardHeader className="bg-secondary/20 pb-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="text-lg font-black">{emp.name}</CardTitle>
+                  <p className="text-xs text-muted-foreground font-bold">{emp.role.toUpperCase()}</p>
+                </div>
+                <Badge variant={emp.isActive ? "default" : "destructive"}>
+                  {emp.isActive ? "نشط" : "معطل"}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4 text-xs">
+                <div>
+                  <p className="text-muted-foreground font-bold uppercase tracking-widest text-[10px]">الهاتف</p>
+                  <p className="font-bold">{emp.phone}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground font-bold uppercase tracking-widest text-[10px]">الفرع</p>
+                  <p className="font-bold">{emp.branchId || "غير محدد"}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground font-bold uppercase tracking-widest text-[10px]">نوع الدخول</p>
+                  <p className="font-bold">{emp.loginType === "both" ? "الكل" : emp.loginType === "pos" ? "POS" : "Dashboard"}</p>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-4 border-t border-black/5">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1 text-[10px] font-black h-8"
+                  onClick={() => {
+                    toggleActiveMutation.mutate({ id: emp.id, isActive: !emp.isActive });
+                  }}
+                >
+                  {emp.isActive ? "تعطيل" : "تفعيل"}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1 text-[10px] font-black h-8"
+                  onClick={() => {
+                    setEditingUser(emp);
+                    setResetDialogOpen(true);
+                  }}
+                >
+                  كلمة المرور
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+        <DialogContent className="max-w-md rounded-none">
+          <DialogHeader>
+            <DialogTitle className="text-right">إعادة تعيين كلمة المرور</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4" dir="rtl">
+            <div className="space-y-2">
+              <Label className="text-right block">كلمة المرور الجديدة</Label>
+              <Input 
+                type="password" 
+                value={newPassword} 
+                onChange={(e) => setNewPassword(e.target.value)} 
+                className="text-right"
+              />
+            </div>
+            <Button 
+              className="w-full h-12 rounded-none font-black"
+              onClick={() => resetPasswordMutation.mutate({ id: editingUser.id, password: newPassword })}
+              disabled={!newPassword || resetPasswordMutation.isPending}
+            >
+              حفظ
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
 export default function Admin() {
   const { user, isLoading } = useAuth();
   const [, setLocation] = useLocation();

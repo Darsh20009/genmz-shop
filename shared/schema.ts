@@ -18,6 +18,9 @@ export const insertUserSchema = z.object({
   password: z.string().optional().default(""),
   role: z.enum(userRoles).default("customer"),
   permissions: z.array(z.enum(employeePermissions)).default([]),
+  branchId: z.string().optional(),
+  loginType: z.enum(["dashboard", "pos", "both"]).default("dashboard"),
+  isActive: z.boolean().default(true),
   username: z.string().optional(),
   walletBalance: z.string().default("0"),
   addresses: z.array(z.object({

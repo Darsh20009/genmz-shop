@@ -65,7 +65,11 @@ export function setupAuth(app: Express) {
         
         console.log(`[AUTH] User search result: ${user ? 'Found' : 'Not Found'}`);
         if (user) {
-          console.log(`[AUTH] User details: ID=${user.id}, Username=${user.username}, Role=${user.role}, HasPassword=${!!user.password}`);
+          console.log(`[AUTH] User details: ID=${user.id}, Username=${user.username}, Role=${user.role}, HasPassword=${!!user.password}, IsActive=${(user as any).isActive}`);
+        }
+
+        if (user && (user as any).isActive === false) {
+          return done(null, false, { message: "هذا الحساب معطل حالياً" });
         }
         
         // Check if user is staff/admin
