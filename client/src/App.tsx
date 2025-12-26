@@ -21,6 +21,8 @@ import Terms from "@/pages/Terms";
 import ForgotPassword from "@/pages/ForgotPassword";
 import Checkout from "@/pages/Checkout";
 
+import Profile from "@/pages/Profile";
+
 function Router() {
   return (
     <Switch>
@@ -32,6 +34,7 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/forgot-password" component={ForgotPassword} />
+      <Route path="/profile" component={Profile} />
       <Route path="/orders" component={Orders} />
       <Route path="/employees" component={Employees} />
       <Route path="/dashboard" component={Dashboard} />
