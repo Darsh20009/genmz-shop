@@ -16,7 +16,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProductSchema, type InsertProduct, orderStatuses } from "@shared/schema";
 import { api } from "@shared/routes";
-import { Loader2, Plus, DollarSign, ShoppingCart, TrendingUp, BarChart3, ArrowUpRight, Trash2, Search, Filter, ChevronDown, CheckCircle2, XCircle, Truck, PackageCheck, AlertCircle, LayoutGrid, Tag, Edit, ArrowRight } from "lucide-react";
+import { Loader2, Plus, DollarSign, ShoppingCart, TrendingUp, BarChart3, ArrowUpRight, Trash2, Search, Filter, ChevronDown, CheckCircle2, XCircle, Truck, PackageCheck, AlertCircle, LayoutGrid, Tag, Edit, ArrowRight, LogOut } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -1612,6 +1612,8 @@ const EmployeesManagement = () => {
 };
 
 const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChange: (tab: string) => void }) => {
+  const { logoutMutation } = useAuth();
+
   const menuItems = [
     { id: "overview", label: "نظرة عامة", icon: BarChart3 },
     { id: "products", label: "المنتجات", icon: PackageCheck },
@@ -1624,29 +1626,42 @@ const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChan
 
   return (
     <Sidebar side="right" className="border-r border-black/5">
-      <SidebarContent className="bg-[#059467]">
-        <div className="p-6">
-          <h2 className="text-xl font-black uppercase tracking-tighter">M&Z STORE</h2>
-          <p className="text-[8px] font-bold text-black/40 uppercase tracking-widest mt-1">Control Panel</p>
+      <SidebarContent className="bg-[#059467] flex flex-col h-full">
+        <div className="flex-1">
+          <div className="p-6">
+            <h2 className="text-xl font-black uppercase tracking-tighter text-white">M&Z STORE</h2>
+            <p className="text-[8px] font-bold text-white/40 uppercase tracking-widest mt-1">Control Panel</p>
+          </div>
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {menuItems.map((item) => (
+                  <SidebarMenuItem key={item.id}>
+                    <SidebarMenuButton 
+                      onClick={() => onTabChange(item.id)}
+                      data-active={activeTab === item.id}
+                      className="h-12 px-6 rounded-none data-[active=true]:bg-black data-[active=true]:text-white text-white/70 hover:text-white hover:bg-black/20 transition-all"
+                    >
+                      <item.icon className="h-4 w-4 ml-3" />
+                      <span className="font-bold text-xs uppercase tracking-widest">{item.label}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
         </div>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.id}>
-                  <SidebarMenuButton 
-                    onClick={() => onTabChange(item.id)}
-                    data-active={activeTab === item.id}
-                    className="h-12 px-6 rounded-none data-[active=true]:bg-black data-[active=true]:text-white hover-elevate transition-all"
-                  >
-                    <item.icon className="h-4 w-4 ml-3" />
-                    <span className="font-bold text-xs uppercase tracking-widest">{item.label}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+
+        <div className="p-4 border-t border-white/10 mt-auto">
+          <Button 
+            variant="ghost" 
+            className="w-full h-12 px-6 rounded-none text-white/70 hover:text-white hover:bg-black/20 justify-start gap-3"
+            onClick={() => logoutMutation.mutate()}
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="font-bold text-xs uppercase tracking-widest">تسجيل الخروج</span>
+          </Button>
+        </div>
       </SidebarContent>
     </Sidebar>
   );
