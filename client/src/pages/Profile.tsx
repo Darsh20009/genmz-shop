@@ -1,7 +1,6 @@
 import { useAuth } from "@/hooks/use-auth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertUserSchema, type User } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -9,17 +8,53 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useMutation } from "@tanstack/react-query";
-import { MapPin, User as UserIcon, Plus, Trash2 } from "lucide-react";
+import { MapPin, User as UserIcon, Plus, Trash2, X } from "lucide-react";
 import { z } from "zod";
+import { useState } from "react";
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import "@/map.css";
+
+// Fix leaflet icon issue
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+const DefaultIcon = L.icon({
+    iconUrl: markerIcon,
+    shadowUrl: markerShadow,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41]
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
 
 const profileSchema = z.object({
   name: z.string().min(1, "الاسم مطلوب"),
   email: z.string().email("البريد الإلكتروني غير صحيح"),
 });
 
+function LocationMarker({ position, setPosition }: { position: L.LatLng | null, setPosition: (pos: L.LatLng) => void }) {
+  const map = useMap();
+  
+  useMapEvents({
+    click(e) {
+      setPosition(e.latlng);
+      map.flyTo(e.latlng, map.getZoom());
+    },
+  });
+
+  return position === null ? null : (
+    <Marker position={position} />
+  );
+}
+
 export default function Profile() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [showMap, setShowMap] = useState(false);
+  const [markerPosition, setMarkerPosition] = useState<L.LatLng | null>(null);
+  const [addressName, setAddressName] = useState("");
 
   const form = useForm({
     resolver: zodResolver(profileSchema),
@@ -49,6 +84,9 @@ export default function Profile() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       toast({ title: "تمت الإضافة", description: "تم إضافة العنوان بنجاح" });
+      setShowMap(false);
+      setMarkerPosition(null);
+      setAddressName("");
     },
   });
 
@@ -63,6 +101,39 @@ export default function Profile() {
       toast({ title: "تم الحذف", description: "تم حذف العنوان بنجاح" });
     },
   });
+
+  const handleSaveAddress = async () => {
+    if (!markerPosition || !addressName) {
+      toast({ 
+        title: "خطأ", 
+        description: "يرجى تحديد الموقع على الخريطة وإدخال اسم للعنوان",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${markerPosition.lat}&lon=${markerPosition.lng}&accept-language=ar`);
+      const data = await response.json();
+      
+      const city = data.address?.city || data.address?.town || data.address?.state || "غير معروف";
+      const street = data.display_name;
+
+      addAddressMutation.mutate({
+        name: addressName,
+        city,
+        street,
+        lat: markerPosition.lat,
+        lng: markerPosition.lng
+      });
+    } catch (error) {
+      toast({ 
+        title: "خطأ", 
+        description: "حدث خطأ أثناء تحديد العنوان، يرجى المحاولة مرة أخرى",
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8" dir="rtl">
@@ -135,7 +206,8 @@ export default function Profile() {
               <div key={address.id} className="p-4 border border-black/10 flex justify-between items-start group">
                 <div className="text-right">
                   <p className="font-bold text-sm">{address.name}</p>
-                  <p className="text-xs text-black/60 mt-1">{address.city}, {address.street}</p>
+                  <p className="text-xs text-black/60 mt-1">{address.city}</p>
+                  <p className="text-[10px] text-black/40 mt-1 line-clamp-1">{address.street}</p>
                 </div>
                 <Button
                   variant="ghost"
@@ -148,21 +220,57 @@ export default function Profile() {
               </div>
             ))}
             
-            <Button
-              variant="outline"
-              className="w-full h-12 rounded-none border-dashed border-black/20 hover:border-black transition-colors gap-2 text-[10px] font-bold uppercase tracking-widest"
-              onClick={() => {
-                const name = prompt("اسم العنوان (مثلاً: المنزل، العمل)");
-                const city = prompt("المدينة");
-                const street = prompt("الشارع");
-                if (name && city && street) {
-                  addAddressMutation.mutate({ name, city, street });
-                }
-              }}
-            >
-              <Plus className="h-4 w-4" />
-              إضافة عنوان جديد
-            </Button>
+            {!showMap ? (
+              <Button
+                variant="outline"
+                className="w-full h-12 rounded-none border-dashed border-black/20 hover:border-black transition-colors gap-2 text-[10px] font-bold uppercase tracking-widest"
+                onClick={() => setShowMap(true)}
+              >
+                <Plus className="h-4 w-4" />
+                إضافة عنوان جديد عبر الخريطة
+              </Button>
+            ) : (
+              <div className="space-y-4 border border-black/10 p-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-[10px] font-bold uppercase tracking-widest">حدد موقعك على الخريطة</span>
+                  <Button variant="ghost" size="icon" onClick={() => setShowMap(false)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <div className="h-[300px] w-full relative z-[1]">
+                  <MapContainer 
+                    center={[24.7136, 46.6753]}
+                    zoom={6} 
+                    style={{ height: "100%", width: "100%" }}
+                  >
+                    <TileLayer
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                    <LocationMarker position={markerPosition} setPosition={setMarkerPosition} />
+                  </MapContainer>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="text-right">
+                    <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-black/40">اسم العنوان (مثلاً: المنزل)</FormLabel>
+                    <Input 
+                      value={addressName}
+                      onChange={(e) => setAddressName(e.target.value)}
+                      placeholder="ادخل اسم للعنوان"
+                      className="rounded-none border-black/10 focus-visible:ring-black h-12 mt-1"
+                    />
+                  </div>
+                  <Button 
+                    className="w-full h-12 rounded-none bg-black text-white hover-elevate active-elevate-2 font-bold uppercase tracking-widest text-xs"
+                    onClick={handleSaveAddress}
+                    disabled={addAddressMutation.isPending}
+                  >
+                    حفظ العنوان المختار
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
