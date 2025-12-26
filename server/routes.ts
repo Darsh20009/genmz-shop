@@ -314,7 +314,11 @@ export async function registerRoutes(
   app.patch("/api/user/wallet", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     const { balance } = req.body;
-    const updatedUser = await storage.updateUserWallet((req.user as any).id, balance);
+    // Support both 'balance' and 'walletBalance' in request body for compatibility
+    const newBalance = balance || req.body.walletBalance;
+    if (newBalance === undefined) return res.status(400).send("Balance is required");
+    
+    const updatedUser = await storage.updateUserWallet((req.user as any).id, newBalance.toString());
     res.json(updatedUser);
   });
 

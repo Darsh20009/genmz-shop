@@ -78,6 +78,7 @@ export default function Checkout() {
 
       if (paymentMethod === "wallet") {
         const newBalance = (Number(user.walletBalance) - orderTotal).toString();
+        // Use /api/user/wallet for specific wallet updates
         await apiRequest("PATCH", "/api/user/wallet", { balance: newBalance });
         await apiRequest("POST", "/api/wallet/transaction", {
           amount: -orderTotal,
