@@ -7,8 +7,11 @@ import { ShoppingBag, Star, ShieldCheck, Truck, ChevronRight, ChevronLeft } from
 import { motion } from "framer-motion";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import heroImg from "@assets/Screenshot_2025-12-25_100613_1766646961781.png";
+import heroImg2 from "@assets/Screenshot_2025-12-26_014345_1766730066129.png";
+import heroImg3 from "@assets/Screenshot_2025-12-26_014353_1766730066129.png";
+import heroImg4 from "@assets/Screenshot_2025-12-26_014400_1766730066130.png";
 import tealImg from "@assets/Screenshot_2025-12-25_100641_1766646961781.png";
 import greyImg from "@assets/Screenshot_2025-12-25_100700_1766646961782.png";
 import burgundyImg from "@assets/Screenshot_2025-12-25_100738_1766646961782.png";
@@ -19,12 +22,24 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const { data: products, isLoading } = useProducts();
   const { t, language } = useLanguage();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  const heroImages = [heroImg, heroImg2, heroImg3, heroImg4];
 
   useEffect(() => {
     if (user && ["admin", "employee", "support"].includes(user.role)) {
       setLocation("/admin");
     }
   }, [user, setLocation]);
+
+  // Rotate hero images every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, [heroImages.length]);
 
   const featuredProducts = products?.slice(0, 8) || [];
 
@@ -65,7 +80,7 @@ export default function Home() {
             <div className="relative aspect-[3/4] md:aspect-square max-w-xl mx-auto group">
               <div className="absolute inset-0 border-[20px] border-primary/5 -m-10 hidden md:block" />
               <img 
-                src={heroImg} 
+                src={heroImages[currentImageIndex]} 
                 alt="Gen M & Z Hero" 
                 className="w-full h-full object-cover shadow-2xl grayscale hover:grayscale-0 transition-all duration-1000"
               />
