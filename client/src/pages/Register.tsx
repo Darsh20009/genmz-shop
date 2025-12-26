@@ -82,11 +82,11 @@ export default function Register() {
                           type="text"
                           className="flex-1 h-full bg-transparent border-none focus:outline-none text-sm font-bold tracking-widest"
                           placeholder="5x xxx xxxx"
-                          maxLength={11} // 9 digits + 2 spaces
+                          maxLength={11}
                           value={field.value.replace(/(\d{2})(\d{3})(\d{4})/, "$1 $2 $3").trim()}
                           onChange={(e) => {
                             const val = e.target.value.replace(/\D/g, "");
-                            if (val.length <= 9) {
+                            if (val.length <= 9 && (val.length === 0 || val.startsWith("5"))) {
                               field.onChange(val);
                             }
                           }}

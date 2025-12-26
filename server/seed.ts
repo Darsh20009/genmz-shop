@@ -16,22 +16,23 @@ export async function seed() {
   await UserModel.deleteMany({ phone: "0532441566" });
   await UserModel.deleteMany({ phone: "0552469643" });
   await UserModel.deleteMany({ phone: "0567326086" });
+  await UserModel.deleteMany({ phone: "567326086" });
   
   // Create new admin user with new phone
   console.log("Seeding admin user...");
   const password = await hashPassword("20262030");
   await storage.createUser({
-    phone: "0567326086",
+    phone: "567326086",
     password,
     role: "admin",
     name: "محمد",
-    username: "0567326086",
+    username: "567326086",
     email: "admin@genmz.com",
     walletBalance: "0",
     addresses: [],
     permissions: ["support", "orders", "products", "accounting", "customers"]
   });
-  console.log("Admin user created with phone 0567326086 and password 20262030");
+  console.log("Admin user created with phone 567326086 and password 20262030");
 
   const categories = await storage.getCategories();
   if (categories.length === 0) {
