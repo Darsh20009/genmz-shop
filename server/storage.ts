@@ -77,6 +77,10 @@ export class MongoDBStorage implements IStorage {
     return { ...user, id: user._id.toString(), permissions: user.permissions || [] };
   }
 
+  async resetUserPassword(id: string, password: string): Promise<void> {
+    await UserModel.findByIdAndUpdate(id, { password });
+  }
+
   async deleteUser(id: string): Promise<void> {
     await UserModel.findByIdAndDelete(id);
   }
