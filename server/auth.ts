@@ -259,9 +259,24 @@ export function setupAuth(app: Express) {
       req.login(userToLogin as any, (err) => {
         if (err) return next(err);
         const userObj = userToLogin as any;
+        
+        // Check login type access
+        const isDashboardAccess = ["dashboard", "both"].includes(userObj.loginType);
+        const isPosAccess = ["pos", "both"].includes(userObj.loginType);
+        
+        // Default redirect logic
+        let redirectTo = "/";
+        if (["admin", "employee", "support"].includes(userObj.role)) {
+          if (isDashboardAccess) {
+            redirectTo = "/admin";
+          } else if (isPosAccess) {
+            redirectTo = "/pos"; // Assuming a POS route exists
+          }
+        }
+
         res.status(200).json({
           ...userObj,
-          redirectTo: ["admin", "employee", "support"].includes(userObj.role) ? "/admin" : "/"
+          redirectTo
         });
       });
     } catch (err) {

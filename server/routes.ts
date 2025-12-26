@@ -280,21 +280,35 @@ export async function registerRoutes(
     res.json(users);
   });
 
-  app.patch("/api/admin/users/:id/reset-password", async (req, res) => {
-    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+  app.patch("/api/admin/users/:id/reset-password", checkPermission("staff.manage"), async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
     const { password } = req.body;
-    if (!password) return res.status(400).send("Password is required");
+    if (!password) return res.status(400).send("كلمة المرور مطلوبة");
 
-    const { scrypt, randomBytes } = await import("crypto");
-    const { promisify } = await import("util");
-    const scryptAsync = promisify(scrypt);
-    
-    const salt = randomBytes(16).toString("hex");
-    const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
-    const hashedPassword = `${buffer.toString("hex")}.${salt}`;
-    
-    await storage.updateUserPassword(req.params.id, hashedPassword);
-    res.json({ message: "Password reset successfully" });
+    try {
+      const { scrypt, randomBytes } = await import("crypto");
+      const { promisify } = await import("util");
+      const scryptAsync = promisify(scrypt);
+      
+      const salt = randomBytes(16).toString("hex");
+      const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
+      const hashedPassword = `${buffer.toString("hex")}.${salt}`;
+      
+      await storage.updateUserPassword(req.params.id, hashedPassword);
+      
+      // Audit log
+      await storage.createActivityLog({
+        employeeId: (req.user as any).id,
+        action: "password_reset",
+        targetType: "user",
+        targetId: req.params.id,
+        details: `إعادة تعيين كلمة المرor للموظف من قبل ${(req.user as any).name}`
+      });
+
+      res.json({ message: "تم تحديث كلمة المرور بنجاح" });
+    } catch (err: any) {
+      res.status(500).send(err.message);
+    }
   });
 
   app.post("/api/admin/wallet/deposit", checkPermission("wallet.adjust"), async (req, res) => {
@@ -363,13 +377,35 @@ export async function registerRoutes(
   app.post("/api/admin/users", checkPermission("staff.manage"), async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     try {
+      const { password, ...userData } = req.body;
+      let hashedPassword = "";
+      
+      if (password) {
+        const { scrypt, randomBytes } = await import("crypto");
+        const { promisify } = await import("util");
+        const scryptAsync = promisify(scrypt);
+        const salt = randomBytes(16).toString("hex");
+        const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
+        hashedPassword = `${buffer.toString("hex")}.${salt}`;
+      }
+
       const user = await storage.createUser({
-        ...req.body,
-        role: req.body.role || "employee",
+        ...userData,
+        password: hashedPassword,
         walletBalance: "0",
         addresses: [],
-        permissions: req.body.permissions || []
+        isActive: true
       });
+
+      // Log creation
+      await storage.createActivityLog({
+        employeeId: (req.user as any).id,
+        action: "staff_create",
+        targetType: "user",
+        targetId: user.id,
+        details: `إنشاء حساب موظف جديد: ${user.name}`
+      });
+
       res.status(201).json(user);
     } catch (err: any) {
       res.status(400).send(err.message);
