@@ -135,15 +135,21 @@ export default function Orders() {
   const { user, isLoading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
 
-  const { data: orders, isLoading } = useQuery({
+  const { data: orders, isLoading, error } = useQuery({
     queryKey: [api.orders.my.path],
     queryFn: async () => {
       const res = await fetch(api.orders.my.path);
       if (!res.ok) throw new Error("Failed to fetch orders");
-      return res.json();
+      const data = await res.json();
+      console.log("Orders fetched:", data);
+      return data;
     },
     enabled: !!user,
   });
+
+  if (error) {
+    console.error("Orders query error:", error);
+  }
 
   if (authLoading) return <Layout><div className="container py-24 text-center"><Loader2 className="animate-spin mx-auto text-primary" /></div></Layout>;
 

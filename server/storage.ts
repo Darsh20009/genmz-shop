@@ -195,7 +195,13 @@ export class MongoDBStorage implements IStorage {
   }
 
   async getOrdersByUser(userId: string): Promise<Order[]> {
-    const orders = await OrderModel.find({ userId }).lean();
+    // Check for both string and potentially cast to string
+    const orders = await OrderModel.find({ 
+      $or: [
+        { userId: userId },
+        { userId: userId.toString() }
+      ]
+    }).sort({ createdAt: -1 }).lean();
     return orders.map(o => ({ ...o, id: o._id.toString() }));
   }
 
