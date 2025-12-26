@@ -26,6 +26,7 @@ export default function Register() {
       password: "",
       name: "",
       phone: "",
+      email: "",
       role: "customer"
     },
   });
@@ -33,7 +34,6 @@ export default function Register() {
   const onSubmit = (data: z.infer<typeof insertUserSchema>) => {
     register({
       ...data,
-      email: `${data.phone}@example.com`,
       username: data.phone,
       role: "customer"
     }, {
@@ -75,6 +75,19 @@ export default function Register() {
                     <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">رقم الجوال</FormLabel>
                     <FormControl>
                       <Input placeholder="05xxxxxxxx" {...field} value={field.value || ""} className="h-12 bg-white border-black/10 rounded-none focus-visible:ring-black" />
+                    </FormControl>
+                    <FormMessage className="text-[10px]" />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem className="text-right">
+                    <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">البريد الإلكتروني</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="example@email.com" {...field} value={field.value || ""} className="h-12 bg-white border-black/10 rounded-none focus-visible:ring-black" />
                     </FormControl>
                     <FormMessage className="text-[10px]" />
                   </FormItem>
