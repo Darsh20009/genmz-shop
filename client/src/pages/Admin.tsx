@@ -111,7 +111,7 @@ const StatsCards = memo(() => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <Card className="border-black/5 bg-[#0a0a0a] shadow-2xl p-6 overflow-hidden relative group min-h-[400px] flex flex-col justify-between">
+        <Card className="border-black/5 bg-[#c0c7cf] shadow-2xl p-6 overflow-hidden relative group min-h-[400px] flex flex-col justify-between">
           {/* Animated Background Elements */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full -mr-32 -mt-32 blur-[100px] animate-pulse duration-[4000ms]" />
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-primary/10 rounded-full -ml-24 -mb-24 blur-[80px] animate-pulse duration-[3000ms]" />
@@ -125,7 +125,7 @@ const StatsCards = memo(() => {
                   <div className="absolute inset-0 bg-primary blur-md opacity-50 animate-pulse" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg font-black uppercase tracking-[0.2em] text-white">
+                  <CardTitle className="text-lg font-black uppercase tracking-[0.2em] text-black">
                     الأكثر مبيعاً
                   </CardTitle>
                   <div className="flex items-center gap-2">
@@ -165,7 +165,7 @@ const StatsCards = memo(() => {
                 <YAxis 
                   dataKey="name" 
                   type="category" 
-                  tick={{ fontSize: 12, fontWeight: '900', fill: '#fff' }} 
+                  tick={{ fontSize: 12, fontWeight: '900', fill: '#000' }} 
                   width={70}
                   axisLine={false}
                   tickLine={false}
@@ -178,8 +178,8 @@ const StatsCards = memo(() => {
                         <div className="bg-black/90 backdrop-blur-2xl p-4 border border-white/20 shadow-[0_0_40px_rgba(0,0,0,0.5)] rounded-3xl animate-in fade-in zoom-in duration-300 ring-1 ring-white/10">
                           <p className="text-[10px] font-black uppercase mb-2 text-primary tracking-widest">{payload[0].payload.name}</p>
                           <div className="flex items-end gap-3">
-                            <span className="text-3xl font-black text-white leading-none">{payload[0].value}</span>
-                            <span className="text-[10px] text-white/40 font-bold uppercase mb-1">Units Sold</span>
+                            <span className="text-3xl font-black text-black leading-none">{payload[0].value}</span>
+                            <span className="text-[10px] text-black/40 font-bold uppercase mb-1">Units Sold</span>
                           </div>
                           <div className="mt-3 pt-3 border-t border-white/10 flex items-center gap-2">
                             <div className="w-1 h-1 rounded-full bg-green-500 animate-ping" />
