@@ -291,10 +291,13 @@ const EditProductDialog = memo(({ product, categories, open, onOpenChange }: any
       
       const { url } = await res.json();
       
-      if (index === null) {
-        form.setValue("images.0", url);
-      } else {
+      if (typeof index === "number" && index >= 0) {
+        // Variant image
         updateVariant(index, "image", url);
+      } else {
+        // Product images - append to array
+        const currentImages = form.getValues("images") || [];
+        form.setValue("images", [...currentImages, url]);
       }
       
       toast({ title: "تم رفع الصورة بنجاح" });
@@ -305,6 +308,19 @@ const EditProductDialog = memo(({ product, categories, open, onOpenChange }: any
         variant: "destructive" 
       });
     }
+  };
+
+  const removeProductImage = (index: number) => {
+    const currentImages = form.getValues("images") || [];
+    form.setValue("images", currentImages.filter((_: any, i: number) => i !== index));
+  };
+
+  const addVariant = () => {
+    setVariants([...variants, { color: "", size: "", sku: `SKU-${Date.now()}`, stock: 0, image: "" }]);
+  };
+
+  const removeVariant = (index: number) => {
+    setVariants(variants.filter((_, i) => i !== index));
   };
 
   const onSubmit = async (data: InsertProduct) => {
@@ -362,18 +378,12 @@ const EditProductDialog = memo(({ product, categories, open, onOpenChange }: any
               </div>
 
            <div className="space-y-2 text-right">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">صورة المنتج الأساسية</Label>
-                <div className="flex gap-2">
-                  <Input 
-                    value={form.watch("images.0") || ""} 
-                    onChange={(e) => form.setValue("images.0", e.target.value)}
-                    className="rounded-none h-12 text-right flex-1"
-                    placeholder="رابط الصورة"
-                  />
+                <div className="flex justify-between items-center">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">صور المنتج</Label>
                   <div className="relative">
-                    <Button variant="outline" type="button" className="h-12 px-4 rounded-none flex gap-2 overflow-visible">
-                      <Plus className="h-4 w-4" />
-                      <span className="text-[10px] font-black uppercase">رفع</span>
+                    <Button variant="outline" type="button" className="h-8 px-3 rounded-none flex gap-1 overflow-visible text-[9px]">
+                      <Plus className="h-3 w-3" />
+                      <span className="font-black uppercase">إضافة صورة</span>
                       <input 
                         type="file" 
                         accept="image/*" 
@@ -383,6 +393,32 @@ const EditProductDialog = memo(({ product, categories, open, onOpenChange }: any
                     </Button>
                   </div>
                 </div>
+                
+                {/* Image Gallery */}
+                <div className="grid grid-cols-6 gap-2 bg-secondary/5 p-3 border border-black/5">
+                  {(form.watch("images") || []).map((img: string, idx: number) => (
+                    <div key={idx} className="relative group">
+                      <div className="aspect-square bg-secondary/20 rounded-none overflow-hidden border border-black/5">
+                        <img src={img} alt={`صورة ${idx + 1}`} className="w-full h-full object-cover" />
+                      </div>
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => removeProductImage(idx)}
+                        className="absolute top-0 right-0 h-6 w-6 rounded-none bg-destructive/80 hover:bg-destructive text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                  {(!form.watch("images") || form.watch("images").length === 0) && (
+                    <div className="col-span-6 text-center py-8 text-black/30">
+                      <p className="text-[9px]">لم يتم رفع أي صور بعد</p>
+                    </div>
+                  )}
+                </div>
+                <p className="text-[8px] text-black/40 mt-1">يمكنك رفع عدة صور للمنتج. الصورة الأولى ستظهر في قائمة المنتجات</p>
               </div>
 
            <div className="space-y-2 text-right">
@@ -392,8 +428,8 @@ const EditProductDialog = memo(({ product, categories, open, onOpenChange }: any
 
            <div className="space-y-4 pt-4 border-t border-black/5 text-right">
                 <div className="flex justify-between items-center">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-black/40">المتغيرات (الألوان والمقاسات)</Label>
-                  <Button type="button" variant="outline" size="sm" onClick={() => setVariants([...variants, { color: "", size: "", sku: `SKU-${Date.now()}`, stock: 0 }])} className="rounded-none text-[10px] font-black uppercase tracking-widest h-8">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-black/40">المتغيرات (الألوان والمقاسات والصور)</Label>
+                  <Button type="button" variant="outline" size="sm" onClick={addVariant} className="rounded-none text-[10px] font-black uppercase tracking-widest h-8">
                     إضافة متغير <Plus className="mr-1 h-3 w-3" />
                   </Button>
                 </div>
@@ -416,7 +452,12 @@ const EditProductDialog = memo(({ product, categories, open, onOpenChange }: any
                       <div className="col-span-2 space-y-1">
                         <Label className="text-[9px] font-bold">صورة المتغير</Label>
                         <div className="flex gap-2">
-                          <Input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, i)} className="h-8 rounded-none text-[8px] pt-1.5 cursor-pointer" />
+                          <Input 
+                            type="file" 
+                            accept="image/*" 
+                            onChange={(e) => handleImageUpload(e, i)} 
+                            className="h-8 rounded-none text-[8px] pt-1.5 cursor-pointer" 
+                          />
                           {v.image && (
                             <div className="w-8 h-8 border border-black/5 overflow-hidden shrink-0">
                               <img src={v.image} alt="" className="w-full h-full object-cover" />
@@ -424,7 +465,7 @@ const EditProductDialog = memo(({ product, categories, open, onOpenChange }: any
                           )}
                         </div>
                       </div>
-                      <Button type="button" variant="ghost" size="icon" onClick={() => setVariants(variants.filter((_, idx) => idx !== i))} className="h-8 w-8 text-destructive">
+                      <Button type="button" variant="ghost" size="icon" onClick={() => removeVariant(i)} className="h-8 w-8 text-destructive hover:bg-destructive/10">
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
