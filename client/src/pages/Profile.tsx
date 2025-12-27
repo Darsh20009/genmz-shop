@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useMutation } from "@tanstack/react-query";
-import { MapPin, User as UserIcon, Plus, Trash2, X, ChevronRight } from "lucide-react";
+import { MapPin, User as UserIcon, Plus, Trash2, X, ChevronRight, Navigation } from "lucide-react";
 import { z } from "zod";
 import { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
@@ -44,6 +44,31 @@ function LocationMarker({ position, setPosition }: { position: L.LatLng | null, 
 
   return position === null ? null : (
     <Marker position={position} />
+  );
+}
+
+function LocateMeButton({ setPosition }: { setPosition: (pos: L.LatLng) => void }) {
+  const map = useMap();
+
+  const handleLocate = () => {
+    map.locate().on("locationfound", (e) => {
+      setPosition(e.latlng);
+      map.flyTo(e.latlng, map.getZoom());
+    });
+  };
+
+  return (
+    <div className="absolute top-20 right-2 z-[1000]">
+      <Button
+        variant="secondary"
+        size="icon"
+        className="bg-white hover:bg-gray-100 shadow-md border border-gray-200"
+        onClick={handleLocate}
+        title="تحديد موقعي الحالي"
+      >
+        <Navigation className="h-4 w-4" />
+      </Button>
+    </div>
   );
 }
 
@@ -257,6 +282,7 @@ export default function Profile() {
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
                     <LocationMarker position={markerPosition} setPosition={setMarkerPosition} />
+                    <LocateMeButton setPosition={setMarkerPosition} />
                   </MapContainer>
                 </div>
 
