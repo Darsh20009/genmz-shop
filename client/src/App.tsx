@@ -26,6 +26,8 @@ import Profile from "@/pages/Profile";
 import AdminBranches from "@/pages/AdminBranches";
 import AdminStaff from "@/pages/AdminStaff";
 
+import AdminAuditLogs from "@/pages/AdminAuditLogs";
+
 function Router() {
   return (
     <Switch>
@@ -44,6 +46,7 @@ function Router() {
       <Route path="/admin" component={Admin} />
       <Route path="/admin/branches" component={AdminBranches} />
       <Route path="/admin/staff" component={AdminStaff} />
+      <Route path="/admin/audit-logs" component={AdminAuditLogs} />
       <Route path="/terms" component={Terms} />
       <Route component={NotFound} />
     </Switch>

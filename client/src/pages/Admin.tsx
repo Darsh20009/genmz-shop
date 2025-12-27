@@ -1647,6 +1647,10 @@ const EmployeesManagement = () => {
   );
 };
 
+import AdminBranches from "./AdminBranches";
+import AdminStaff from "./AdminStaff";
+import AdminAuditLogs from "./AdminAuditLogs";
+
 const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChange: (tab: string) => void }) => {
   const { logout } = useAuth();
 
@@ -1654,11 +1658,12 @@ const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChan
     { id: "overview", label: "نظرة عامة", icon: BarChart3 },
     { id: "products", label: "المنتجات", icon: PackageCheck },
     { id: "orders", label: "الطلبات", icon: ShoppingCart },
-    { id: "employees", label: "الموظفين", icon: CheckCircle2 },
+    { id: "staff", label: "الموظفين", icon: UserIcon },
+    { id: "branches", label: "الفروع", icon: Building },
     { id: "customers", label: "المستخدمين", icon: Tag },
     { id: "coupons", label: "أكواد الخصم", icon: DollarSign },
     { id: "marketing", label: "التسويق", icon: LayoutGrid },
-    { id: "logs", label: "سجل العمليات", icon: AlertCircle },
+    { id: "logs", label: "سجل العمليات", icon: History },
   ];
 
   return (
@@ -1731,7 +1736,8 @@ export default function Admin() {
                   {activeTab === "overview" && "نظرة عامة"}
                   {activeTab === "products" && "إدارة المنتجات"}
                   {activeTab === "orders" && "الطلبات"}
-                  {activeTab === "employees" && "الموظفين"}
+                  {activeTab === "staff" && "إدارة الطاقم"}
+                  {activeTab === "branches" && "إدارة الفروع"}
                   {activeTab === "customers" && "المستخدمين"}
                   {activeTab === "coupons" && "أكواد الخصم"}
                   {activeTab === "logs" && "سجل العمليات"}
@@ -1745,11 +1751,12 @@ export default function Admin() {
                 {activeTab === "overview" && <StatsCards />}
                 {activeTab === "products" && <ProductsTable />}
                 {activeTab === "orders" && <OrdersManagement />}
-                {activeTab === "employees" && <EmployeesManagement />}
+                {activeTab === "staff" && <AdminStaff />}
+                {activeTab === "branches" && <AdminBranches />}
                 {activeTab === "customers" && <CustomersTable />}
                 {activeTab === "coupons" && <CouponsTable />}
                 {activeTab === "marketing" && <MarketingManagement />}
-                {activeTab === "logs" && <LogsTable />}
+                {activeTab === "logs" && <AdminAuditLogs />}
               </div>
             </div>
           </main>
