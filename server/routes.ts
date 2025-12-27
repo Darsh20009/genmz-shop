@@ -505,11 +505,38 @@ export async function registerRoutes(
     res.json(coupon);
   });
 
-  // Activity Logs
-  app.get("/api/admin/logs", async (req, res) => {
+  // Audit Logs
+  app.get("/api/admin/audit-logs", async (req, res) => {
     if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
     const logs = await storage.getActivityLogs();
     res.json(logs);
+  });
+
+  // Branch Inventory Routes
+  app.get("/api/admin/inventory", async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+    const { branchId } = req.query;
+    if (!branchId) return res.status(400).send("Branch ID required");
+    // Mocking for now since storage doesn't have it yet, but we'll add it
+    const inventory = await (storage as any).getBranchInventory?.(branchId as string) || [];
+    res.json(inventory);
+  });
+
+  app.patch("/api/admin/inventory/:id", async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
+    const { id } = req.params;
+    const { stock } = req.body;
+    const updated = await (storage as any).updateBranchStock?.(id, stock);
+    
+    await storage.createActivityLog({
+      employeeId: (req.user as any).id,
+      action: "UPDATE_STOCK",
+      targetType: "inventory",
+      targetId: id,
+      details: `Updated stock to ${stock}`,
+    });
+
+    res.json(updated);
   });
 
   app.patch("/api/user", async (req, res) => {

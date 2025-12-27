@@ -135,6 +135,8 @@ export default function AdminStaff() {
                             <SelectItem value="admin">مدير (Admin)</SelectItem>
                             <SelectItem value="employee">موظف (Employee)</SelectItem>
                             <SelectItem value="support">دعم فني (Support)</SelectItem>
+                            <SelectItem value="cashier">كاشير (Cashier)</SelectItem>
+                            <SelectItem value="accountant">محاسب (Accountant)</SelectItem>
                           </SelectContent>
                         </Select>
                       </FormItem>
@@ -142,10 +144,34 @@ export default function AdminStaff() {
                   />
                   <FormField
                     control={form.control}
+                    name="loginType"
+                    render={({ field }) => (
+                      <FormItem className="text-right">
+                        <FormLabel>نوع الدخول</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="اختر نوع الدخول" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="dashboard">لوحة التحكم</SelectItem>
+                            <SelectItem value="pos">POS فقط</SelectItem>
+                            <SelectItem value="both">الاثنين</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4">
+                  <FormField
+                    control={form.control}
                     name="branchId"
                     render={({ field }) => (
                       <FormItem className="text-right">
-                        <FormLabel>الفرع</FormLabel>
+                        <FormLabel>الفرع المرتبط</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
@@ -153,6 +179,7 @@ export default function AdminStaff() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
+                            <SelectItem value="main">المركز الرئيسي</SelectItem>
                             {branches?.map(b => (
                               <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
                             ))}
@@ -162,7 +189,6 @@ export default function AdminStaff() {
                     )}
                   />
                 </div>
-
                 <div className="space-y-3">
                   <FormLabel className="text-right block">الصلاحيات الدقيقة</FormLabel>
                   <div className="grid grid-cols-2 gap-3 border p-4 rounded-md bg-black/5">

@@ -65,6 +65,10 @@ export interface IStorage {
   createCashShift(shift: InsertCashShift): Promise<CashShift>;
   updateCashShift(id: string, shift: Partial<InsertCashShift>): Promise<CashShift>;
   getActiveShift(cashierId: string): Promise<CashShift | undefined>;
+  
+  // Branch Inventory
+  getBranchInventory(branchId: string): Promise<BranchInventory[]>;
+  updateBranchStock(id: string, stock: number): Promise<BranchInventory>;
 }
 
 export class MongoDBStorage implements IStorage {
@@ -357,6 +361,17 @@ export class MongoDBStorage implements IStorage {
   async getActiveShift(cashierId: string): Promise<CashShift | undefined> {
     const shift = await CashShiftModel.findOne({ cashierId, status: "open" }).lean();
     return shift ? { ...shift, id: shift._id.toString() } : undefined;
+  }
+
+  // Branch Inventory (Stub for POS prep)
+  async getBranchInventory(branchId: string): Promise<BranchInventory[]> {
+    // In a real MongoDB implementation, this would query a BranchInventory collection
+    // For now, returning empty to avoid crashes while preserving schema compatibility
+    return [];
+  }
+
+  async updateBranchStock(id: string, stock: number): Promise<BranchInventory> {
+    throw new Error("Inventory update not implemented in MongoDB yet");
   }
 }
 
