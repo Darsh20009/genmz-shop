@@ -143,7 +143,13 @@ export default function ProductDetails() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-6"
           >
-            <div className="aspect-[3/4] bg-white overflow-hidden shadow-2xl border border-black/5 group flex flex-col items-center justify-center p-2 sm:p-3 md:p-4">
+            <div 
+              className="aspect-[3/4] bg-white overflow-hidden shadow-2xl border border-black/5 group flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 cursor-pointer"
+              onClick={() => {
+                const img = allImages[currentImageIndex];
+                if (img) window.open(img, '_blank');
+              }}
+            >
               <div className="relative w-full h-full flex items-center justify-center">
                 <img 
                   key={currentImageIndex}
