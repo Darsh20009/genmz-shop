@@ -165,7 +165,7 @@ const StatsCards = memo(() => {
                 <YAxis 
                   dataKey="name" 
                   type="category" 
-                  tick={{ fontSize: 12, fontWeight: '900', fill: '#fff', textShadow: '0 0 10px rgba(255,255,255,0.3)' }} 
+                  tick={{ fontSize: 12, fontWeight: '900', fill: '#fff' }} 
                   width={70}
                   axisLine={false}
                   tickLine={false}
