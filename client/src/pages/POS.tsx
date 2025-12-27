@@ -79,62 +79,54 @@ export default function POS() {
   }, [customer, total]);
 
   const handlePrintReceipt = (orderId: string) => {
-    // Create print content
     const printWindow = window.open('', '', 'height=400,width=600');
     if (!printWindow) return;
     
-    const printContent = `
-      <html dir="rtl">
-        <head>
-          <title>الفاتورة #${orderId.slice(-6)}</title>
-          <style>
-            body { font-family: Arial; text-align: right; padding: 20px; }
-            .header { text-align: center; margin-bottom: 20px; }
-            .items { margin: 20px 0; border-top: 1px solid #000; padding: 10px 0; }
-            .item { display: flex; justify-content: space-between; padding: 5px 0; }
-            .total { font-weight: bold; font-size: 18px; border-top: 2px solid #000; padding: 10px 0; }
-            .barcode { text-align: center; margin-top: 20px; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h2>فاتورة الشراء</h2>
-            <p>#${orderId.slice(-6)}</p>
-            <p>${new Date().toLocaleDateString('ar-SA')}</p>
-          </div>
-          
-          <div class="items">
-            ${cart.map(item => `
-              <div class="item">
-                <span>${item.quantity}x ${item.name}</span>
-                <span>${(item.price * item.quantity).toFixed(2)} ر.س</span>
-              </div>
-            `).join('')}
-          </div>
-          
-          <div class="total">
-            <div class="item">
-              <span>الإجمالي</span>
-              <span>${total.toFixed(2)} ر.س</span>
-            </div>
-            ${loyaltyDiscount > 0 ? `
-              <div class="item" style="color: green;">
-                <span>خصم النقاط</span>
-                <span>-${loyaltyDiscount.toFixed(2)} ر.س</span>
-              </div>
-              <div class="item">
-                <span><strong>المبلغ النهائي</strong></span>
-                <span><strong>${(total - loyaltyDiscount).toFixed(2)} ر.س</strong></span>
-              </div>
-            ` : ''}
-          </div>
-          
-          <div class="barcode">
-            <p>شكراً لتسوقك معنا</p>
-          </div>
-        </body>
-      </html>
-    `;
+    const itemsHtml = cart.map(item => 
+      `<div class="item"><span>${item.quantity}x ${item.name}</span><span>${(item.price * item.quantity).toFixed(2)} ر.س</span></div>`
+    ).join('');
+    
+    const discountHtml = loyaltyDiscount > 0 ? `
+      <div class="item" style="color: green;">
+        <span>خصم النقاط</span>
+        <span>-${loyaltyDiscount.toFixed(2)} ر.س</span>
+      </div>
+      <div class="item">
+        <span><strong>المبلغ النهائي</strong></span>
+        <span><strong>${(total - loyaltyDiscount).toFixed(2)} ر.س</strong></span>
+      </div>
+    ` : '';
+    
+    const printContent = `<!DOCTYPE html>
+<html dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>الفاتورة #${orderId.slice(-6)}</title>
+  <style>
+    body { font-family: Arial; text-align: right; padding: 20px; }
+    .header { text-align: center; margin-bottom: 20px; }
+    .items { margin: 20px 0; border-top: 1px solid #000; padding: 10px 0; }
+    .item { display: flex; justify-content: space-between; padding: 5px 0; }
+    .total { font-weight: bold; font-size: 18px; border-top: 2px solid #000; padding: 10px 0; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>فاتورة الشراء</h2>
+    <p>#${orderId.slice(-6)}</p>
+    <p>${new Date().toLocaleDateString('ar-SA')}</p>
+  </div>
+  <div class="items">${itemsHtml}</div>
+  <div class="total">
+    <div class="item">
+      <span>الإجمالي</span>
+      <span>${total.toFixed(2)} ر.س</span>
+    </div>
+    ${discountHtml}
+  </div>
+  <p style="text-align: center; margin-top: 20px;">شكراً لتسوقك معنا</p>
+</body>
+</html>`;
     
     printWindow.document.write(printContent);
     printWindow.document.close();
