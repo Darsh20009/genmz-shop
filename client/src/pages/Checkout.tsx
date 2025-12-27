@@ -27,6 +27,18 @@ export default function Checkout() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(user?.addresses?.[0]?.id || null);
+  const [showAddAddressForm, setShowAddAddressForm] = useState(false);
+  const [newAddress, setNewAddress] = useState({ street: "", city: "" });
+  const [shippingCompany, setShippingCompany] = useState("storage-x");
+
+  const shippingCompanies = [
+    { id: "storage-x", name: "Storage X", price: 20, logo: "🏭" },
+    { id: "smsa", name: "SMSA Express", price: 25, logo: "📦" }
+  ];
+
+  const selectedShipping = shippingCompanies.find(c => c.id === shippingCompany) || shippingCompanies[0];
+  const shippingPrice = selectedShipping.price;
 
   if (items.length === 0) {
     setLocation("/cart");
@@ -68,7 +80,7 @@ export default function Checkout() {
   const cashbackAmount = calculateCashback();
   const subtotal = total();
   const tax = subtotal * 0.15;
-  const shipping = 20;
+  const shipping = shippingPrice;
   const finalTotal = subtotal + tax + shipping - discountAmount;
 
   const handleCheckoutInitiate = () => {
@@ -117,12 +129,17 @@ export default function Checkout() {
         throw new Error("كلمة المرور غير صحيحة");
       }
 
+      const selectedAddr = user?.addresses?.find(a => a.id === selectedAddressId);
+      const deliveryAddress = selectedAddr ? `${selectedAddr.street}, ${selectedAddr.city}` : `${newAddress.street}, ${newAddress.city}`;
+      
       const orderData = {
         userId: user!.id,
         total: finalTotal.toFixed(2),
         subtotal: subtotal.toFixed(2),
         vatAmount: tax.toFixed(2),
         shippingCost: shipping.toFixed(2),
+        shippingCompany: selectedShipping.name,
+        deliveryAddress: deliveryAddress,
         discountAmount: discountAmount.toFixed(2),
         cashbackAmount: cashbackAmount.toFixed(2),
         couponCode: appliedCoupon?.code || null,
@@ -166,8 +183,16 @@ export default function Checkout() {
         });
       }
 
-      // Auto-create shipment with Storage X
-      await apiRequest("POST", "/api/shipping/storage-station/create", { orderId: order.id });
+      // Auto-create shipment with selected company
+      try {
+        await apiRequest("POST", "/api/shipping/storage-station/create", {
+          orderId: order.id,
+          provider: selectedShipping.name,
+          deliveryAddress: deliveryAddress
+        });
+      } catch (e) {
+        console.warn("Shipping creation failed, but order was created");
+      }
 
       queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
@@ -227,29 +252,101 @@ export default function Checkout() {
                 <Check className="h-5 w-5 text-green-600" />
               </div>
 
-              {/* Shipping Method */}
+              {/* Address Selection */}
               <section className="bg-white p-8 border border-black/5 shadow-sm space-y-8">
                 <div className="flex items-center justify-between border-b border-black/5 pb-6">
                   <h2 className="text-xl font-black uppercase tracking-tighter flex items-center gap-3">
-                    <Truck className="h-5 w-5 text-primary" />
+                    <MapPin className="h-5 w-5 text-primary" />
                     <span>عنوان الشحن</span>
                   </h2>
                 </div>
                 
-                <div className="p-6 bg-black/[0.02] border border-black/5 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 text-primary">
-                      <MapPin className="h-5 w-5" />
-                      <span className="font-black text-sm">الرياض، المملكة العربية السعودية</span>
-                    </div>
-                    <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-1">20 ر.س</span>
+                {!showAddAddressForm && user?.addresses && user.addresses.length > 0 && (
+                  <div className="space-y-4">
+                    {user.addresses.map((addr) => (
+                      <div
+                        key={addr.id}
+                        onClick={() => setSelectedAddressId(addr.id)}
+                        className={`p-4 border rounded cursor-pointer transition-all ${
+                          selectedAddressId === addr.id
+                            ? "border-primary bg-primary/5"
+                            : "border-black/5 hover:border-black/20"
+                        }`}
+                      >
+                        <div className="font-black text-sm">{addr.name}</div>
+                        <div className="text-[10px] text-black/60 mt-1">{addr.street}, {addr.city}</div>
+                      </div>
+                    ))}
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowAddAddressForm(true)}
+                      className="w-full border-black/10"
+                    >
+                      إضافة عنوان جديد
+                    </Button>
                   </div>
-                  <div className="flex items-center gap-2 pt-2">
-                    <span className="text-[10px] text-black/40 font-bold uppercase tracking-widest">التوصيل عبر</span>
-                    <span className="font-black text-primary text-sm">Storage X</span>
+                )}
+
+                {(showAddAddressForm || !user?.addresses || user.addresses.length === 0) && (
+                  <div className="space-y-4">
+                    <Input
+                      placeholder="الشارع والرقم"
+                      value={newAddress.street}
+                      onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
+                      className="h-12 border-black/10"
+                    />
+                    <Input
+                      placeholder="المدينة"
+                      value={newAddress.city}
+                      onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+                      className="h-12 border-black/10"
+                    />
+                    {showAddAddressForm && (
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setShowAddAddressForm(false);
+                          setSelectedAddressId(null);
+                        }}
+                        className="w-full border-black/10"
+                      >
+                        إلغاء
+                      </Button>
+                    )}
                   </div>
-                  <p className="text-[10px] text-black/40 font-bold uppercase tracking-widest">التوصيل خلال ٢-٤ أيام عمل</p>
+                )}
+              </section>
+
+              {/* Shipping Company */}
+              <section className="bg-white p-8 border border-black/5 shadow-sm space-y-8">
+                <div className="flex items-center justify-between border-b border-black/5 pb-6">
+                  <h2 className="text-xl font-black uppercase tracking-tighter flex items-center gap-3">
+                    <Truck className="h-5 w-5 text-primary" />
+                    <span>شركة الشحن</span>
+                  </h2>
                 </div>
+                
+                <div className="grid gap-4">
+                  {shippingCompanies.map((company) => (
+                    <div
+                      key={company.id}
+                      onClick={() => setShippingCompany(company.id)}
+                      className={`p-4 border rounded cursor-pointer transition-all flex items-center justify-between ${
+                        shippingCompany === company.id
+                          ? "border-primary bg-primary/5"
+                          : "border-black/5 hover:border-black/20"
+                      }`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <span className="text-3xl">{company.logo}</span>
+                        <div className="font-black text-sm">{company.name}</div>
+                      </div>
+                      <span className="font-black text-primary">{company.price} ر.س</span>
+                    </div>
+                  ))}
+                </div>
+                
+                <p className="text-[10px] text-black/40 font-bold uppercase tracking-widest">التوصيل خلال ٢-٤ أيام عمل</p>
               </section>
 
               {/* Payment Method */}
