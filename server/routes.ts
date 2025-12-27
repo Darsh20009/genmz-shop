@@ -278,12 +278,15 @@ export async function registerRoutes(
     const orders = await storage.getOrders();
     const products = await storage.getProducts();
 
-    // Only include non-cancelled and non-returned orders in sales and profit
+    // Define valid orders: ignore cancelled and returned
     const validOrders = orders.filter(o => o.status !== "cancelled" && o.status !== "returned");
 
-    const totalSales = validOrders.reduce((acc, order) => acc + Number(order.total), 0);
+    // Total Sales: Sum of all non-cancelled, non-returned orders
+    const totalSales = validOrders.reduce((acc, order) => acc + Number(order.total || 0), 0);
+    
+    // Total Cost: Sum of cost for items in valid orders
     const totalCost = validOrders.reduce((acc, order) => {
-      return acc + order.items.reduce((itemAcc, item) => itemAcc + (Number(item.cost || 0) * item.quantity), 0);
+      return acc + (order.items || []).reduce((itemAcc, item) => itemAcc + (Number(item.cost || 0) * item.quantity), 0);
     }, 0);
 
     const netProfit = totalSales - totalCost;
@@ -292,8 +295,9 @@ export async function registerRoutes(
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const dailySales = validOrders.filter(o => new Date(o.createdAt) >= startOfDay).reduce((acc, o) => acc + Number(o.total), 0);
-    const monthlySales = validOrders.filter(o => new Date(o.createdAt) >= startOfMonth).reduce((acc, o) => acc + Number(o.total), 0);
+    // Filter daily and monthly sales to only include valid orders
+    const dailySales = validOrders.filter(o => new Date(o.createdAt) >= startOfDay).reduce((acc, o) => acc + Number(o.total || 0), 0);
+    const monthlySales = validOrders.filter(o => new Date(o.createdAt) >= startOfMonth).reduce((acc, o) => acc + Number(o.total || 0), 0);
 
     const orderStatusCounts = {
       new: orders.filter(o => o.status === "new").length,
@@ -304,10 +308,10 @@ export async function registerRoutes(
       returned: orders.filter(o => o.status === "returned").length,
     };
 
-    // Top selling products only from valid orders
+    // Top selling products based ONLY on valid orders
     const productSales: Record<string, { name: string, quantity: number, revenue: number }> = {};
     validOrders.forEach(order => {
-      order.items.forEach(item => {
+      (order.items || []).forEach(item => {
         if (!productSales[item.productId]) {
           productSales[item.productId] = { name: item.title, quantity: 0, revenue: 0 };
         }

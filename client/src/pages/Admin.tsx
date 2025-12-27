@@ -220,12 +220,16 @@ const StatsCards = memo(() => {
                   <div className={`w-2 h-2 rounded-full ${
                     status === 'new' ? 'bg-primary' : 
                     status === 'processing' ? 'bg-blue-500' : 
-                    status === 'shipped' ? 'bg-orange-500' : 'bg-green-500'
+                    status === 'shipped' ? 'bg-orange-500' : 
+                    status === 'cancelled' ? 'bg-destructive' :
+                    status === 'returned' ? 'bg-yellow-500' : 'bg-green-500'
                   }`} />
                   <span className="text-sm font-bold uppercase tracking-widest">
                     {status === 'new' ? 'جديد' : 
                      status === 'processing' ? 'قيد التنفيذ' : 
-                     status === 'shipped' ? 'تم الشحن' : 'مكتمل'}
+                     status === 'shipped' ? 'تم الشحن' : 
+                     status === 'cancelled' ? 'ملغي' :
+                     status === 'returned' ? 'مسترجع' : 'مكتمل'}
                   </span>
                 </div>
                 <span className="font-black">{count}</span>
