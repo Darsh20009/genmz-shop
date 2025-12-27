@@ -138,8 +138,10 @@ const activityLogSchema = new Schema<ActivityLog>(
 const couponSchema = new Schema<Coupon>(
   {
     code: { type: String, required: true, unique: true },
-    type: { type: String, enum: ["percentage", "fixed"], required: true },
+    type: { type: String, enum: ["percentage", "fixed", "cashback"], required: true },
     value: { type: Number, required: true },
+    maxCashback: Number,
+    description: String,
     expiryDate: Date,
     usageLimit: Number,
     perUserLimit: { type: Number, default: 1 },

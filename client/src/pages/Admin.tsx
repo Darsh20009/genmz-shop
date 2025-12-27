@@ -1454,6 +1454,7 @@ const CouponsTable = memo(() => {
                     <SelectContent>
                       <SelectItem value="percentage">نسبة مئوية</SelectItem>
                       <SelectItem value="fixed">مبلغ ثابت</SelectItem>
+                      <SelectItem value="cashback">كاش باك</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -1467,6 +1468,27 @@ const CouponsTable = memo(() => {
                     className="rounded-none"
                   />
                 </div>
+              </div>
+              
+              {form.watch("type") === "cashback" && (
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold uppercase">أقصى كاش باك (اختياري)</Label>
+                  <Input
+                    type="number"
+                    {...form.register("maxCashback")}
+                    placeholder="مثال: 500"
+                    className="rounded-none"
+                  />
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label className="text-xs font-bold uppercase">الوصف (اختياري)</Label>
+                <Input
+                  {...form.register("description")}
+                  placeholder="مثال: احصل على 10% كاش باك"
+                  className="rounded-none text-right"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -1511,19 +1533,23 @@ const CouponsTable = memo(() => {
         </Dialog>
       </div>
       <div className="rounded-none border border-black/5 overflow-hidden bg-white">
-        <div className="p-6 grid grid-cols-5 font-black uppercase tracking-widest text-[10px] bg-secondary/10 text-black/40 border-b border-black/5">
+        <div className="p-6 grid grid-cols-6 font-black uppercase tracking-widest text-[10px] bg-secondary/10 text-black/40 border-b border-black/5">
           <div className="text-right">الكود</div>
           <div className="text-right">النوع</div>
           <div className="text-right">القيمة</div>
+          <div className="text-right">الحد</div>
           <div className="text-right">الاستخدام</div>
           <div className="text-right">الحالة</div>
         </div>
         <div className="divide-y divide-black/5">
           {coupons?.map(c => (
-            <div key={c.id} className="p-6 grid grid-cols-5 items-center hover:bg-secondary/5 transition-colors">
+            <div key={c.id} className="p-6 grid grid-cols-6 items-center hover:bg-secondary/5 transition-colors">
               <div className="font-black text-xs tracking-widest">{c.code}</div>
-              <div className="text-[8px] font-bold uppercase opacity-60">{c.type === 'percentage' ? 'نسبة' : 'مبلغ ثابت'}</div>
-              <div className="font-black text-xs">{c.value} {c.type === 'percentage' ? '%' : 'ر.س'}</div>
+              <div className="text-[8px] font-bold uppercase opacity-60">
+                {c.type === 'percentage' ? 'نسبة' : c.type === 'cashback' ? 'كاش باك' : 'مبلغ ثابت'}
+              </div>
+              <div className="font-black text-xs">{c.value} {c.type === 'percentage' || c.type === 'cashback' ? '%' : 'ر.س'}</div>
+              <div className="text-[8px] font-bold">{c.perUserLimit}x لكل مستخدم</div>
               <div className="text-[10px] font-bold">{c.usageCount} / {c.usageLimit || '∞'}</div>
               <div>
                 <Badge className={c.isActive ? "bg-green-600" : "bg-destructive"}>

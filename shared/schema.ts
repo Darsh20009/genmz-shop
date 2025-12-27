@@ -77,8 +77,10 @@ export type ActivityLog = InsertActivityLog & { _id: string; id: string; created
 // Coupon Schema
 export const insertCouponSchema = z.object({
   code: z.string().min(1),
-  type: z.enum(["percentage", "fixed"]),
+  type: z.enum(["percentage", "fixed", "cashback"]),
   value: z.number(),
+  maxCashback: z.number().optional(),
+  description: z.string().optional(),
   expiryDate: z.date().optional(),
   usageLimit: z.number().optional(),
   perUserLimit: z.number().default(1),
