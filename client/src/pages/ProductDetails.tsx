@@ -153,17 +153,23 @@ export default function ProductDetails() {
                 />
               </div>
               
-              {/* Thumbnails / Indicators */}
+              {/* Thumbnails */}
               {allImages.length > 1 && (
-                <div className="flex gap-2 mt-4 overflow-x-auto py-2 w-full justify-center no-scrollbar">
+                <div className="flex gap-3 mt-6 overflow-x-auto py-2 w-full justify-center no-scrollbar px-2">
                   {allImages.map((img, idx) => (
                     <button
                       key={idx}
                       onClick={() => setCurrentImageIndex(idx)}
-                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                        currentImageIndex === idx ? 'bg-black w-4' : 'bg-black/20'
-                      }`}
-                    />
+                      className={`
+                        relative w-16 h-20 flex-shrink-0 border-2 transition-all duration-300 overflow-hidden
+                        ${currentImageIndex === idx ? 'border-black scale-105 shadow-md' : 'border-black/5 opacity-60 hover:opacity-100'}
+                      `}
+                    >
+                      <img src={img} alt="" className="w-full h-full object-cover" />
+                      {currentImageIndex === idx && (
+                        <div className="absolute bottom-0 left-0 w-full h-1 bg-black" />
+                      )}
+                    </button>
                   ))}
                 </div>
               )}
