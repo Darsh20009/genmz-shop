@@ -21,6 +21,34 @@ export default function ProductDetails() {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<any>(null);
   const [quantity, setQuantity] = useState(1);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Collect all unique images (product images + variant images)
+  const allImages = Array.from(new Set([
+    ...(product?.images || []),
+    ...(product?.variants?.map((v: any) => v.image).filter(Boolean) || [])
+  ]));
+
+  // Auto-rotate images every 2 seconds
+  useEffect(() => {
+    if (allImages.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % allImages.length);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [allImages.length]);
+
+  // Update current image when variant changes (if variant has an image)
+  useEffect(() => {
+    if (selectedVariant?.image) {
+      const index = allImages.indexOf(selectedVariant.image);
+      if (index !== -1) {
+        setCurrentImageIndex(index);
+      }
+    }
+  }, [selectedVariant, allImages]);
 
   // Ensure variants exist, otherwise provide default
   const variants = product?.variants && product.variants.length > 0 ? product.variants : [{ sku: 'default', color: 'Default', size: 'One Size', stock: 10, image: '' }];
@@ -115,12 +143,30 @@ export default function ProductDetails() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-6"
           >
-            <div className="aspect-[3/4] bg-white overflow-hidden shadow-2xl border border-black/5 group flex items-center justify-center p-2 sm:p-3 md:p-4">
-              <img 
-                src={selectedVariant?.image || product.images[0] || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80"} 
-                alt={product.name} 
-                className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-1000"
-              />
+            <div className="aspect-[3/4] bg-white overflow-hidden shadow-2xl border border-black/5 group flex flex-col items-center justify-center p-2 sm:p-3 md:p-4">
+              <div className="relative w-full h-full flex items-center justify-center">
+                <img 
+                  key={currentImageIndex}
+                  src={allImages[currentImageIndex] || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80"} 
+                  alt={product.name} 
+                  className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-1000"
+                />
+              </div>
+              
+              {/* Thumbnails / Indicators */}
+              {allImages.length > 1 && (
+                <div className="flex gap-2 mt-4 overflow-x-auto py-2 w-full justify-center no-scrollbar">
+                  {allImages.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentImageIndex(idx)}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        currentImageIndex === idx ? 'bg-black w-4' : 'bg-black/20'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </motion.div>
 
