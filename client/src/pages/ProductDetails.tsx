@@ -107,15 +107,15 @@ export default function ProductDetails() {
 
   return (
     <Layout>
-      <div className="container py-24">
-        <div className={`grid lg:grid-cols-2 gap-16 lg:gap-24 items-start ${language === 'ar' ? '' : 'lg:flex-row-reverse'}`}>
+      <div className="container py-12 sm:py-16 md:py-20 lg:py-24">
+        <div className={`grid lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12 lg:gap-16 xl:gap-24 items-start ${language === 'ar' ? '' : 'lg:flex-row-reverse'}`}>
           {/* Image Gallery */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="space-y-6"
           >
-            <div className="aspect-[3/4] bg-white overflow-hidden shadow-2xl border border-black/5 group flex items-center justify-center p-4">
+            <div className="aspect-[3/4] bg-white overflow-hidden shadow-2xl border border-black/5 group flex items-center justify-center p-2 sm:p-3 md:p-4">
               <img 
                 src={selectedVariant?.image || product.images[0] || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80"} 
                 alt={product.name} 
@@ -126,8 +126,8 @@ export default function ProductDetails() {
 
           {/* Details */}
           <div className={`flex flex-col ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-            <div className="border-b border-black/5 pb-8 mb-8">
-              <h1 className="font-display text-5xl md:text-6xl font-black mb-6 uppercase tracking-tighter">{product.name}</h1>
+            <div className="border-b border-black/5 pb-6 sm:pb-8 mb-6 sm:mb-8">
+              <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-6 uppercase tracking-tighter">{product.name}</h1>
               <p className="text-3xl font-light text-primary tracking-tight">
                 {Number(product.price).toLocaleString()} {t('currency')}
               </p>

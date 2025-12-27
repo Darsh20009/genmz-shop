@@ -66,8 +66,8 @@ export default function Home() {
     <Layout>
       <MarketingBanners />
       {/* Image Carousel Section */}
-      <section className="relative py-16 md:py-32 bg-white overflow-hidden">
-        <div className="container px-4">
+      <section className="relative py-8 sm:py-12 md:py-20 lg:py-32 bg-white overflow-hidden">
+        <div className="container px-3 sm:px-4">
           <div className="relative w-full max-w-2xl mx-auto">
             <motion.div
               key={currentImageIndex}
@@ -88,26 +88,26 @@ export default function Home() {
       </section>
 
       {/* Creative Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-white">
-        <div className="container relative z-10 grid lg:grid-cols-2 gap-8 items-center px-4 pt-20">
+      <section className="relative min-h-[80vh] sm:min-h-[85vh] md:min-h-[90vh] flex items-center overflow-hidden bg-white">
+        <div className="container relative z-10 grid lg:grid-cols-2 gap-6 sm:gap-8 items-center px-3 sm:px-4 py-12 sm:py-16 md:py-20 md:pt-20">
           <motion.div 
             initial={{ opacity: 0, x: language === 'ar' ? 50 : -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
             className={language === 'ar' ? "text-right z-20" : "text-left z-20"}
           >
-            <span className="inline-block text-xs font-bold tracking-[0.2em] text-primary mb-4 uppercase">{t('newCollection')}</span>
-            <h1 className="font-display text-5xl md:text-8xl font-black leading-[0.9] mb-8 text-black tracking-tighter">
+            <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.2em] text-primary mb-3 sm:mb-4 uppercase">{t('newCollection')}</span>
+            <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-[0.9] mb-6 sm:mb-8 text-black tracking-tighter">
               GEN M & Z
-              <span className="block text-2xl md:text-5xl mt-4 font-light text-muted-foreground italic font-serif">{t('heroTitle')}</span>
+              <span className="block text-base sm:text-lg md:text-2xl lg:text-3xl xl:text-4xl mt-2 sm:mt-3 md:mt-4 font-light text-muted-foreground italic font-serif">{t('heroTitle')}</span>
             </h1>
-            <p className={`text-muted-foreground text-base md:text-xl mb-12 max-w-md ${language === 'ar' ? 'mr-0 ml-auto' : 'ml-0 mr-auto'} leading-relaxed font-light`}>
+            <p className={`text-muted-foreground text-sm sm:text-base md:text-lg lg:text-xl mb-8 sm:mb-10 md:mb-12 max-w-md ${language === 'ar' ? 'mr-0 ml-auto' : 'ml-0 mr-auto'} leading-relaxed font-light`}>
               {t('heroDesc')}
             </p>
-            <div className={`flex gap-6 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`flex gap-4 sm:gap-6 flex-wrap ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
               <Link href="/products">
-                <Button size="lg" className="px-10 py-8 text-sm font-bold uppercase tracking-[0.2em] rounded-none shadow-2xl hover-elevate transition-all bg-black text-white border-none active-elevate-2">
-                  {t('discoverCollection')} {language === 'ar' ? <ChevronLeft className="mr-3 h-5 w-5 rotate-180" /> : <ChevronRight className="ml-3 h-5 w-5" />}
+                <Button size="lg" className="px-6 sm:px-8 md:px-10 py-6 sm:py-7 md:py-8 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] rounded-none shadow-2xl hover-elevate transition-all bg-black text-white border-none active-elevate-2">
+                  {t('discoverCollection')} {language === 'ar' ? <ChevronLeft className="mr-2 sm:mr-3 h-4 sm:h-5 w-4 sm:w-5 rotate-180" /> : <ChevronRight className="ml-2 sm:ml-3 h-4 sm:h-5 w-4 sm:w-5" />}
                 </Button>
               </Link>
             </div>
@@ -117,18 +117,18 @@ export default function Home() {
              initial={{ opacity: 0, scale: 0.9 }}
              animate={{ opacity: 1, scale: 1 }}
              transition={{ duration: 1, delay: 0.2 }}
-             className="relative"
+             className="relative hidden sm:block"
           >
-            <div className="relative aspect-[3/4] md:aspect-square max-w-xl mx-auto group">
-              <div className="absolute inset-0 border-[20px] border-primary/5 -m-10 hidden md:block" />
+            <div className="relative aspect-[3/4] md:aspect-square max-w-md sm:max-w-lg md:max-w-xl mx-auto group">
+              <div className="absolute inset-0 border-[10px] sm:border-[15px] md:border-[20px] border-primary/5 -m-6 sm:-m-8 md:-m-10 hidden md:block" />
               <img 
                 src={heroImg} 
                 alt="Gen M & Z Hero" 
                 className="w-full h-full object-cover shadow-2xl transition-all duration-1000"
               />
-              <div className={`absolute -bottom-6 ${language === 'ar' ? '-right-6' : '-left-6'} bg-black text-white p-6 hidden md:block`}>
-                <p className="text-[10px] tracking-widest uppercase font-bold mb-1">{t('featuredItem')}</p>
-                <p className="text-lg font-black leading-none">BURGUNDY HOODIE</p>
+              <div className={`absolute -bottom-4 sm:-bottom-6 ${language === 'ar' ? '-right-4 sm:-right-6' : '-left-4 sm:-left-6'} bg-black text-white p-3 sm:p-4 md:p-6 hidden md:block`}>
+                <p className="text-[8px] sm:text-[9px] tracking-widest uppercase font-bold mb-1">{t('featuredItem')}</p>
+                <p className="text-sm sm:text-base md:text-lg font-black leading-none">BURGUNDY HOODIE</p>
               </div>
             </div>
           </motion.div>

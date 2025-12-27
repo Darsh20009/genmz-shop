@@ -76,12 +76,12 @@ export default function Cart() {
   return (
     <Layout>
       <div className="bg-[#fcfcfc] min-h-screen">
-        <div className="container py-16 px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6 border-b border-black/5 pb-8">
-            <h1 className={`font-display text-4xl md:text-5xl font-black uppercase tracking-tighter ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+        <div className="container py-12 sm:py-14 md:py-16 lg:py-20 px-3 sm:px-4">
+          <div className="flex flex-col md:flex-row items-center justify-between mb-10 sm:mb-12 md:mb-14 lg:mb-16 gap-4 sm:gap-6 border-b border-black/5 pb-6 sm:pb-8">
+            <h1 className={`font-display text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tighter ${language === 'ar' ? 'text-right' : 'text-left'}`}>
               {t('shoppingBag')}
             </h1>
-            <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-black/40">
+            <div className="flex items-center gap-2 sm:gap-4 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-black/40 flex-wrap justify-center md:justify-end">
               <span className="text-black">{t('shoppingBag')}</span>
               <span className="opacity-20">/</span>
               <span>{t('checkout')}</span>
@@ -95,15 +95,15 @@ export default function Cart() {
             <div className="lg:col-span-8 space-y-6">
               {items.map((item) => (
                 <div key={`${item.productId}-${item.variantSku}`} className="group relative bg-white p-6 shadow-sm hover:shadow-md transition-all duration-500 border border-black/[0.02]">
-                  <div className="flex gap-8">
-                    <div className="w-28 md:w-36 aspect-[3/4] bg-muted overflow-hidden shrink-0 border border-black/5">
+                  <div className="flex gap-4 sm:gap-6 md:gap-8">
+                    <div className="w-20 sm:w-24 md:w-28 lg:w-36 aspect-[3/4] bg-muted overflow-hidden shrink-0 border border-black/5">
                       <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                     </div>
                     
                     <div className={`flex-1 flex flex-col justify-between ${language === 'ar' ? 'text-right' : 'text-left'}`}>
                       <div className="space-y-2">
-                        <div className="flex justify-between items-start">
-                          <h3 className="font-black text-lg md:text-xl uppercase tracking-tighter leading-none">{item.title}</h3>
+                        <div className="flex justify-between items-start gap-2">
+                          <h3 className="font-black text-sm sm:text-base md:text-lg lg:text-xl uppercase tracking-tighter leading-none">{item.title}</h3>
                           <button 
                             onClick={() => removeItem(item.productId, item.variantSku)}
                             className="text-black/20 hover:text-red-500 transition-colors"
