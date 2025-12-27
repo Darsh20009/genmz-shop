@@ -22,6 +22,7 @@ export default function ProductDetails() {
   const [selectedVariant, setSelectedVariant] = useState<any>(null);
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   // Collect all unique images (product images + variant images)
   const allImages = Array.from(new Set([
@@ -126,11 +127,17 @@ export default function ProductDetails() {
 
   const handleAddToCart = () => {
     if (!selectedVariant) return;
+    
+    setIsAnimating(true);
     addItem(product, selectedVariant, quantity);
+    
     toast({
       title: t('addedToCart'),
       description: `${product.name} ${t('addedToCartDesc')}`,
     });
+
+    // Reset animation after it completes
+    setTimeout(() => setIsAnimating(false), 1000);
   };
 
   return (
@@ -295,9 +302,32 @@ export default function ProductDetails() {
 
             <Button 
               size="lg" 
-              className="w-full h-20 text-sm font-bold uppercase tracking-[0.3em] rounded-none bg-black text-white hover-elevate active-elevate-2 border-none"
+              className="w-full h-20 text-sm font-bold uppercase tracking-[0.3em] rounded-none bg-black text-white hover-elevate active-elevate-2 border-none relative overflow-visible"
               onClick={handleAddToCart}
+              disabled={isAnimating}
             >
+              {isAnimating && (
+                <motion.div
+                  initial={{ scale: 0.5, opacity: 1, x: 0, y: 0 }}
+                  animate={{ 
+                    scale: 0.2, 
+                    opacity: 0,
+                    x: language === 'ar' ? -400 : 400,
+                    y: -800,
+                    rotate: 360
+                  }}
+                  transition={{ duration: 0.8, ease: "easeInOut" }}
+                  className="absolute inset-0 flex items-center justify-center pointer-events-none z-50"
+                >
+                  <div className="w-20 h-20 bg-white shadow-2xl p-1 border border-black/5">
+                    <img 
+                      src={selectedVariant?.image || product.images[0]} 
+                      alt="" 
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                </motion.div>
+              )}
               {language === 'ar' ? <ShoppingBag className="ml-3 h-5 w-5" /> : <ShoppingBag className="mr-3 h-5 w-5" />}
               {t('addToCart')}
             </Button>
