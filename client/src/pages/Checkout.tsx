@@ -2,7 +2,7 @@ import { Layout } from "@/components/Layout";
 import { useCart } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
@@ -10,8 +10,9 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Truck, CreditCard, Building2, Apple, Landmark, Lock, Check, Wallet } from "lucide-react";
+import { MapPin, Truck, CreditCard, Building2, Apple, Landmark, Lock, Check, Wallet, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 export default function Checkout() {
   const { items, total, clearCart } = useCart();
@@ -21,13 +22,16 @@ export default function Checkout() {
   
   const [paymentMethod, setPaymentMethod] = useState<"wallet" | "apple_pay" | "card">("card");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   if (items.length === 0) {
     setLocation("/cart");
     return null;
   }
 
-  const handleCheckout = async () => {
+  const handleCheckoutInitiate = () => {
     if (!user) {
       toast({
         title: "يجب تسجيل الدخول",
@@ -49,10 +53,35 @@ export default function Checkout() {
       return;
     }
 
+    setShowConfirmDialog(true);
+  };
+
+  const handleFinalCheckout = async () => {
+    if (!confirmPassword) {
+      toast({
+        title: "خطأ",
+        description: "يرجى إدخال كلمة المرور للتأكيد",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
+      // First verify password
+      const verifyRes = await fetch("/api/auth/verify-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: confirmPassword }),
+      });
+
+      if (!verifyRes.ok) {
+        throw new Error("كلمة المرور غير صحيحة");
+      }
+
+      const orderTotal = total() * 1.15 + 25;
       const orderData = {
-        userId: user.id,
+        userId: user!.id,
         total: orderTotal.toFixed(2),
         subtotal: total().toFixed(2),
         vatAmount: (total() * 0.15).toFixed(2),
@@ -77,8 +106,7 @@ export default function Checkout() {
       const order = await res.json();
 
       if (paymentMethod === "wallet") {
-        const newBalance = (Number(user.walletBalance) - orderTotal).toString();
-        // Use /api/user/wallet for specific wallet updates
+        const newBalance = (Number(user!.walletBalance) - orderTotal).toString();
         await apiRequest("PATCH", "/api/user/wallet", { balance: newBalance });
         await apiRequest("POST", "/api/wallet/transaction", {
           amount: -orderTotal,
@@ -107,6 +135,8 @@ export default function Checkout() {
       });
     } finally {
       setIsSubmitting(false);
+      setShowConfirmDialog(false);
+      setConfirmPassword("");
     }
   };
 
@@ -248,9 +278,9 @@ export default function Checkout() {
                     </div>
 
                     <Button 
-                      onClick={handleCheckout}
+                      onClick={handleCheckoutInitiate}
                       disabled={isSubmitting}
-                      className="w-full font-black h-16 uppercase tracking-[0.4em] rounded-none bg-primary text-white hover:bg-primary/90 border-none transition-all disabled:opacity-50 text-[10px] shadow-xl shadow-primary/10"
+                      className="w-full font-black h-16 uppercase tracking-[0.4em] rounded-none bg-primary text-white hover:bg-primary/90 border-none transition-all disabled:opacity-50 text-[10px] shadow-xl shadow-primary/10 active:scale-95"
                     >
                       {isSubmitting ? "جاري المعالجة..." : "تأكيد الطلب"}
                     </Button>
@@ -261,6 +291,67 @@ export default function Checkout() {
           </div>
         </div>
       </div>
+
+      {/* Password Confirmation Dialog */}
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent className="sm:max-w-[425px] rounded-[2rem] border-black/5 shadow-2xl p-8" dir="rtl">
+          <DialogHeader className="text-right space-y-4">
+            <div className="w-16 h-16 bg-primary/5 rounded-2xl flex items-center justify-center mb-2">
+              <Lock className="h-8 w-8 text-primary" />
+            </div>
+            <DialogTitle className="font-black text-3xl tracking-tight">تأكيد الهوية</DialogTitle>
+            <DialogDescription className="font-bold text-sm text-black/40 leading-relaxed">
+              لحماية حسابك، يرجى إدخال كلمة المرور الخاصة بك لتأكيد طلب الشراء.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-6">
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password" title="كلمة المرور" className="text-[10px] font-black uppercase tracking-widest text-black/30 pr-1">كلمة المرور</Label>
+              <div className="relative">
+                <Input
+                  id="confirm-password"
+                  type={showPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="h-14 bg-black/5 border-none rounded-2xl px-6 font-bold focus-visible:ring-primary/20"
+                  placeholder="ادخل كلمة المرور هنا"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-black/20 hover:text-primary transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
+            </div>
+            <Link href="/forgot-password">
+              <button 
+                className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline"
+                onClick={() => setShowConfirmDialog(false)}
+              >
+                نسيت كلمة المرور؟
+              </button>
+            </Link>
+          </div>
+          <DialogFooter className="gap-3 sm:justify-start">
+            <Button
+              variant="outline"
+              onClick={() => setShowConfirmDialog(false)}
+              className="rounded-full h-14 px-8 font-black uppercase tracking-widest text-[10px] border-black/5"
+            >
+              إلغاء
+            </Button>
+            <Button
+              onClick={handleFinalCheckout}
+              disabled={isSubmitting || !confirmPassword}
+              className="rounded-full h-14 px-12 font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/10 flex-1 sm:flex-none"
+            >
+              {isSubmitting ? "جاري التأكيد..." : "تأكيد وإتمام الطلب"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 }

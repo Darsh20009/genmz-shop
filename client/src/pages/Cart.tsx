@@ -218,7 +218,7 @@ export default function Cart() {
                     )}
 
                     <Link href="/checkout">
-                      <Button size="lg" className="w-full font-black h-16 uppercase tracking-[0.4em] rounded-none bg-black text-white hover:bg-primary border-none transition-all text-xs shadow-xl shadow-black/10">
+                      <Button size="lg" className="w-full font-black h-16 uppercase tracking-[0.4em] rounded-none bg-black text-white hover:bg-primary border-none transition-all text-xs shadow-xl shadow-black/10 active:scale-95">
                         {t('checkout')}
                       </Button>
                     </Link>

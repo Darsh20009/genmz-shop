@@ -131,8 +131,36 @@ export async function registerRoutes(
   app.get(api.orders.my.path, async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     const user = req.user as any;
-    const orders = await storage.getOrdersByUser(user.id);
+    console.log(`[ORDERS] Fetching orders for user: ${user.id || user._id}`);
+    const orders = await storage.getOrdersByUser(user.id || user._id);
     res.json(orders);
+  });
+
+  app.post("/api/auth/verify-password", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const { password } = req.body;
+    if (!password) return res.status(400).send("كلمة المرور مطلوبة");
+
+    const user = req.user as any;
+    const dbUser = await storage.getUser(user.id || user._id);
+    if (!dbUser || !dbUser.password) return res.status(401).send("فشل في التحقق من الحساب");
+
+    const { scrypt, timingSafeEqual } = await import("crypto");
+    const { promisify } = await import("util");
+    const scryptAsync = promisify(scrypt);
+
+    const parts = dbUser.password.split(".");
+    if (parts.length === 2) {
+      const [hashedPassword, salt] = parts;
+      const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
+      if (timingSafeEqual(Buffer.from(hashedPassword, "hex"), buffer)) {
+        return res.json({ success: true });
+      }
+    } else if (dbUser.password === password) {
+      return res.json({ success: true });
+    }
+
+    res.status(401).send("كلمة المرور غير صحيحة");
   });
 
   app.post(api.orders.create.path, async (req, res) => {
