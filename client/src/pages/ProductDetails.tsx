@@ -33,7 +33,7 @@ export default function ProductDetails() {
     
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % allImages.length);
-    }, 2000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [allImages.length]);
