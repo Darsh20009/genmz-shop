@@ -231,12 +231,30 @@ export class MongoDBStorage implements IStorage {
     // 1. Deduct stock from products
     for (const item of insertOrder.items) {
       try {
-        await ProductModel.findOneAndUpdate(
-          { _id: item.productId, "variants.sku": item.variantSku },
-          { $inc: { "variants.$.stock": -item.quantity } }
+        console.log(`[STOCK] Deducting stock for product ${item.productId}, variant ${item.variantSku}, quantity ${item.quantity}`);
+        
+        // Use string ID for MongoDB
+        const productId = item.productId;
+        
+        // Find product and update variant stock
+        const result = await ProductModel.findOneAndUpdate(
+          { 
+            _id: productId, 
+            "variants.sku": item.variantSku 
+          },
+          { 
+            $inc: { "variants.$.stock": -item.quantity } 
+          },
+          { new: true }
         );
+
+        if (!result) {
+          console.error(`[STOCK] Product ${productId} or variant ${item.variantSku} not found for deduction`);
+        } else {
+          console.log(`[STOCK] Successfully updated stock for product ${productId}`);
+        }
       } catch (err) {
-        console.error(`Failed to deduct stock for product ${item.productId}, variant ${item.variantSku}:`, err);
+        console.error(`[STOCK] Failed to deduct stock for product ${item.productId}, variant ${item.variantSku}:`, err);
       }
     }
 
