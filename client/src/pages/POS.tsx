@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Product, Category, Branch } from "@shared/schema";
 import { 
   Search, 
@@ -24,6 +24,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Label } from "@/components/ui/label";
 
 interface CartItem {
   productId: string;
@@ -103,6 +105,45 @@ export default function POS() {
       return item;
     }));
   };
+
+  const [paymentMethod, setPaymentMethod] = useState<"cash" | "card" | "wallet" | null>(null);
+
+  const checkoutMutation = useMutation({
+    mutationFn: async (paymentMethod: string) => {
+      const res = await apiRequest("POST", "/api/orders", {
+        userId: user?.id,
+        type: "pos",
+        branchId: user?.branchId || "main",
+        cashierId: user?.id,
+        items: cart.map(item => ({
+          productId: item.productId,
+          variantSku: item.variantSku,
+          quantity: item.quantity,
+          price: item.price,
+          cost: 0, // In a real app, this would come from the product/variant data
+          title: item.name
+        })),
+        total: total.toString(),
+        subtotal: (total / 1.15).toString(),
+        vatAmount: (total - (total / 1.15)).toString(),
+        shippingCost: "0",
+        shippingMethod: "pickup",
+        paymentMethod,
+        status: "completed",
+        paymentStatus: "paid"
+      });
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "تم إتمام الطلب", description: "تم إصدار الفاتورة بنجاح" });
+      setCart([]);
+      setPaymentMethod(null);
+      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+    },
+    onError: (error: Error) => {
+      toast({ variant: "destructive", title: "خطأ", description: error.message });
+    }
+  });
 
   const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
@@ -294,22 +335,38 @@ export default function POS() {
           </div>
 
           <div className="grid grid-cols-3 gap-2">
-            <Button variant="outline" className="rounded-none flex-col h-16 gap-1 border-black/10 hover:bg-black hover:text-white group">
+            <Button 
+              variant={paymentMethod === "cash" ? "default" : "outline"} 
+              className={`rounded-none flex-col h-16 gap-1 border-black/10 transition-all ${paymentMethod === "cash" ? "bg-black text-white" : "hover:bg-black hover:text-white"}`}
+              onClick={() => setPaymentMethod("cash")}
+            >
               <Banknote className="h-4 w-4" />
               <span className="text-[9px] font-black uppercase">نقداً</span>
             </Button>
-            <Button variant="outline" className="rounded-none flex-col h-16 gap-1 border-black/10 hover:bg-black hover:text-white group">
+            <Button 
+              variant={paymentMethod === "card" ? "default" : "outline"} 
+              className={`rounded-none flex-col h-16 gap-1 border-black/10 transition-all ${paymentMethod === "card" ? "bg-black text-white" : "hover:bg-black hover:text-white"}`}
+              onClick={() => setPaymentMethod("card")}
+            >
               <CreditCard className="h-4 w-4" />
               <span className="text-[9px] font-black uppercase">بطاقة</span>
             </Button>
-            <Button variant="outline" className="rounded-none flex-col h-16 gap-1 border-black/10 hover:bg-black hover:text-white group">
+            <Button 
+              variant={paymentMethod === "wallet" ? "default" : "outline"} 
+              className={`rounded-none flex-col h-16 gap-1 border-black/10 transition-all ${paymentMethod === "wallet" ? "bg-black text-white" : "hover:bg-black hover:text-white"}`}
+              onClick={() => setPaymentMethod("wallet")}
+            >
               <Wallet className="h-4 w-4" />
               <span className="text-[9px] font-black uppercase">محفظة</span>
             </Button>
           </div>
 
-          <Button className="w-full h-12 rounded-none font-black uppercase tracking-widest text-xs" disabled={cart.length === 0}>
-            تأكيد الطلب وإصدار الفاتورة
+          <Button 
+            className="w-full h-12 rounded-none font-black uppercase tracking-widest text-xs" 
+            disabled={cart.length === 0 || !paymentMethod || checkoutMutation.isPending}
+            onClick={() => paymentMethod && checkoutMutation.mutate(paymentMethod)}
+          >
+            {checkoutMutation.isPending ? <Loader2 className="animate-spin h-4 w-4" /> : "تأكيد الطلب وإصدار الفاتورة"}
           </Button>
         </div>
       </div>
