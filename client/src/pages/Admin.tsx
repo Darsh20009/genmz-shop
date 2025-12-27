@@ -491,7 +491,7 @@ const ProductsTable = memo(() => {
   }, [editingProduct]); // Removed 'form' from dependencies to avoid infinite loop
 
   const addVariant = () => {
-    setVariants([...variants, { color: "", size: "", sku: `SKU-${Date.now()}`, stock: 0 }]);
+    setVariants([...variants, { color: "", size: "", sku: `SKU-${Date.now()}`, stock: 0, image: "" }]);
   };
 
   const removeVariant = (index: number) => {
@@ -670,7 +670,7 @@ const ProductsTable = memo(() => {
 
               <div className="space-y-4 pt-4 border-t border-black/5 text-right">
                 <div className="flex justify-between items-center">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-black/40">المتغيرات (الألوان والمقاسات)</Label>
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-black/40">المتغيرات (الألوان والمقاسات والصور)</Label>
                   <Button type="button" variant="outline" size="sm" onClick={addVariant} className="rounded-none text-[10px] font-black uppercase tracking-widest h-8">
                     إضافة متغير <Plus className="mr-1 h-3 w-3" />
                   </Button>
