@@ -45,8 +45,16 @@ function Router() {
   );
 }
 
+import { useState, useEffect } from "react";
+import { SplashScreen } from "@/components/SplashScreen";
+
 function AppContent() {
   const { language } = useLanguage();
+  const [showSplash, setShowSplash] = useState(true);
+
+  if (showSplash) {
+    return <SplashScreen onFinish={() => setShowSplash(false)} />;
+  }
   
   return (
     <div dir={language === 'ar' ? 'rtl' : 'ltr'} lang={language}>
