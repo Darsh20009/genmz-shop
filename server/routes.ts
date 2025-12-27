@@ -641,6 +641,27 @@ export async function registerRoutes(
     if (!user) return res.status(404).send("User not found");
     res.json(user);
   });
+
+  // Update loyalty points after order
+  app.patch("/api/pos/loyalty/:userId", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    try {
+      const { pointsEarned, pointsUsed } = req.body;
+      const user = await storage.getUser(req.params.userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+      
+      const currentPoints = user.loyaltyPoints || 0;
+      const newPoints = Math.max(0, currentPoints + pointsEarned - pointsUsed);
+      
+      const updated = await storage.updateUser(req.params.userId, {
+        loyaltyPoints: newPoints
+      });
+      
+      res.json(updated);
+    } catch (err: any) {
+      res.status(400).send(err.message);
+    }
+  });
   app.get("/api/pos/shifts", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     const shifts = await storage.getCashShifts();

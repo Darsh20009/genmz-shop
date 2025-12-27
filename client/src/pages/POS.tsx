@@ -79,7 +79,66 @@ export default function POS() {
   }, [customer, total]);
 
   const handlePrintReceipt = (orderId: string) => {
-    window.print();
+    // Create print content
+    const printWindow = window.open('', '', 'height=400,width=600');
+    if (!printWindow) return;
+    
+    const printContent = `
+      <html dir="rtl">
+        <head>
+          <title>الفاتورة #${orderId.slice(-6)}</title>
+          <style>
+            body { font-family: Arial; text-align: right; padding: 20px; }
+            .header { text-align: center; margin-bottom: 20px; }
+            .items { margin: 20px 0; border-top: 1px solid #000; padding: 10px 0; }
+            .item { display: flex; justify-content: space-between; padding: 5px 0; }
+            .total { font-weight: bold; font-size: 18px; border-top: 2px solid #000; padding: 10px 0; }
+            .barcode { text-align: center; margin-top: 20px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h2>فاتورة الشراء</h2>
+            <p>#${orderId.slice(-6)}</p>
+            <p>${new Date().toLocaleDateString('ar-SA')}</p>
+          </div>
+          
+          <div class="items">
+            ${cart.map(item => `
+              <div class="item">
+                <span>${item.quantity}x ${item.name}</span>
+                <span>${(item.price * item.quantity).toFixed(2)} ر.س</span>
+              </div>
+            `).join('')}
+          </div>
+          
+          <div class="total">
+            <div class="item">
+              <span>الإجمالي</span>
+              <span>${total.toFixed(2)} ر.س</span>
+            </div>
+            ${loyaltyDiscount > 0 ? `
+              <div class="item" style="color: green;">
+                <span>خصم النقاط</span>
+                <span>-${loyaltyDiscount.toFixed(2)} ر.س</span>
+              </div>
+              <div class="item">
+                <span><strong>المبلغ النهائي</strong></span>
+                <span><strong>${(total - loyaltyDiscount).toFixed(2)} ر.س</strong></span>
+              </div>
+            ` : ''}
+          </div>
+          
+          <div class="barcode">
+            <p>شكراً لتسوقك معنا</p>
+          </div>
+        </body>
+      </html>
+    `;
+    
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    setTimeout(() => printWindow.print(), 250);
   };
 
   const { data: categories } = useQuery<Category[]>({
@@ -169,12 +228,26 @@ export default function POS() {
       });
       return res.json();
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      // Update loyalty points if customer is registered
+      if (customer?.id) {
+        try {
+          await apiRequest("PATCH", `/api/pos/loyalty/${customer.id}`, {
+            pointsEarned: Math.floor(total / 10),
+            pointsUsed: pointsToRedeem
+          });
+          queryClient.invalidateQueries({ queryKey: ["/api/admin/users/search", customerPhone] });
+        } catch (err) {
+          console.error("Failed to update loyalty points:", err);
+        }
+      }
+      
       toast({ title: "تم إتمام الطلب", description: "تم إصدار الفاتورة بنجاح" });
       handlePrintReceipt(data.id);
       setCart([]);
       setPaymentMethod(null);
       setCustomerPhone("");
+      setPointsToRedeem(0);
       queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
     },
     onError: (error: Error) => {
