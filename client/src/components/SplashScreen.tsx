@@ -25,11 +25,11 @@ export function SplashScreen({ onFinish }: { onFinish: () => void }) {
           {/* Decorative background elements */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 0.05, scale: 1 }}
+            animate={{ opacity: 0.1, scale: 1 }}
             transition={{ duration: 2, ease: "easeOut" }}
-            className="absolute inset-0 flex items-center justify-center"
+            className="absolute inset-0 flex items-center justify-center pointer-events-none"
           >
-            <span className="text-[20vw] font-black tracking-tighter text-black select-none">GEN M&Z</span>
+            <span className="text-[20vw] font-black tracking-tighter text-gray-200 select-none">GEN M&Z</span>
           </motion.div>
 
           <div className="relative flex flex-col items-center">
