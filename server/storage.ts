@@ -222,6 +222,18 @@ export class MongoDBStorage implements IStorage {
   }
 
   async createOrder(insertOrder: InsertOrder): Promise<Order> {
+    // 1. Deduct stock from products
+    for (const item of insertOrder.items) {
+      try {
+        await ProductModel.findOneAndUpdate(
+          { _id: item.productId, "variants.sku": item.variantSku },
+          { $inc: { "variants.$.stock": -item.quantity } }
+        );
+      } catch (err) {
+        console.error(`Failed to deduct stock for product ${item.productId}, variant ${item.variantSku}:`, err);
+      }
+    }
+
     const order = await OrderModel.create({
       ...insertOrder,
       status: insertOrder.status || "new",
