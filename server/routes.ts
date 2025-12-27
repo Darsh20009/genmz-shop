@@ -486,14 +486,28 @@ export async function registerRoutes(
         const salt = randomBytes(16).toString("hex");
         const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
         hashedPassword = `${buffer.toString("hex")}.${salt}`;
+      } else {
+        // Default password if not provided
+        const { scrypt, randomBytes } = await import("crypto");
+        const { promisify } = await import("util");
+        const scryptAsync = promisify(scrypt);
+        const salt = randomBytes(16).toString("hex");
+        const buffer = (await scryptAsync("123456", salt, 64)) as Buffer;
+        hashedPassword = `${buffer.toString("hex")}.${salt}`;
       }
+
+      // Ensure permissions are handled correctly
+      const permissions = userData.permissions || [];
+      const role = userData.role || "employee";
 
       const user = await storage.createUser({
         ...userData,
         password: hashedPassword,
         walletBalance: "0",
         addresses: [],
-        isActive: true
+        isActive: true,
+        permissions: permissions,
+        role: role
       });
 
       // Log creation
