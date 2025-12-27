@@ -325,6 +325,40 @@ export function Layout({ children }: { children: ReactNode }) {
               <span className="font-bold">TikTok</span>
             </a>
           </div>
+
+          {/* Payment Methods Section */}
+          <div className="mt-12 pt-8 border-t">
+            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-6">{language === 'ar' ? 'طرق الدفع المتاحة' : 'Available Payment Methods'}</p>
+            <div className="flex flex-wrap justify-center gap-4 md:gap-6">
+              <a href="#" title="Payment Method" className="h-12 w-12 flex items-center justify-center hover:scale-110 transition-transform">
+                <img src="https://media.zid.store/cdn-cgi/image/h=80,q=100/https://media.zid.store/apps/296480bb-8f91-40d7-884d-496b563c1629.jpg" loading="lazy" alt="Payment method" className="h-full object-contain" />
+              </a>
+              <a href="#" title="Apple Pay" className="h-12 w-12 flex items-center justify-center hover:scale-110 transition-transform">
+                <img src="https://media.zid.store/cdn-cgi/image/h=80,q=100/https://media.zid.store/static/apple_pay.svg" loading="lazy" alt="Apple Pay" className="h-full object-contain" />
+              </a>
+              <a href="#" title="Mada" className="h-12 w-12 flex items-center justify-center hover:scale-110 transition-transform">
+                <img src="https://media.zid.store/cdn-cgi/image/h=80,q=100/https://media.zid.store/static/mada-circle.png" loading="lazy" alt="Mada" className="h-full object-contain" />
+              </a>
+              <a href="#" title="Visa" className="h-12 w-12 flex items-center justify-center hover:scale-110 transition-transform">
+                <img src="https://media.zid.store/cdn-cgi/image/h=80,q=100/https://media.zid.store/static/visa-circle.png" loading="lazy" alt="Visa" className="h-full object-contain" />
+              </a>
+              <a href="#" title="Mastercard" className="h-12 w-12 flex items-center justify-center hover:scale-110 transition-transform">
+                <img src="https://media.zid.store/cdn-cgi/image/h=80,q=100/https://media.zid.store/static/mastercard-circle.png" loading="lazy" alt="Mastercard" className="h-full object-contain" />
+              </a>
+              <a href="#" title="American Express" className="h-12 w-12 flex items-center justify-center hover:scale-110 transition-transform">
+                <img src="https://media.zid.store/cdn-cgi/image/h=80,q=100/https://media.zid.store/static/amex.png" loading="lazy" alt="American Express" className="h-full object-contain" />
+              </a>
+              <a href="#" title="STC Pay" className="h-12 w-12 flex items-center justify-center hover:scale-110 transition-transform">
+                <img src="https://media.zid.store/cdn-cgi/image/h=80,q=100/https://media.zid.store/static/stc_pay.png" loading="lazy" alt="STC Pay" className="h-full object-contain" />
+              </a>
+              <a href="#" title="Tabby" className="h-12 w-12 flex items-center justify-center hover:scale-110 transition-transform">
+                <img src="https://media.zid.store/cdn-cgi/image/h=80,q=100/https://media.zid.store/static/tabby2.svg" loading="lazy" alt="Tabby" className="h-full object-contain" />
+              </a>
+              <a href="#" title="Tamara" className="h-12 w-12 flex items-center justify-center hover:scale-110 transition-transform">
+                <img src="https://media.zid.store/cdn-cgi/image/h=80,q=100/https://media.zid.store/static/tamara2.svg" loading="lazy" alt="Tamara" className="h-full object-contain" />
+              </a>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
