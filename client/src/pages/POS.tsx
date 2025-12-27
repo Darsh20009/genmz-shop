@@ -479,6 +479,22 @@ export default function POS() {
             </Button>
           </div>
 
+          {paymentMethod === "wallet" && (
+            <div className="space-y-2 p-3 bg-primary/5 border border-primary/20 animate-in fade-in slide-in-from-top-1">
+              <Label className="text-[10px] font-black uppercase">رصيد العميل في المحفظة</Label>
+              {customer ? (
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-bold">{customer.name}</span>
+                  <span className={`text-sm font-black ${Number(customer.walletBalance) >= total ? 'text-green-600' : 'text-destructive'}`}>
+                    {customer.walletBalance} ر.س
+                  </span>
+                </div>
+              ) : (
+                <p className="text-[10px] text-muted-foreground italic">يرجى إدخال رقم هاتف العميل للتحقق من الرصيد</p>
+              )}
+            </div>
+          )}
+
           <Button 
             className="w-full h-12 rounded-none font-black uppercase tracking-widest text-xs" 
             disabled={cart.length === 0 || !paymentMethod || checkoutMutation.isPending}

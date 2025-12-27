@@ -169,6 +169,31 @@ export async function registerRoutes(
     if (!parsed.success) {
       return res.status(400).json(parsed.error);
     }
+    
+    // Check wallet balance if payment method is wallet
+    if (parsed.data.paymentMethod === "wallet" && parsed.data.userId) {
+      const user = await storage.getUser(parsed.data.userId);
+      if (user) {
+        const balance = Number(user.walletBalance || 0);
+        const orderTotal = Number(parsed.data.total);
+        if (balance < orderTotal) {
+          return res.status(400).json({ message: "رصيد المحفظة غير كافٍ" });
+        }
+        
+        // Deduct from wallet
+        const newBalance = (balance - orderTotal).toString();
+        await storage.updateUserWallet(user.id, newBalance);
+        
+        // Create transaction log
+        await storage.createWalletTransaction({
+          userId: user.id,
+          amount: orderTotal,
+          type: "withdrawal",
+          description: `دفع طلب POS #${new Date().getTime()}`,
+        });
+      }
+    }
+
     const order = await storage.createOrder(parsed.data);
     res.status(201).json(order);
   });
