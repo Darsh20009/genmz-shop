@@ -1,5 +1,6 @@
 import { Layout } from "@/components/Layout";
 import { useCart } from "@/hooks/use-cart";
+import { useCoupon } from "@/hooks/use-coupon";
 import { Button } from "@/components/ui/button";
 import { Trash2, ShoppingBag, Check, AlertCircle } from "lucide-react";
 import { Link } from "wouter";
@@ -10,10 +11,10 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function Cart() {
   const { items, removeItem, updateQuantity, total } = useCart();
+  const { appliedCoupon, setCoupon, clearCoupon } = useCoupon();
   const { t, language } = useLanguage();
   const { toast } = useToast();
   const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
   const applyCouponMutation = useMutation({
@@ -24,7 +25,7 @@ export default function Cart() {
       return res.json();
     },
     onSuccess: (coupon) => {
-      setAppliedCoupon(coupon);
+      setCoupon(coupon);
       setCouponCode("");
       toast({ title: "تمت إضافة كود الخصم بنجاح" });
       setLoading(false);
@@ -166,7 +167,7 @@ export default function Cart() {
                         <div className="flex items-center gap-2">
                           <span className="opacity-60">{t('discount')}</span>
                           <button
-                            onClick={() => setAppliedCoupon(null)}
+                            onClick={() => clearCoupon()}
                             className="opacity-40 hover:opacity-100 transition-opacity text-[9px]"
                           >
                             ✕

@@ -1,5 +1,6 @@
 import { Layout } from "@/components/Layout";
 import { useCart } from "@/hooks/use-cart";
+import { useCoupon } from "@/hooks/use-coupon";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useLocation, Link } from "wouter";
@@ -16,6 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 
 export default function Checkout() {
   const { items, total, clearCart } = useCart();
+  const { appliedCoupon } = useCoupon();
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -31,6 +33,29 @@ export default function Checkout() {
     return null;
   }
 
+  // Calculate discount
+  const calculateDiscount = () => {
+    if (!appliedCoupon) return 0;
+    const subtotal = total();
+    
+    // Check minimum order amount
+    if (appliedCoupon.minOrderAmount && subtotal < appliedCoupon.minOrderAmount) {
+      return 0;
+    }
+
+    if (appliedCoupon.type === "percentage") {
+      return (subtotal * appliedCoupon.value) / 100;
+    } else {
+      return appliedCoupon.value;
+    }
+  };
+
+  const discountAmount = calculateDiscount();
+  const subtotal = total();
+  const tax = subtotal * 0.15;
+  const shipping = 25;
+  const finalTotal = subtotal + tax + shipping - discountAmount;
+
   const handleCheckoutInitiate = () => {
     if (!user) {
       toast({
@@ -42,12 +67,10 @@ export default function Checkout() {
       return;
     }
 
-    const orderTotal = total() * 1.15 + 25; // Including VAT and Shipping
-
-    if (paymentMethod === "wallet" && Number(user.walletBalance) < orderTotal) {
+    if (paymentMethod === "wallet" && Number(user.walletBalance) < finalTotal) {
       toast({
         title: "رصيد المحفظة غير كافٍ",
-        description: `رصيدك الحالي: ${user.walletBalance} ر.س، المطلوب: ${orderTotal.toFixed(2)} ر.س`,
+        description: `رصيدك الحالي: ${user.walletBalance} ر.س، المطلوب: ${finalTotal.toFixed(2)} ر.س`,
         variant: "destructive",
       });
       return;
@@ -79,15 +102,16 @@ export default function Checkout() {
         throw new Error("كلمة المرور غير صحيحة");
       }
 
-      const orderTotal = total() * 1.15 + 25;
       const orderData = {
         userId: user!.id,
-        total: orderTotal.toFixed(2),
-        subtotal: total().toFixed(2),
-        vatAmount: (total() * 0.15).toFixed(2),
-        shippingCost: (25).toFixed(2),
-        tapCommission: (orderTotal * 0.02).toFixed(2),
-        netProfit: (orderTotal * 0.1).toFixed(2),
+        total: finalTotal.toFixed(2),
+        subtotal: subtotal.toFixed(2),
+        vatAmount: tax.toFixed(2),
+        shippingCost: shipping.toFixed(2),
+        discountAmount: discountAmount.toFixed(2),
+        couponCode: appliedCoupon?.code || null,
+        tapCommission: (finalTotal * 0.02).toFixed(2),
+        netProfit: (finalTotal * 0.1).toFixed(2),
         items: items.map(item => ({
           productId: item.productId,
           variantSku: item.variantSku,
@@ -106,10 +130,10 @@ export default function Checkout() {
       const order = await res.json();
 
       if (paymentMethod === "wallet") {
-        const newBalance = (Number(user!.walletBalance) - orderTotal).toString();
+        const newBalance = (Number(user!.walletBalance) - finalTotal).toString();
         await apiRequest("PATCH", "/api/user/wallet", { balance: newBalance });
         await apiRequest("POST", "/api/wallet/transaction", {
-          amount: -orderTotal,
+          amount: -finalTotal,
           type: "payment",
           description: `دفع قيمة الطلب #${order.id.slice(-8).toUpperCase()}`
         });
@@ -254,19 +278,25 @@ export default function Checkout() {
 
                   <div className="space-y-4 mb-10 text-[11px] font-bold uppercase tracking-widest">
                     <div className="flex justify-between opacity-40">
-                      <span>{total().toLocaleString()} ر.س</span>
+                      <span>{subtotal.toLocaleString()} ر.س</span>
                       <span>المجموع الفرعي</span>
                     </div>
                     <div className="flex justify-between opacity-40">
-                      <span>{(total() * 0.15).toLocaleString()} ر.س</span>
+                      <span>{tax.toLocaleString()} ر.س</span>
                       <span>الضريبة (١٥٪)</span>
                     </div>
                     <div className="flex justify-between opacity-40">
-                      <span>25.00 ر.س</span>
+                      <span>{shipping.toLocaleString()} ر.س</span>
                       <span>رسوم الشحن</span>
                     </div>
+                    {discountAmount > 0 && (
+                      <div className="flex justify-between text-green-600">
+                        <span>-{discountAmount.toLocaleString()} ر.س</span>
+                        <span>الخصم</span>
+                      </div>
+                    )}
                     <div className="flex justify-between border-t border-black/5 pt-6 font-black text-3xl tracking-tighter text-black">
-                      <span className="text-primary">{(total() * 1.15 + 25).toLocaleString()} ر.س</span>
+                      <span className="text-primary">{finalTotal.toLocaleString()} ر.س</span>
                       <span>الإجمالي</span>
                     </div>
                   </div>
