@@ -16,7 +16,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProductSchema, type InsertProduct, orderStatuses } from "@shared/schema";
 import { api } from "@shared/routes";
-import { Loader2, Plus, DollarSign, ShoppingCart, TrendingUp, BarChart3, ArrowUpRight, Trash2, Search, Filter, ChevronDown, CheckCircle2, XCircle, Truck, PackageCheck, AlertCircle, LayoutGrid, Tag, Edit, ArrowRight, LogOut, Package, Building, User as UserIcon, History, Monitor } from "lucide-react";
+import { Loader2, Plus, DollarSign, ShoppingCart, TrendingUp, BarChart3, ArrowUpRight, Trash2, Search, Filter, ChevronDown, CheckCircle2, XCircle, Truck, PackageCheck, AlertCircle, LayoutGrid, Tag, Edit, ArrowRight, LogOut, Package, Building, User as UserIcon, History, Monitor, Clock } from "lucide-react";
 import { Link } from "wouter";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
@@ -1661,6 +1661,7 @@ const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChan
     { id: "products", label: "المنتجات", icon: PackageCheck },
     { id: "inventory", label: "المخزون", icon: Package },
     { id: "pos_link", label: "نقطة البيع (POS)", icon: Monitor, url: "/pos" },
+    { id: "shifts", label: "الورديات", icon: Clock },
     { id: "orders", label: "الطلبات", icon: ShoppingCart },
     { id: "staff", label: "الموظفين", icon: UserIcon },
     { id: "branches", label: "الفروع", icon: Building },
@@ -1752,6 +1753,7 @@ export default function Admin() {
                   {activeTab === "overview" && "نظرة عامة"}
                   {activeTab === "products" && "إدارة المنتجات"}
                   {activeTab === "inventory" && "جرد الفروع"}
+                  {activeTab === "shifts" && "إدارة الورديات"}
                   {activeTab === "orders" && "الطلبات"}
                   {activeTab === "staff" && "إدارة الطاقم"}
                   {activeTab === "branches" && "إدارة الفروع"}
@@ -1768,6 +1770,7 @@ export default function Admin() {
                 {activeTab === "overview" && <StatsCards />}
                 {activeTab === "products" && <ProductsTable />}
                 {activeTab === "inventory" && <AdminBranchInventory />}
+                {activeTab === "shifts" && <ShiftsManagement />}
                 {activeTab === "orders" && <OrdersManagement />}
                 {activeTab === "staff" && <AdminStaff />}
                 {activeTab === "branches" && <AdminBranches />}
@@ -1783,6 +1786,55 @@ export default function Admin() {
     </Layout>
   );
 }
+
+const ShiftsManagement = () => {
+  const { data: shifts, isLoading } = useQuery<any[]>({ 
+    queryKey: ["/api/pos/shifts"] 
+  });
+
+  if (isLoading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin" /></div>;
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-4">
+        {shifts?.map((shift) => (
+          <Card key={shift.id} className="rounded-none border-black/5">
+            <CardContent className="p-4 flex justify-between items-center">
+              <div className="flex items-center gap-4 text-right">
+                <div className="w-10 h-10 bg-black/5 flex items-center justify-center">
+                  <Clock className="h-4 w-4" />
+                </div>
+                <div>
+                  <p className="font-black text-xs uppercase">وردية #{shift.id.slice(-4).toUpperCase()}</p>
+                  <p className="text-[10px] font-bold text-muted-foreground">
+                    فتح: {new Date(shift.openedAt).toLocaleString('ar-SA')}
+                  </p>
+                </div>
+              </div>
+                    <div className="flex items-center gap-8">
+                      <div className="text-right">
+                        <p className="text-[10px] font-black uppercase text-black/40">المبلغ الافتتاحي</p>
+                        <p className="text-sm font-bold">{shift.openingBalance} SAR</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] font-black uppercase text-black/40">الحالة</p>
+                        <Badge variant={shift.status === "open" ? "default" : "secondary"} className="rounded-none text-[8px] font-black uppercase">
+                          {shift.status === "open" ? "نشطة" : "مغلقة"}
+                        </Badge>
+                      </div>
+                    </div>
+            </CardContent>
+          </Card>
+        ))}
+        {(!shifts || shifts.length === 0) && (
+          <div className="text-center py-12 text-muted-foreground text-xs font-bold uppercase tracking-widest">
+            لا توجد ورديات مسجلة
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const MarketingManagement = () => {
   const { toast } = useToast();

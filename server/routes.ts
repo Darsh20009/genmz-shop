@@ -634,6 +634,12 @@ export async function registerRoutes(
   });
 
   // POS & Shifts
+  app.get("/api/pos/shifts", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const shifts = await storage.getCashShifts();
+    res.json(shifts);
+  });
+
   app.get("/api/pos/active-shift", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     const shift = await storage.getActiveShift((req.user as any).id);
