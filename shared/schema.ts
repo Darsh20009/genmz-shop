@@ -207,6 +207,18 @@ export const insertBannerSchema = z.object({
 export type InsertBanner = z.infer<typeof insertBannerSchema>;
 export type Banner = InsertBanner & { _id: string; id: string };
 
+// Branch Inventory Schema
+export const insertBranchInventorySchema = z.object({
+  branchId: z.string(),
+  productId: z.string(),
+  variantSku: z.string(),
+  stock: z.number().default(0),
+  minStockLevel: z.number().default(5),
+});
+
+export type InsertBranchInventory = z.infer<typeof insertBranchInventorySchema>;
+export type BranchInventory = InsertBranchInventory & { _id: string; id: string; updatedAt: Date };
+
 // API Types
 export type LoginRequest = { username: string; password: string };
 export type AuthResponse = User;

@@ -1650,6 +1650,7 @@ const EmployeesManagement = () => {
 import AdminBranches from "./AdminBranches";
 import AdminStaff from "./AdminStaff";
 import AdminAuditLogs from "./AdminAuditLogs";
+import AdminBranchInventory from "./AdminBranchInventory";
 
 const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChange: (tab: string) => void }) => {
   const { logout } = useAuth();
@@ -1657,6 +1658,7 @@ const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChan
   const menuItems = [
     { id: "overview", label: "نظرة عامة", icon: BarChart3 },
     { id: "products", label: "المنتجات", icon: PackageCheck },
+    { id: "inventory", label: "المخزون", icon: Package },
     { id: "orders", label: "الطلبات", icon: ShoppingCart },
     { id: "staff", label: "الموظفين", icon: UserIcon },
     { id: "branches", label: "الفروع", icon: Building },
@@ -1735,6 +1737,7 @@ export default function Admin() {
                 <h1 className="text-lg font-black uppercase tracking-tight">
                   {activeTab === "overview" && "نظرة عامة"}
                   {activeTab === "products" && "إدارة المنتجات"}
+                  {activeTab === "inventory" && "جرد الفروع"}
                   {activeTab === "orders" && "الطلبات"}
                   {activeTab === "staff" && "إدارة الطاقم"}
                   {activeTab === "branches" && "إدارة الفروع"}
@@ -1750,6 +1753,7 @@ export default function Admin() {
               <div className="max-w-7xl mx-auto space-y-8">
                 {activeTab === "overview" && <StatsCards />}
                 {activeTab === "products" && <ProductsTable />}
+                {activeTab === "inventory" && <AdminBranchInventory />}
                 {activeTab === "orders" && <OrdersManagement />}
                 {activeTab === "staff" && <AdminStaff />}
                 {activeTab === "branches" && <AdminBranches />}
