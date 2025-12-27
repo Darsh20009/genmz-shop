@@ -1,5 +1,5 @@
-import { UserModel, ProductModel, OrderModel, CategoryModel, WalletTransactionModel, ActivityLogModel, CouponModel, BranchModel, BannerModel, CashShiftModel } from "./models";
-import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, OrderStatus, ActivityLog, InsertActivityLog, Coupon, InsertCoupon, Branch, InsertBranch, Banner, InsertBanner, CashShift, InsertCashShift, BranchInventory } from "@shared/schema";
+import { UserModel, ProductModel, OrderModel, CategoryModel, WalletTransactionModel, ActivityLogModel, CouponModel, BranchModel, BannerModel, CashShiftModel, ShippingCompanyModel } from "./models";
+import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, OrderStatus, ActivityLog, InsertActivityLog, Coupon, InsertCoupon, Branch, InsertBranch, Banner, InsertBanner, CashShift, InsertCashShift, BranchInventory, ShippingCompany, InsertShippingCompany } from "@shared/schema";
 
 export interface IStorage {
   // Users
@@ -69,6 +69,12 @@ export interface IStorage {
   // Branch Inventory
   getBranchInventory(branchId: string): Promise<BranchInventory[]>;
   updateBranchStock(id: string, stock: number): Promise<BranchInventory>;
+
+  // Shipping Companies
+  getShippingCompanies(): Promise<ShippingCompany[]>;
+  createShippingCompany(company: InsertShippingCompany): Promise<ShippingCompany>;
+  updateShippingCompany(id: string, company: Partial<InsertShippingCompany>): Promise<ShippingCompany>;
+  deleteShippingCompany(id: string): Promise<void>;
 }
 
 export class MongoDBStorage implements IStorage {
@@ -382,6 +388,27 @@ export class MongoDBStorage implements IStorage {
 
   async updateBranchStock(id: string, stock: number): Promise<BranchInventory> {
     throw new Error("Inventory update not implemented in MongoDB yet");
+  }
+
+  // Shipping Companies
+  async getShippingCompanies(): Promise<ShippingCompany[]> {
+    const companies = await ShippingCompanyModel.find({ isActive: true }).lean();
+    return companies.map(c => ({ ...c, id: (c as any)._id.toString() } as any));
+  }
+
+  async createShippingCompany(insertCompany: InsertShippingCompany): Promise<ShippingCompany> {
+    const company = await ShippingCompanyModel.create(insertCompany);
+    return { ...company.toObject(), id: company._id.toString() };
+  }
+
+  async updateShippingCompany(id: string, update: Partial<InsertShippingCompany>): Promise<ShippingCompany> {
+    const company = await ShippingCompanyModel.findByIdAndUpdate(id, update, { new: true }).lean();
+    if (!company) throw new Error("Shipping company not found");
+    return { ...company, id: company._id.toString() };
+  }
+
+  async deleteShippingCompany(id: string): Promise<void> {
+    await ShippingCompanyModel.findByIdAndDelete(id);
   }
 
   async getAllUsers(): Promise<User[]> {

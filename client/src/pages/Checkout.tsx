@@ -15,6 +15,7 @@ import { MapPin, Truck, CreditCard, Building2, Apple, Landmark, Lock, Check, Wal
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { LocationMap } from "@/components/LocationMap";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Checkout() {
   const { items, total, clearCart } = useCart();
@@ -32,15 +33,22 @@ export default function Checkout() {
   const [showAddAddressForm, setShowAddAddressForm] = useState(false);
   const [showMapForm, setShowMapForm] = useState(false);
   const [newAddress, setNewAddress] = useState({ street: "", city: "" });
-  const [shippingCompany, setShippingCompany] = useState("storage-x");
+  const [shippingCompany, setShippingCompany] = useState<string>("");
 
-  const shippingCompanies = [
-    { id: "storage-x", name: "Storage X", price: 20, logo: "🏭" },
-    { id: "smsa", name: "SMSA Express", price: 25, logo: "📦" }
-  ];
+  const { data: shippingCompanies = [] } = useQuery({
+    queryKey: ["/api/shipping-companies"],
+    queryFn: async () => {
+      const res = await fetch("/api/shipping-companies");
+      return res.json();
+    }
+  });
 
-  const selectedShipping = shippingCompanies.find(c => c.id === shippingCompany) || shippingCompanies[0];
-  const shippingPrice = selectedShipping.price;
+  if (shippingCompany === "" && shippingCompanies.length > 0) {
+    setShippingCompany(shippingCompanies[0].id);
+  }
+
+  const selectedShipping = shippingCompanies.find((c: any) => c._id === shippingCompany || c.id === shippingCompany) || shippingCompanies[0];
+  const shippingPrice = selectedShipping?.price || 0;
 
   if (items.length === 0) {
     setLocation("/cart");
@@ -361,18 +369,18 @@ export default function Checkout() {
                 </div>
                 
                 <div className="grid gap-4">
-                  {shippingCompanies.map((company) => (
+                  {shippingCompanies.map((company: any) => (
                     <div
-                      key={company.id}
-                      onClick={() => setShippingCompany(company.id)}
+                      key={company.id || company._id}
+                      onClick={() => setShippingCompany(company.id || company._id)}
                       className={`p-4 border rounded cursor-pointer transition-all flex items-center justify-between ${
-                        shippingCompany === company.id
+                        (shippingCompany === company.id || shippingCompany === company._id)
                           ? "border-primary bg-primary/5"
                           : "border-black/5 hover:border-black/20"
                       }`}
                     >
                       <div className="flex items-center gap-4">
-                        <span className="text-3xl">{company.logo}</span>
+                        <Truck className="h-6 w-6" />
                         <div className="font-black text-sm">{company.name}</div>
                       </div>
                       <span className="font-black text-primary">{company.price} ر.س</span>

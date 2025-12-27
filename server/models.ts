@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import type { User, Product, Order, Category, WalletTransaction, ActivityLog, Coupon, Branch, Banner, CashShift } from "@shared/schema";
+import type { User, Product, Order, Category, WalletTransaction, ActivityLog, Coupon, Branch, Banner, CashShift, ShippingCompany } from "@shared/schema";
 
 const userSchema = new Schema<User>(
   {
@@ -173,6 +173,17 @@ const bannerSchema = new Schema<Banner>(
   { timestamps: true }
 );
 
+const shippingCompanySchema = new Schema<ShippingCompany>(
+  {
+    name: { type: String, required: true },
+    price: { type: Number, required: true },
+    estimatedDays: { type: Number, required: true },
+    isActive: { type: Boolean, default: true },
+    storageXCode: String,
+  },
+  { timestamps: true }
+);
+
 export const UserModel = mongoose.model<User>("User", userSchema);
 export const ProductModel = mongoose.model<Product>("Product", productSchema);
 export const OrderModel = mongoose.model<Order>("Order", orderSchema);
@@ -183,3 +194,4 @@ export const CouponModel = mongoose.model<Coupon>("Coupon", couponSchema);
 export const BranchModel = mongoose.model<Branch>("Branch", branchSchema);
 export const BannerModel = mongoose.model<Banner>("Banner", bannerSchema);
 export const CashShiftModel = mongoose.model<CashShift>("CashShift", cashShiftSchema);
+export const ShippingCompanyModel = mongoose.model<ShippingCompany>("ShippingCompany", shippingCompanySchema);

@@ -792,5 +792,37 @@ export async function registerRoutes(
     res.json(shift);
   });
 
+  // Shipping Companies
+  app.get("/api/shipping-companies", async (_req, res) => {
+    const companies = await storage.getShippingCompanies();
+    res.json(companies);
+  });
+
+  app.post("/api/shipping-companies", checkPermission("orders.edit"), async (req, res) => {
+    const parsed = z.object({
+      name: z.string(),
+      price: z.number(),
+      estimatedDays: z.number(),
+      storageXCode: z.string().optional(),
+    }).safeParse(req.body);
+    
+    if (!parsed.success) return res.status(400).json(parsed.error);
+    const company = await storage.createShippingCompany({
+      ...parsed.data,
+      isActive: true,
+    });
+    res.status(201).json(company);
+  });
+
+  app.patch("/api/shipping-companies/:id", checkPermission("orders.edit"), async (req, res) => {
+    const company = await storage.updateShippingCompany(req.params.id, req.body);
+    res.json(company);
+  });
+
+  app.delete("/api/shipping-companies/:id", checkPermission("orders.edit"), async (req, res) => {
+    await storage.deleteShippingCompany(req.params.id);
+    res.sendStatus(200);
+  });
+
   return httpServer;
 }

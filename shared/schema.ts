@@ -222,6 +222,18 @@ export const insertBranchInventorySchema = z.object({
 export type InsertBranchInventory = z.infer<typeof insertBranchInventorySchema>;
 export type BranchInventory = InsertBranchInventory & { _id: string; id: string; updatedAt: Date };
 
+// Shipping Company Schema
+export const insertShippingCompanySchema = z.object({
+  name: z.string().min(1, "اسم شركة الشحن مطلوب"),
+  price: z.number().min(0, "السعر يجب أن يكون موجباً"),
+  estimatedDays: z.number().min(1, "عدد الأيام المتوقعة مطلوب"),
+  isActive: z.boolean().default(true),
+  storageXCode: z.string().optional(),
+});
+
+export type InsertShippingCompany = z.infer<typeof insertShippingCompanySchema>;
+export type ShippingCompany = InsertShippingCompany & { _id: string; id: string; createdAt: Date };
+
 // API Types
 export type LoginRequest = { username: string; password: string };
 export type AuthResponse = User;
