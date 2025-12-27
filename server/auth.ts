@@ -23,8 +23,8 @@ export function setupAuth(app: Express) {
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       httpOnly: true,
       sameSite: 'lax',
-      secure: app.get("env") === "production",
-      path: '/' // Ensure cookie is valid for all paths
+      secure: false, // Set to false to prevent cookie issues on non-https local/dev environments
+      path: '/' 
     },
     store: new MemoryStore({
       checkPeriod: 86400000,

@@ -101,8 +101,14 @@ export function Layout({ children }: { children: ReactNode }) {
               </SheetContent>
             </Sheet>
 
-            <Link href="/" className="flex items-center py-2">
-              <img src={logoImg} alt="Gen M & Z" className="h-10 w-auto md:h-12 object-contain" />
+            <Link href="/" className="flex items-center py-2 hover:opacity-80 transition-opacity">
+              <div className="flex items-center gap-3">
+                <img src={logoImg} alt="Gen M & Z" className="h-10 w-auto md:h-12 object-contain" />
+                <div className="hidden lg:flex flex-col border-l border-black/10 pl-3">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] leading-none text-black/40 mb-1">Modern Luxury</span>
+                  <span className="text-xs font-black uppercase tracking-[0.1em] leading-none">Gen M & Z</span>
+                </div>
+              </div>
             </Link>
           </div>
 
