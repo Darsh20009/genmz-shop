@@ -68,6 +68,10 @@ export default function POS() {
     }
   });
 
+  const total = useMemo(() => {
+    return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  }, [cart]);
+
   const loyaltyDiscount = useMemo(() => {
     if (!customer) return 0;
     // 10 points = 1 SAR discount
@@ -177,8 +181,6 @@ export default function POS() {
       toast({ variant: "destructive", title: "خطأ", description: error.message });
     }
   });
-
-  const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   // Barcode scanner simulation handler
   const handleBarcodeSubmit = (e: React.FormEvent) => {

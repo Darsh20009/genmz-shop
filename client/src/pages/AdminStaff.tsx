@@ -18,7 +18,7 @@ export default function AdminStaff() {
   const [isOpen, setIsOpen] = useState(false);
 
   const { data: users, isLoading: usersLoading } = useQuery<User[]>({
-    queryKey: ["/api/users"],
+    queryKey: ["/api/admin/users"],
   });
 
   const { data: branches } = useQuery<Branch[]>({
@@ -43,11 +43,11 @@ export default function AdminStaff() {
 
   const createMutation = useMutation({
     mutationFn: async (data: InsertUser) => {
-      const res = await apiRequest("POST", "/api/users", data);
+      const res = await apiRequest("POST", "/api/admin/users", data);
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       toast({ title: "تم النجاح", description: "تم إضافة الموظف بنجاح" });
       setIsOpen(false);
       form.reset();
@@ -56,10 +56,10 @@ export default function AdminStaff() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      await apiRequest("DELETE", `/api/users/${id}`);
+      await apiRequest("DELETE", `/api/admin/users/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       toast({ title: "تم الحذف", description: "تم حذف حساب الموظف" });
     },
   });
