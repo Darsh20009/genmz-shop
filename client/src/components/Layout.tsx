@@ -25,6 +25,7 @@ export function Layout({ children }: { children: ReactNode }) {
   const { theme, setTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -52,13 +53,15 @@ export function Layout({ children }: { children: ReactNode }) {
     return <main className="min-h-screen bg-[#f8fafc]">{children}</main>;
   }
 
+  const closeSidebar = () => setIsSidebarOpen(false);
+
   return (
     <div className="min-h-screen bg-white text-black flex flex-col" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {/* Navbar */}
       <nav className="sticky top-0 z-50 w-full border-b border-black/5 bg-white/80 backdrop-blur-md safe-top h-16 md:h-20">
         <div className="container flex h-full items-center justify-between gap-2 px-4 md:gap-4">
           <div className="flex items-center gap-2 md:gap-4">
-            <Sheet>
+            <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="md:hidden no-default-hover-elevate h-10 w-10">
                   <Menu className="h-6 w-6" />
@@ -66,21 +69,21 @@ export function Layout({ children }: { children: ReactNode }) {
               </SheetTrigger>
               <SheetContent side={language === 'ar' ? "right" : "left"} className="w-full flex flex-col p-0 border-none bg-white">
                 <div className={`flex flex-col gap-8 mt-16 px-8 flex-1 ${language === 'ar' ? 'text-right' : 'text-left'}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
-                  <Link href="/" className={`text-4xl font-black uppercase transition-all active:scale-95 ${location === '/' ? 'text-black' : 'text-muted-foreground'}`}>{t('home')}</Link>
-                  <Link href="/products" className={`text-4xl font-black uppercase transition-all active:scale-95 ${location === '/products' ? 'text-black' : 'text-muted-foreground'}`}>{t('shop')}</Link>
+                  <Link href="/" onClick={closeSidebar} className={`text-4xl font-black uppercase transition-all active:scale-95 ${location === '/' ? 'text-black' : 'text-muted-foreground'}`}>{t('home')}</Link>
+                  <Link href="/products" onClick={closeSidebar} className={`text-4xl font-black uppercase transition-all active:scale-95 ${location === '/products' ? 'text-black' : 'text-muted-foreground'}`}>{t('shop')}</Link>
                   
                   {user && (
                     <>
-                      <Link href="/orders" className="text-4xl font-black uppercase transition-all active:scale-95 text-black">{t('myOrders')}</Link>
+                      <Link href="/orders" onClick={closeSidebar} className="text-4xl font-black uppercase transition-all active:scale-95 text-black">{t('myOrders')}</Link>
                       {user.role === 'admin' && (
-                        <Link href="/admin" className="text-4xl font-black uppercase transition-all active:scale-95 text-primary">{t('adminPanel')}</Link>
+                        <Link href="/admin" onClick={closeSidebar} className="text-4xl font-black uppercase transition-all active:scale-95 text-primary">{t('adminPanel')}</Link>
                       )}
                     </>
                   )}
 
                   {deferredPrompt && (
                     <Button 
-                      onClick={handleInstall}
+                      onClick={() => { handleInstall(); closeSidebar(); }}
                       variant="default"
                       className="mt-8 h-16 text-xl font-black uppercase rounded-2xl shadow-xl active:scale-95 transition-transform"
                     >
