@@ -399,13 +399,59 @@ export class MongoDBStorage implements IStorage {
     return shift ? { ...shift, id: shift._id.toString() } : undefined;
   }
 
-  // Branch Inventory (Stub for POS prep)
+  // Branch Inventory
   async getBranchInventory(branchId: string): Promise<BranchInventory[]> {
-    return [];
+    const products = await this.getProducts();
+    const inventory: BranchInventory[] = [];
+    
+    for (const product of products) {
+      if (product.variants && product.variants.length > 0) {
+        for (const variant of product.variants) {
+          inventory.push({
+            id: `${product.id}-${variant.sku}`,
+            _id: `${product.id}-${variant.sku}`,
+            branchId,
+            productId: product.id,
+            variantSku: variant.sku,
+            stock: variant.stock,
+            minStockLevel: 5,
+            updatedAt: new Date()
+          });
+        }
+      }
+    }
+    return inventory;
   }
 
   async updateBranchStock(id: string, stock: number): Promise<BranchInventory> {
-    throw new Error("Inventory update not implemented in MongoDB yet");
+    // ID format: productId-variantSku
+    const [productId, variantSku] = id.split("-");
+    
+    if (!productId || !variantSku) {
+      throw new Error("Invalid inventory ID format");
+    }
+
+    const product = await ProductModel.findOneAndUpdate(
+      { _id: productId, "variants.sku": variantSku },
+      { $set: { "variants.$.stock": stock } },
+      { new: true }
+    ).lean();
+
+    if (!product) throw new Error("Product or variant not found");
+
+    const variant = product.variants.find((v: any) => v.sku === variantSku);
+    if (!variant) throw new Error("Variant not found after update");
+
+    return {
+      id: `${product._id}-${variantSku}`,
+      _id: `${product._id}-${variantSku}`,
+      branchId: "main", // Default branch
+      productId: product._id.toString(),
+      variantSku: variantSku,
+      stock: variant.stock,
+      minStockLevel: 5,
+      updatedAt: new Date()
+    };
   }
 
   // Shipping Companies

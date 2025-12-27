@@ -624,17 +624,23 @@ export async function registerRoutes(
     if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);
     const { id } = req.params;
     const { stock } = req.body;
-    const updated = await (storage as any).updateBranchStock?.(id, stock);
     
-    await storage.createActivityLog({
-      employeeId: (req.user as any).id,
-      action: "UPDATE_STOCK",
-      targetType: "inventory",
-      targetId: id,
-      details: `Updated stock to ${stock}`,
-    });
-
-    res.json(updated);
+    try {
+      const updated = await storage.updateBranchStock(id, Number(stock));
+      
+      await storage.createActivityLog({
+        employeeId: (req.user as any).id,
+        action: "UPDATE_STOCK",
+        targetType: "inventory",
+        targetId: id,
+        details: `تحديث المخزون للقيمة: ${stock}`
+      });
+      
+      res.json(updated);
+    } catch (err: any) {
+      console.error("[INVENTORY] Update failed:", err);
+      res.status(400).send(err.message);
+    }
   });
 
   app.patch("/api/user", async (req, res) => {
