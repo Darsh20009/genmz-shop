@@ -278,8 +278,11 @@ export async function registerRoutes(
     const orders = await storage.getOrders();
     const products = await storage.getProducts();
 
-    const totalSales = orders.reduce((acc, order) => acc + Number(order.total), 0);
-    const totalCost = orders.reduce((acc, order) => {
+    // Only include non-cancelled and non-returned orders in sales and profit
+    const validOrders = orders.filter(o => o.status !== "cancelled" && o.status !== "returned");
+
+    const totalSales = validOrders.reduce((acc, order) => acc + Number(order.total), 0);
+    const totalCost = validOrders.reduce((acc, order) => {
       return acc + order.items.reduce((itemAcc, item) => itemAcc + (Number(item.cost || 0) * item.quantity), 0);
     }, 0);
 
@@ -289,19 +292,21 @@ export async function registerRoutes(
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const dailySales = orders.filter(o => new Date(o.createdAt) >= startOfDay).reduce((acc, o) => acc + Number(o.total), 0);
-    const monthlySales = orders.filter(o => new Date(o.createdAt) >= startOfMonth).reduce((acc, o) => acc + Number(o.total), 0);
+    const dailySales = validOrders.filter(o => new Date(o.createdAt) >= startOfDay).reduce((acc, o) => acc + Number(o.total), 0);
+    const monthlySales = validOrders.filter(o => new Date(o.createdAt) >= startOfMonth).reduce((acc, o) => acc + Number(o.total), 0);
 
     const orderStatusCounts = {
       new: orders.filter(o => o.status === "new").length,
       processing: orders.filter(o => o.status === "processing").length,
       shipped: orders.filter(o => o.status === "shipped").length,
       completed: orders.filter(o => o.status === "completed").length,
+      cancelled: orders.filter(o => o.status === "cancelled").length,
+      returned: orders.filter(o => o.status === "returned").length,
     };
 
-    // Top selling products
+    // Top selling products only from valid orders
     const productSales: Record<string, { name: string, quantity: number, revenue: number }> = {};
-    orders.forEach(order => {
+    validOrders.forEach(order => {
       order.items.forEach(item => {
         if (!productSales[item.productId]) {
           productSales[item.productId] = { name: item.title, quantity: 0, revenue: 0 };
