@@ -305,8 +305,6 @@ export function Layout({ children }: { children: ReactNode }) {
           </div>
         </div>
         <div className="container mt-16 pt-8 border-t text-center text-sm text-muted-foreground px-4">
-          <p>© 2026 Gen M & Z. {t('allRightsReserved')}.</p>
-          <p className="mt-2 text-xs opacity-70">{t('madeWithLove')}</p>
           <div className="flex justify-center flex-wrap gap-4 mt-8">
             <a href="https://www.instagram.com/genmz.sa/" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white rounded-full hover:scale-105 transition-transform shadow-lg">
               <Instagram className="h-4 w-4" />
@@ -376,6 +374,12 @@ export function Layout({ children }: { children: ReactNode }) {
               />
               <div className="text-xs text-muted-foreground font-semibold">0000203202</div>
             </a>
+          </div>
+
+          {/* Copyright - Last Section */}
+          <div className="mt-12 pt-8 border-t">
+            <p>© 2026 Gen M & Z. {t('allRightsReserved')}.</p>
+            <p className="mt-2 text-xs opacity-70">{t('madeWithLove')}</p>
           </div>
         </div>
       </footer>
