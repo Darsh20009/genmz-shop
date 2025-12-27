@@ -71,10 +71,10 @@ export default function Home() {
           <div className="relative w-full max-w-2xl mx-auto">
             <motion.div
               key={currentImageIndex}
-              initial={{ x: 100, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -100, opacity: 0 }}
-              transition={{ duration: 0.8, ease: "easeInOut" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.6 }}
               className="bg-gray-100 rounded-lg overflow-hidden"
             >
               <img 
@@ -249,10 +249,10 @@ export default function Home() {
             <div className="relative h-[500px] md:h-[700px] bg-gray-100 rounded-2xl overflow-hidden shadow-2xl">
               <motion.div
                 key={collectionIndex}
-                initial={{ x: language === 'ar' ? -300 : 300, opacity: 0, scale: 0.8 }}
-                animate={{ x: 0, opacity: 1, scale: 1 }}
-                exit={{ x: language === 'ar' ? 300 : -300, opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.9, ease: "easeInOut" }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.6 }}
                 className="absolute inset-0 flex items-center justify-center"
               >
                 <img 
