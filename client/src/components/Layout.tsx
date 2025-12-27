@@ -55,25 +55,25 @@ export function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-white text-black flex flex-col" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 w-full border-b border-black/5 bg-white/80 backdrop-blur-md">
-        <div className="container flex h-16 items-center justify-between gap-4 px-4">
-          <div className="flex items-center gap-4">
+      <nav className="sticky top-0 z-50 w-full border-b border-black/5 bg-white/80 backdrop-blur-md safe-top h-16 md:h-20">
+        <div className="container flex h-full items-center justify-between gap-2 px-4 md:gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden no-default-hover-elevate">
-                  <Menu className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className="md:hidden no-default-hover-elevate h-10 w-10">
+                  <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
               <SheetContent side={language === 'ar' ? "right" : "left"} className="w-full flex flex-col p-0 border-none bg-white">
-                <div className={`flex flex-col gap-6 mt-12 px-6 flex-1 ${language === 'ar' ? 'text-right' : 'text-left'}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
-                  <Link href="/" className={`text-2xl font-black uppercase transition-all hover:translate-x-1 ${location === '/' ? 'text-black' : 'text-muted-foreground'}`}>{t('home')}</Link>
-                  <Link href="/products" className={`text-2xl font-black uppercase transition-all hover:translate-x-1 ${location === '/products' ? 'text-black' : 'text-muted-foreground'}`}>{t('shop')}</Link>
+                <div className={`flex flex-col gap-8 mt-16 px-8 flex-1 ${language === 'ar' ? 'text-right' : 'text-left'}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
+                  <Link href="/" className={`text-4xl font-black uppercase transition-all active:scale-95 ${location === '/' ? 'text-black' : 'text-muted-foreground'}`}>{t('home')}</Link>
+                  <Link href="/products" className={`text-4xl font-black uppercase transition-all active:scale-95 ${location === '/products' ? 'text-black' : 'text-muted-foreground'}`}>{t('shop')}</Link>
                   
                   {user && (
                     <>
-                      <Link href="/orders" className="text-2xl font-black uppercase transition-all hover:translate-x-1 text-black">{t('myOrders')}</Link>
+                      <Link href="/orders" className="text-4xl font-black uppercase transition-all active:scale-95 text-black">{t('myOrders')}</Link>
                       {user.role === 'admin' && (
-                        <Link href="/admin" className="text-2xl font-black uppercase transition-all hover:translate-x-1 text-primary">{t('adminPanel')}</Link>
+                        <Link href="/admin" className="text-4xl font-black uppercase transition-all active:scale-95 text-primary">{t('adminPanel')}</Link>
                       )}
                     </>
                   )}
@@ -82,31 +82,31 @@ export function Layout({ children }: { children: ReactNode }) {
                     <Button 
                       onClick={handleInstall}
                       variant="default"
-                      className="mt-4 gap-2 font-black uppercase"
+                      className="mt-8 h-16 text-xl font-black uppercase rounded-2xl shadow-xl active:scale-95 transition-transform"
                     >
-                      <Download className="h-5 w-5" />
+                      <Download className="h-6 w-6" />
                       {t('installApp')}
                     </Button>
                   )}
                 </div>
                 
-                <div className="p-6 border-t bg-[#fafafa]">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-4">{t('connectWithUs')}</p>
-                  <div className={`flex gap-6 ${language === 'ar' ? 'justify-end' : 'justify-start'}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
-                    <a href="https://www.instagram.com/genmz.sa/" target="_blank" rel="noreferrer" className="text-black hover:text-primary transition-colors"><Instagram className="h-6 w-6" /></a>
-                    <a href="https://x.com/GenMZsa" target="_blank" rel="noreferrer" className="text-black hover:text-primary transition-colors"><SiX className="h-6 w-6" /></a>
-                    <a href="https://www.tiktok.com/@genmz.sa" target="_blank" rel="noreferrer" className="text-black hover:text-primary transition-colors"><SiTiktok className="h-6 w-6" /></a>
+                <div className="p-8 border-t bg-[#fafafa] pb-12">
+                  <p className="text-[11px] font-black uppercase tracking-widest text-muted-foreground mb-6">{t('connectWithUs')}</p>
+                  <div className={`flex gap-8 ${language === 'ar' ? 'justify-end' : 'justify-start'}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
+                    <a href="https://www.instagram.com/genmz.sa/" target="_blank" rel="noreferrer" className="text-black hover:text-primary transition-colors active:scale-125 transition-transform"><Instagram className="h-8 w-8" /></a>
+                    <a href="https://x.com/GenMZsa" target="_blank" rel="noreferrer" className="text-black hover:text-primary transition-colors active:scale-125 transition-transform"><SiX className="h-8 w-8" /></a>
+                    <a href="https://www.tiktok.com/@genmz.sa" target="_blank" rel="noreferrer" className="text-black hover:text-primary transition-colors active:scale-125 transition-transform"><SiTiktok className="h-8 w-8" /></a>
                   </div>
                 </div>
               </SheetContent>
             </Sheet>
 
-            <Link href="/" className="flex items-center py-2 hover:opacity-80 transition-opacity">
-              <div className="flex items-center gap-3">
-                <img src={logoImg} alt="Gen M & Z" className="h-10 w-auto md:h-12 object-contain" />
-                <div className="hidden lg:flex flex-col border-l border-black/10 pl-3">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] leading-none text-black/40 mb-1">Modern Luxury</span>
-                  <span className="text-xs font-black uppercase tracking-[0.1em] leading-none">Gen M & Z</span>
+            <Link href="/" className="flex items-center py-2 hover:opacity-80 transition-opacity active:scale-95 transition-transform">
+              <div className="flex items-center gap-2 md:gap-3">
+                <img src={logoImg} alt="Gen M & Z" className="h-10 w-auto md:h-14 object-contain" />
+                <div className="hidden sm:flex flex-col border-l border-black/10 pl-3">
+                  <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] leading-none text-black/40 mb-1">Modern Luxury</span>
+                  <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.1em] leading-none">Gen M & Z</span>
                 </div>
               </div>
             </Link>
@@ -128,21 +128,21 @@ export function Layout({ children }: { children: ReactNode }) {
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 md:gap-2">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
-              className="no-default-hover-elevate hover:text-primary"
+              className="no-default-hover-elevate hover:text-primary h-11 w-11 active:scale-95 transition-transform"
             >
-              <Globe className="h-5 w-5" />
+              <Globe className="h-6 w-6" />
             </Button>
 
             <Link href="/cart">
-              <Button variant="ghost" size="icon" className="relative no-default-hover-elevate hover:text-primary">
-                <ShoppingBag className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="relative no-default-hover-elevate hover:text-primary h-11 w-11 active:scale-95 transition-transform">
+                <ShoppingBag className="h-6 w-6" />
                 {cartItems.length > 0 && (
-                  <span className={`absolute -top-1 ${language === 'ar' ? '-right-1' : '-left-1'} h-3.5 w-3.5 rounded-full bg-black text-[9px] font-bold text-white flex items-center justify-center`}>
+                  <span className={`absolute -top-1 ${language === 'ar' ? '-right-1' : '-left-1'} h-5 w-5 rounded-full bg-black text-[10px] font-black text-white flex items-center justify-center shadow-md`}>
                     {cartItems.length}
                   </span>
                 )}
@@ -152,13 +152,13 @@ export function Layout({ children }: { children: ReactNode }) {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-10 px-4 flex items-center gap-3 border border-black/5 hover:border-black/20 transition-all rounded-none group no-default-hover-elevate">
-                    <div className="flex flex-col items-end">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-black/40 group-hover:text-black transition-colors">{t('myAccount') || 'حسابي'}</span>
-                      <span className="text-[11px] font-bold text-black/60 truncate max-w-[100px]">{user?.name || user?.username}</span>
+                  <Button variant="ghost" className="h-11 px-2 md:px-4 flex items-center gap-2 md:gap-3 border border-black/5 hover:border-black/20 transition-all rounded-none group no-default-hover-elevate active:scale-95">
+                    <div className="hidden xs:flex flex-col items-end">
+                      <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-black/40 group-hover:text-black transition-colors">{t('myAccount') || 'حسابي'}</span>
+                      <span className="text-[10px] md:text-[11px] font-bold text-black/60 truncate max-w-[80px] md:max-w-[100px]">{user?.name || user?.username}</span>
                     </div>
-                    <div className="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-500">
-                      <User className="h-4 w-4" />
+                    <div className="w-9 h-9 rounded-full bg-black/5 flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-500 shadow-inner">
+                      <User className="h-5 w-5" />
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
