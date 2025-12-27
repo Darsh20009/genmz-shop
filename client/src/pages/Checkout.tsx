@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { MapPin, Truck, CreditCard, Building2, Apple, Landmark, Lock, Check, Wallet, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { LocationMap } from "@/components/LocationMap";
 
 export default function Checkout() {
   const { items, total, clearCart } = useCart();
@@ -29,6 +30,7 @@ export default function Checkout() {
   const [showPassword, setShowPassword] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(user?.addresses?.[0]?.id || null);
   const [showAddAddressForm, setShowAddAddressForm] = useState(false);
+  const [showMapForm, setShowMapForm] = useState(false);
   const [newAddress, setNewAddress] = useState({ street: "", city: "" });
   const [shippingCompany, setShippingCompany] = useState("storage-x");
 
@@ -289,29 +291,61 @@ export default function Checkout() {
 
                 {(showAddAddressForm || !user?.addresses || user.addresses.length === 0) && (
                   <div className="space-y-4">
-                    <Input
-                      placeholder="الشارع والرقم"
-                      value={newAddress.street}
-                      onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
-                      className="h-12 border-black/10"
-                    />
-                    <Input
-                      placeholder="المدينة"
-                      value={newAddress.city}
-                      onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
-                      className="h-12 border-black/10"
-                    />
-                    {showAddAddressForm && (
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          setShowAddAddressForm(false);
-                          setSelectedAddressId(null);
-                        }}
-                        className="w-full border-black/10"
-                      >
-                        إلغاء
-                      </Button>
+                    {!showMapForm ? (
+                      <>
+                        <Input
+                          placeholder="الشارع والرقم"
+                          value={newAddress.street}
+                          onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
+                          className="h-12 border-black/10"
+                        />
+                        <Input
+                          placeholder="المدينة"
+                          value={newAddress.city}
+                          onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+                          className="h-12 border-black/10"
+                        />
+                        <Button
+                          variant="outline"
+                          onClick={() => setShowMapForm(true)}
+                          className="w-full border-black/10"
+                        >
+                          <MapPin className="w-4 h-4 mr-2" />
+                          حدد الموقع من الخريطة
+                        </Button>
+                        {showAddAddressForm && (
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setShowAddAddressForm(false);
+                              setSelectedAddressId(null);
+                            }}
+                            className="w-full border-black/10"
+                          >
+                            إلغاء
+                          </Button>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <LocationMap
+                          onLocationSelect={(coords, address) => {
+                            setNewAddress({
+                              street: address,
+                              city: "الرياض"
+                            });
+                            setShowMapForm(false);
+                            setSelectedAddressId(null);
+                          }}
+                        />
+                        <Button
+                          variant="outline"
+                          onClick={() => setShowMapForm(false)}
+                          className="w-full border-black/10"
+                        >
+                          إغلاق الخريطة
+                        </Button>
+                      </>
                     )}
                   </div>
                 )}
