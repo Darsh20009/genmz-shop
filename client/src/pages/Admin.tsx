@@ -570,12 +570,13 @@ const ProductsTable = memo(() => {
       
       const { url } = await res.json();
       
-      if (index === null) {
-        // Main product image
-        form.setValue("images.0", url);
-      } else {
+      if (typeof index === "number" && index >= 0) {
         // Variant image
         updateVariant(index, "image", url);
+      } else {
+        // Product images - append to array
+        const currentImages = form.getValues("images") || [];
+        form.setValue("images", [...currentImages, url]);
       }
       
       toast({ title: "تم رفع الصورة بنجاح" });
@@ -586,6 +587,11 @@ const ProductsTable = memo(() => {
         variant: "destructive" 
       });
     }
+  };
+
+  const removeProductImage = (index: number) => {
+    const currentImages = form.getValues("images") || [];
+    form.setValue("images", currentImages.filter((_: any, i: number) => i !== index));
   };
 
   if (isLoading) return <Loader2 className="animate-spin" />;
@@ -639,18 +645,12 @@ const ProductsTable = memo(() => {
               </div>
 
               <div className="space-y-2 text-right">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">صورة المنتج الأساسية</Label>
-                <div className="flex gap-2">
-                  <Input 
-                    value={form.watch("images.0") || ""} 
-                    onChange={(e) => form.setValue("images.0", e.target.value)}
-                    className="rounded-none h-12 text-right flex-1"
-                    placeholder="رابط الصورة"
-                  />
+                <div className="flex justify-between items-center">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">صور المنتج</Label>
                   <div className="relative">
-                    <Button variant="outline" type="button" className="h-12 px-4 rounded-none flex gap-2 overflow-visible">
-                      <Plus className="h-4 w-4" />
-                      <span className="text-[10px] font-black uppercase">رفع</span>
+                    <Button variant="outline" type="button" className="h-8 px-3 rounded-none flex gap-1 overflow-visible text-[9px]">
+                      <Plus className="h-3 w-3" />
+                      <span className="font-black uppercase">إضافة صورة</span>
                       <input 
                         type="file" 
                         accept="image/*" 
@@ -660,7 +660,32 @@ const ProductsTable = memo(() => {
                     </Button>
                   </div>
                 </div>
-                <p className="text-[8px] text-black/40 mt-1">يرجى رفع صورة عالية الجودة للمنتج</p>
+                
+                {/* Image Gallery */}
+                <div className="grid grid-cols-6 gap-2 bg-secondary/5 p-3 border border-black/5">
+                  {(form.watch("images") || []).map((img: string, idx: number) => (
+                    <div key={idx} className="relative group">
+                      <div className="aspect-square bg-secondary/20 rounded-none overflow-hidden border border-black/5">
+                        <img src={img} alt={`صورة ${idx + 1}`} className="w-full h-full object-cover" />
+                      </div>
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => removeProductImage(idx)}
+                        className="absolute top-0 right-0 h-6 w-6 rounded-none bg-destructive/80 hover:bg-destructive text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                  {(!form.watch("images") || form.watch("images").length === 0) && (
+                    <div className="col-span-6 text-center py-8 text-black/30">
+                      <p className="text-[9px]">لم يتم رفع أي صور بعد</p>
+                    </div>
+                  )}
+                </div>
+                <p className="text-[8px] text-black/40 mt-1">يمكنك رفع عدة صور للمنتج. الصورة الأولى ستظهر في قائمة المنتجات</p>
               </div>
 
               <div className="space-y-2 text-right">
