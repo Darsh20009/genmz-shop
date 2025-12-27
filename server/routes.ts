@@ -603,6 +603,36 @@ export async function registerRoutes(
     res.json(coupon);
   });
 
+  app.get("/api/admin/users/search", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const { phone } = req.query;
+    if (!phone) return res.status(400).send("Phone number required");
+    
+    const users = await storage.getUsers();
+    const user = users.find(u => u.phone === phone || u.phone === `5${phone}` || u.phone === `05${phone}`);
+    
+    if (!user) return res.status(404).json({ message: "Customer not found" });
+    res.json(user);
+  });
+
+  app.patch("/api/pos/loyalty/:id", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const { pointsEarned, pointsUsed } = req.body;
+    
+    try {
+      const user = await storage.getUser(req.params.id);
+      if (!user) return res.status(404).send("User not found");
+      
+      const currentPoints = user.loyaltyPoints || 0;
+      const newPoints = Math.max(0, currentPoints + (pointsEarned || 0) - (pointsUsed || 0));
+      
+      await storage.updateUser(req.params.id, { loyaltyPoints: newPoints });
+      res.json({ success: true, loyaltyPoints: newPoints });
+    } catch (err: any) {
+      res.status(400).send(err.message);
+    }
+  });
+
   // Audit Logs
   app.get("/api/admin/audit-logs", async (req, res) => {
     if (!req.isAuthenticated() || (req.user as any).role !== "admin") return res.sendStatus(403);

@@ -264,6 +264,19 @@ export default function POS() {
 
   return (
     <div className="flex h-screen w-full bg-secondary/5 overflow-hidden" dir="rtl">
+      {/* Back Button */}
+      <div className="fixed bottom-4 left-4 z-50">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="rounded-none bg-white shadow-lg border-black/10 hover:bg-black hover:text-white transition-all font-black text-[10px] uppercase tracking-widest"
+          onClick={() => window.location.href = '/admin'}
+        >
+          <ChevronLeft className="ml-2 h-3 w-3" />
+          لوحة التحكم
+        </Button>
+      </div>
+
       {/* Products Section */}
       <div className="flex-1 flex flex-col p-4 gap-4 overflow-hidden">
         <header className="flex items-center gap-4 bg-white p-4 border border-black/5 shadow-sm">
@@ -350,15 +363,48 @@ export default function POS() {
                     <h3 className="text-xs font-black uppercase tracking-tight line-clamp-1">{product.name}</h3>
                     <div className="flex flex-wrap gap-1">
                       {product.variants.map(v => (
-                        <Button 
-                          key={v.sku} 
-                          variant="outline" 
-                          size="sm" 
-                          className="h-6 text-[8px] font-black rounded-none px-1.5"
-                          onClick={() => addToCart(product, v.sku)}
-                        >
-                          {v.size} / {v.color}
-                        </Button>
+                        <div key={v.sku} className="flex gap-1 items-center">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-6 text-[8px] font-black rounded-none px-1.5"
+                            onClick={() => addToCart(product, v.sku)}
+                          >
+                            {v.size} / {v.color}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 rounded-none opacity-40 hover:opacity-100"
+                            onClick={() => {
+                              const printWindow = window.open('', '', 'height=200,width=400');
+                              if (printWindow) {
+                                printWindow.document.write(`
+                                  <html>
+                                    <body style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; font-family:Arial;">
+                                      <div style="font-weight:bold; margin-bottom:5px;">${product.name}</div>
+                                      <div style="font-size:12px; margin-bottom:10px;">${v.color} - ${v.size}</div>
+                                      <svg id="barcode"></svg>
+                                      <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+                                      <script>
+                                        JsBarcode("#barcode", "${v.sku}", {
+                                          format: "CODE128",
+                                          width: 2,
+                                          height: 50,
+                                          displayValue: true
+                                        });
+                                        setTimeout(() => window.print(), 500);
+                                      </script>
+                                    </body>
+                                  </html>
+                                `);
+                                printWindow.document.close();
+                              }
+                            }}
+                          >
+                            <Barcode className="h-3 w-3" />
+                          </Button>
+                        </div>
                       ))}
                     </div>
                     <p className="text-sm font-black">{product.price} SAR</p>
