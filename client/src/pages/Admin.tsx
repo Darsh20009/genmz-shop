@@ -2019,26 +2019,39 @@ const MarketingManagement = () => {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const formData = new FormData();
-    formData.append("file", file);
+    const formDataToSend = new FormData();
+    formDataToSend.append("file", file);
     try {
-      const res = await apiRequest("POST", "/api/upload", formData);
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formDataToSend,
+        credentials: "include"
+      });
+      if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
       setFormData(prev => ({ ...prev, image: data.url }));
       toast({ title: "تم رفع الصورة" });
     } catch (err) {
+      console.error("Upload error:", err);
       toast({ variant: "destructive", title: "فشل الرفع" });
     }
   };
 
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
+      if (!data.title || !data.image) {
+        throw new Error("العنوان والصورة مطلوبة");
+      }
       await apiRequest("POST", "/api/admin/marketing", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/marketing"] });
       toast({ title: "تمت إضافة العنصر التسويقي بنجاح" });
+      setFormData({ title: "", image: "", link: "", type: "banner", isActive: true });
       setOpen(false);
+    },
+    onError: (err: any) => {
+      toast({ variant: "destructive", title: err.message || "فشل حفظ العنصر" });
     }
   });
 
