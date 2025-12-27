@@ -111,56 +111,79 @@ const StatsCards = memo(() => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <Card className="border-black/5 bg-white shadow-xl p-6 overflow-hidden relative group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl transition-all duration-500 group-hover:bg-primary/10" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/10 rounded-full -ml-12 -mb-12 blur-2xl transition-all duration-500 group-hover:bg-primary/20" />
+        <Card className="border-black/5 bg-[#0a0a0a] shadow-2xl p-6 overflow-hidden relative group min-h-[400px] flex flex-col justify-between">
+          {/* Animated Background Elements */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full -mr-32 -mt-32 blur-[100px] animate-pulse duration-[4000ms]" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-primary/10 rounded-full -ml-24 -mb-24 blur-[80px] animate-pulse duration-[3000ms]" />
+          <div className="absolute top-1/2 left-1/2 w-full h-full -translate-x-1/2 -translate-y-1/2 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] pointer-events-none" />
           
           <CardHeader className="px-0 pt-0 flex flex-row items-center justify-between mb-8 relative z-10">
             <div className="space-y-1">
-              <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
-                <div className="w-1.5 h-6 bg-primary rounded-full animate-pulse" />
-                أكثر المنتجات مبيعاً
-              </CardTitle>
-              <p className="text-[10px] text-black/40 font-bold uppercase tracking-wider mr-3">تحليل أداء المنتجات</p>
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <div className="w-2 h-8 bg-primary rounded-full animate-bounce" />
+                  <div className="absolute inset-0 bg-primary blur-md opacity-50 animate-pulse" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg font-black uppercase tracking-[0.2em] text-white">
+                    الأكثر مبيعاً
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <span className="h-[1px] w-8 bg-primary/50" />
+                    <p className="text-[10px] text-primary/80 font-black uppercase tracking-widest italic">Hall of Fame</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="bg-secondary/30 p-2 rounded-xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12">
-              <TrendingUp className="w-4 h-4 text-primary" />
+            <div className="bg-white/10 backdrop-blur-xl p-3 rounded-2xl border border-white/10 transition-all duration-500 group-hover:scale-125 group-hover:rotate-[360deg] shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+              <TrendingUp className="w-5 h-5 text-primary" />
             </div>
           </CardHeader>
 
-          <div className="h-[300px] w-full relative z-10">
+          <div className="h-[280px] w-full relative z-10 mt-auto">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats?.topProducts || []} layout="vertical" margin={{ left: 10, right: 30 }}>
                 <defs>
                   <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#000" />
-                    <stop offset="100%" stopColor="#333" />
+                    <stop offset="0%" stopColor="#fff" />
+                    <stop offset="100%" stopColor="#888" />
                   </linearGradient>
                   <linearGradient id="barGradientSecondary" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#888" />
-                    <stop offset="100%" stopColor="#bbb" />
+                    <stop offset="0%" stopColor="#444" />
+                    <stop offset="100%" stopColor="#222" />
                   </linearGradient>
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                    <feMerge>
+                      <feMergeNode in="coloredBlur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f5f5f5" />
+                <CartesianGrid strokeDasharray="0" horizontal={false} vertical={false} />
                 <XAxis type="number" hide />
                 <YAxis 
                   dataKey="name" 
                   type="category" 
-                  tick={{ fontSize: 11, fontWeight: '900', fill: '#1a1a1a' }} 
-                  width={60}
+                  tick={{ fontSize: 12, fontWeight: '900', fill: '#fff', textShadow: '0 0 10px rgba(255,255,255,0.3)' }} 
+                  width={70}
                   axisLine={false}
                   tickLine={false}
                 />
                 <Tooltip 
-                  cursor={{ fill: 'rgba(0,0,0,0.02)' }}
+                  cursor={{ fill: 'rgba(255,255,255,0.05)', radius: 10 }}
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       return (
-                        <div className="bg-white/80 backdrop-blur-md p-3 border border-black/5 shadow-2xl rounded-2xl animate-in fade-in zoom-in duration-200">
-                          <p className="text-[10px] font-black uppercase mb-1">{payload[0].payload.name}</p>
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg font-black">{payload[0].value}</span>
-                            <span className="text-[10px] text-black/40 font-bold uppercase">مبيعة</span>
+                        <div className="bg-black/90 backdrop-blur-2xl p-4 border border-white/20 shadow-[0_0_40px_rgba(0,0,0,0.5)] rounded-3xl animate-in fade-in zoom-in duration-300 ring-1 ring-white/10">
+                          <p className="text-[10px] font-black uppercase mb-2 text-primary tracking-widest">{payload[0].payload.name}</p>
+                          <div className="flex items-end gap-3">
+                            <span className="text-3xl font-black text-white leading-none">{payload[0].value}</span>
+                            <span className="text-[10px] text-white/40 font-bold uppercase mb-1">Units Sold</span>
+                          </div>
+                          <div className="mt-3 pt-3 border-t border-white/10 flex items-center gap-2">
+                            <div className="w-1 h-1 rounded-full bg-green-500 animate-ping" />
+                            <span className="text-[8px] font-bold text-green-500 uppercase tracking-tighter">Live Trending</span>
                           </div>
                         </div>
                       );
@@ -168,18 +191,21 @@ const StatsCards = memo(() => {
                     return null;
                   }}
                 />
-                <Bar dataKey="quantity" radius={[0, 12, 12, 0]} barSize={32}>
+                <Bar dataKey="quantity" radius={[0, 20, 20, 0]} barSize={40} filter="url(#glow)">
                   {(stats?.topProducts || []).map((_entry: any, index: number) => (
                     <Cell 
                       key={`cell-${index}`} 
                       fill={index === 0 ? "url(#barGradient)" : "url(#barGradientSecondary)"} 
-                      className="transition-all duration-300 hover:opacity-80"
+                      className="transition-all duration-700 hover:opacity-100 opacity-90 cursor-pointer"
                     />
                   ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
+          
+          {/* Bottom decorative bar */}
+          <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-30" />
         </Card>
 
         <Card className="border-black/5 bg-white shadow-sm p-6">
