@@ -68,7 +68,7 @@ export default function Checkout() {
   const cashbackAmount = calculateCashback();
   const subtotal = total();
   const tax = subtotal * 0.15;
-  const shipping = 25;
+  const shipping = 20;
   const finalTotal = subtotal + tax + shipping - discountAmount;
 
   const handleCheckoutInitiate = () => {
@@ -124,6 +124,7 @@ export default function Checkout() {
         vatAmount: tax.toFixed(2),
         shippingCost: shipping.toFixed(2),
         discountAmount: discountAmount.toFixed(2),
+        cashbackAmount: cashbackAmount.toFixed(2),
         couponCode: appliedCoupon?.code || null,
         tapCommission: (finalTotal * 0.02).toFixed(2),
         netProfit: (finalTotal * 0.1).toFixed(2),
@@ -145,8 +146,19 @@ export default function Checkout() {
       const order = await res.json();
 
       if (paymentMethod === "wallet") {
-        const newBalance = (Number(user!.walletBalance) - finalTotal).toString();
-        await apiRequest("PATCH", "/api/user/wallet", { balance: newBalance });
+        let newBalance = (Number(user!.walletBalance) - finalTotal);
+        
+        // Add cashback if applicable
+        if (cashbackAmount > 0) {
+          newBalance += cashbackAmount;
+          await apiRequest("POST", "/api/wallet/transaction", {
+            amount: cashbackAmount,
+            type: "cashback",
+            description: `كاش باك من الطلب #${order.id.slice(-8).toUpperCase()}`
+          });
+        }
+        
+        await apiRequest("PATCH", "/api/user/wallet", { balance: newBalance.toString() });
         await apiRequest("POST", "/api/wallet/transaction", {
           amount: -finalTotal,
           type: "payment",
@@ -154,16 +166,21 @@ export default function Checkout() {
         });
       }
 
-      // Auto-create shipment with Storage Station
+      // Auto-create shipment with Storage X
       await apiRequest("POST", "/api/shipping/storage-station/create", { orderId: order.id });
 
       queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       clearCart();
       
+      let toastMessage = "سيتم التوصيل عبر Storage X قريباً";
+      if (cashbackAmount > 0) {
+        toastMessage = `تم إضافة ${cashbackAmount.toLocaleString()} ر.س كاش باك إلى محفظتك! ${toastMessage}`;
+      }
+      
       toast({
         title: "تم استلام طلبك بنجاح",
-        description: "سيتم التوصيل عبر Storage Station قريباً",
+        description: toastMessage,
       });
       setLocation("/orders");
     } catch (error: any) {
@@ -220,11 +237,18 @@ export default function Checkout() {
                 </div>
                 
                 <div className="p-6 bg-black/[0.02] border border-black/5 space-y-4">
-                  <div className="flex items-center gap-4 text-primary">
-                    <MapPin className="h-5 w-5" />
-                    <span className="font-black text-sm">الرياض، المملكة العربية السعودية</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4 text-primary">
+                      <MapPin className="h-5 w-5" />
+                      <span className="font-black text-sm">الرياض، المملكة العربية السعودية</span>
+                    </div>
+                    <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-1">20 ر.س</span>
                   </div>
-                  <p className="text-[10px] text-black/40 font-bold uppercase tracking-widest">التوصيل خلال ٢-٤ أيام عمل عبر Storage Station</p>
+                  <div className="flex items-center gap-2 pt-2">
+                    <span className="text-[10px] text-black/40 font-bold uppercase tracking-widest">التوصيل عبر</span>
+                    <span className="font-black text-primary text-sm">Storage X</span>
+                  </div>
+                  <p className="text-[10px] text-black/40 font-bold uppercase tracking-widest">التوصيل خلال ٢-٤ أيام عمل</p>
                 </div>
               </section>
 
