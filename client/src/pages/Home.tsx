@@ -68,19 +68,19 @@ export default function Home() {
       {/* Image Carousel Section */}
       <section className="relative py-8 sm:py-12 md:py-20 lg:py-32 bg-white overflow-hidden">
         <div className="container px-3 sm:px-4">
-          <div className="relative w-full max-w-2xl mx-auto">
+          <div className="relative w-full max-w-2xl mx-auto aspect-video">
             <motion.div
               key={currentImageIndex}
               initial={{ x: 100, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -100, opacity: 0 }}
               transition={{ duration: 0.8, ease: "easeInOut" }}
-              className="bg-gray-100 rounded-lg overflow-hidden"
+              className="bg-gray-100 rounded-lg overflow-hidden absolute inset-0"
             >
               <img 
                 src={heroImages[currentImageIndex]} 
                 alt={`Hero ${currentImageIndex + 1}`}
-                className="w-full h-auto object-contain"
+                className="w-full h-full object-contain"
               />
             </motion.div>
           </div>
