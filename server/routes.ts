@@ -335,6 +335,16 @@ export async function registerRoutes(
     });
   });
 
+  app.post("/api/admin/check-phone", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const { phone } = req.body;
+    if (!phone) return res.status(400).json({ message: "رقم الهاتف مطلوب" });
+    
+    const users = await storage.getUsers();
+    const exists = users.some(u => u.phone === phone);
+    res.json({ exists });
+  });
+
   app.get("/api/admin/users", checkPermission("staff.manage"), async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     const users = await storage.getUsers();

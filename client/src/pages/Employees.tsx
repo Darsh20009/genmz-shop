@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Trash2, UserPlus, Shield } from "lucide-react";
+import { Loader2, Plus, Trash2, UserPlus, Shield, ArrowRight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
@@ -15,19 +15,41 @@ import { useState } from "react";
 export default function Employees() {
   const { toast } = useToast();
   const [isAdding, setIsAdding] = useState(false);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [employeeExists, setEmployeeExists] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
+    email: "",
     password: "",
     role: "employee",
     permissions: ["orders"]
   });
+  const [checkingPhone, setCheckingPhone] = useState(false);
 
   const { data: users, isLoading } = useQuery({
     queryKey: ["/api/admin/users"],
   });
 
   const employees = Array.isArray(users) ? users.filter((u: any) => u.role !== "customer") : [];
+
+  const checkPhoneMutation = useMutation({
+    mutationFn: async (phone: string) => {
+      const res = await apiRequest("POST", "/api/admin/check-phone", { phone });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      setEmployeeExists(data.exists);
+      if (data.exists) {
+        toast({ title: "موظف موجود", description: "رقم الموظف مسجل بالفعل في النظام" });
+      } else {
+        setStep(2);
+      }
+    },
+    onError: () => {
+      toast({ title: "خطأ", description: "حدث خطأ في التحقق من رقم الموظف" });
+    }
+  });
 
   const mutation = useMutation({
     mutationFn: async (data: any) => {
@@ -36,8 +58,11 @@ export default function Employees() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
-      toast({ title: "تم إضافة الموظف بنجاح" });
+      toast({ title: "تم النجاح", description: "تم إضافة الموظف بنجاح" });
       setIsAdding(false);
+      setStep(1);
+      setFormData({ name: "", phone: "", email: "", password: "", role: "employee", permissions: ["orders"] });
+      setEmployeeExists(false);
     },
   });
 
@@ -65,7 +90,14 @@ export default function Employees() {
           <p className="text-muted-foreground text-sm">إضافة وتعديل صلاحيات فريق العمل</p>
         </div>
         
-        <Dialog open={isAdding} onOpenChange={setIsAdding}>
+        <Dialog open={isAdding} onOpenChange={(open) => {
+          setIsAdding(open);
+          if (!open) {
+            setStep(1);
+            setFormData({ name: "", phone: "", email: "", password: "", role: "employee", permissions: ["orders"] });
+            setEmployeeExists(false);
+          }
+        }}>
           <DialogTrigger asChild>
             <Button className="rounded-xl gap-2">
               <UserPlus className="w-4 h-4" />
@@ -74,37 +106,108 @@ export default function Employees() {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle className="text-right">إضافة موظف جديد</DialogTitle>
+              <DialogTitle className="text-right">
+                {step === 1 ? "تحقق من رقم الموظف" : step === 2 ? "أدخل بيانات الموظف" : "أنشئ بيانات الدخول"}
+              </DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4" dir="rtl">
-              <div className="space-y-2 text-right">
-                <Label>الاسم الكامل</Label>
-                <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="مثال: أحمد محمد" />
-              </div>
-              <div className="space-y-2 text-right">
-                <Label>رقم الهاتف (اسم المستخدم)</Label>
-                <Input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="05xxxxxxxx" />
-              </div>
-              <div className="space-y-2 text-right">
-                <Label>كلمة المرور</Label>
-                <Input type="password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
-              </div>
-              <div className="space-y-2 text-right">
-                <Label>الدور الوظيفي</Label>
-                <Select value={formData.role} onValueChange={v => setFormData({...formData, role: v})}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="employee">موظف</SelectItem>
-                    <SelectItem value="support">دعم فني</SelectItem>
-                    <SelectItem value="admin">مدير نظام</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button className="w-full mt-4" onClick={() => mutation.mutate(formData)} disabled={mutation.isPending}>
-                {mutation.isPending ? <Loader2 className="animate-spin" /> : "حفظ الموظف"}
-              </Button>
+              {step === 1 && (
+                <>
+                  <p className="text-sm text-muted-foreground text-right">أدخل رقم هاتف الموظف للتحقق من وجوده في النظام</p>
+                  <div className="space-y-2 text-right">
+                    <Label>رقم الموظف (رقم الهاتف)</Label>
+                    <Input 
+                      value={formData.phone} 
+                      onChange={e => setFormData({...formData, phone: e.target.value})} 
+                      placeholder="05xxxxxxxx" 
+                      disabled={checkPhoneMutation.isPending}
+                    />
+                  </div>
+                  <Button 
+                    className="w-full mt-4 gap-2" 
+                    onClick={() => checkPhoneMutation.mutate(formData.phone)} 
+                    disabled={checkPhoneMutation.isPending || !formData.phone}
+                  >
+                    {checkPhoneMutation.isPending ? <Loader2 className="animate-spin" /> : <>
+                      تحقق <ArrowRight className="w-4 h-4" />
+                    </>}
+                  </Button>
+                </>
+              )}
+
+              {step === 2 && !employeeExists && (
+                <>
+                  <p className="text-sm text-muted-foreground text-right">موظف جديد - أدخل البيانات الأساسية</p>
+                  <div className="space-y-2 text-right">
+                    <Label>الاسم الكامل</Label>
+                    <Input 
+                      value={formData.name} 
+                      onChange={e => setFormData({...formData, name: e.target.value})} 
+                      placeholder="مثال: أحمد محمد" 
+                    />
+                  </div>
+                  <Button 
+                    className="w-full mt-4 gap-2" 
+                    onClick={() => {
+                      if (formData.name.trim()) {
+                        setStep(3);
+                      } else {
+                        toast({ title: "خطأ", description: "الرجاء إدخال الاسم الكامل" });
+                      }
+                    }}
+                  >
+                    التالي <ArrowRight className="w-4 h-4" />
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className="w-full mt-2"
+                    onClick={() => {
+                      setStep(1);
+                      setFormData({ name: "", phone: "", email: "", password: "", role: "employee", permissions: ["orders"] });
+                    }}
+                  >
+                    رجوع
+                  </Button>
+                </>
+              )}
+
+              {step === 3 && (
+                <>
+                  <p className="text-sm text-muted-foreground text-right">أنشئ بيانات الدخول للموظف</p>
+                  <div className="space-y-2 text-right">
+                    <Label>البريد الإلكتروني</Label>
+                    <Input 
+                      type="email"
+                      value={formData.email} 
+                      onChange={e => setFormData({...formData, email: e.target.value})} 
+                      placeholder="example@email.com" 
+                    />
+                  </div>
+                  <div className="space-y-2 text-right">
+                    <Label>كلمة المرور</Label>
+                    <Input 
+                      type="password" 
+                      value={formData.password} 
+                      onChange={e => setFormData({...formData, password: e.target.value})} 
+                      placeholder="••••••••"
+                    />
+                  </div>
+                  <Button 
+                    className="w-full mt-4 gap-2" 
+                    onClick={() => mutation.mutate(formData)} 
+                    disabled={mutation.isPending || !formData.email || !formData.password}
+                  >
+                    {mutation.isPending ? <Loader2 className="animate-spin" /> : "حفظ الموظف"}
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className="w-full mt-2"
+                    onClick={() => setStep(2)}
+                  >
+                    رجوع
+                  </Button>
+                </>
+              )}
             </div>
           </DialogContent>
         </Dialog>
