@@ -24,11 +24,8 @@ export default function ProductDetails() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // Collect all unique images (product images + variant images)
-  const allImages = Array.from(new Set([
-    ...(product?.images || []),
-    ...(product?.variants?.map((v: any) => v.image).filter(Boolean) || [])
-  ]));
+  // Collect all unique images (product images only, excluding variant images as per request)
+  const allImages = product?.images || [];
 
   // Auto-rotate images every 2 seconds
   useEffect(() => {
