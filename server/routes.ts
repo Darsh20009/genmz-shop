@@ -389,6 +389,25 @@ export async function registerRoutes(
     }
   });
 
+  app.patch("/api/admin/users/:id", checkPermission("staff.manage"), async (req, res) => {
+    const { name, email } = req.body;
+    try {
+      const user = await storage.updateUser(req.params.id, { name, email });
+      
+      await storage.createActivityLog({
+        employeeId: (req.user as any).id,
+        action: "staff_update",
+        targetType: "user",
+        targetId: req.params.id,
+        details: `تم تحديث بيانات الموظف: ${name || ''} ${email || ''}`
+      });
+
+      res.json(user);
+    } catch (err: any) {
+      res.status(400).send(err.message);
+    }
+  });
+
   app.patch("/api/admin/users/:id/status", checkPermission("staff.manage"), async (req, res) => {
     const { isActive } = req.body;
     try {

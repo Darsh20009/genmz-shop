@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Trash2, UserPlus, Shield, ArrowRight } from "lucide-react";
+import { Loader2, Plus, Trash2, UserPlus, Shield, ArrowRight, Edit2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
@@ -15,6 +15,8 @@ import { useState } from "react";
 export default function Employees() {
   const { toast } = useToast();
   const [isAdding, setIsAdding] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingEmployee, setEditingEmployee] = useState<any>(null);
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [employeeExists, setEmployeeExists] = useState(false);
   const [formData, setFormData] = useState({
@@ -80,6 +82,37 @@ export default function Employees() {
       setDepositData({ userId: "", amount: "", description: "" });
       setIsDepositing(false);
     },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const res = await apiRequest("PATCH", `/api/admin/users/${editingEmployee.id}`, data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "تم التحديث بنجاح" });
+      setIsEditing(false);
+      setEditingEmployee(null);
+      setFormData({ name: "", phone: "", email: "", password: "", role: "employee", permissions: ["orders"] });
+    },
+    onError: () => {
+      toast({ title: "خطأ", description: "حدث خطأ في تحديث الموظف" });
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiRequest("DELETE", `/api/admin/users/${id}`, {});
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "تم الحذف بنجاح" });
+    },
+    onError: () => {
+      toast({ title: "خطأ", description: "حدث خطأ في حذف الموظف" });
+    }
   });
 
   return (
@@ -154,6 +187,25 @@ export default function Employees() {
                       onChange={e => setFormData({...formData, name: e.target.value})} 
                       placeholder="مثال: أحمد محمد" 
                     />
+                  </div>
+                  <div className="space-y-2 text-right">
+                    <Label>رقم الموظف</Label>
+                    <div dir="ltr" className="flex items-center gap-2 h-10 bg-white border border-black/10 px-3 rounded-md">
+                      <span className="text-sm font-bold text-black/40 border-r border-black/10 pr-2">+966</span>
+                      <input
+                        type="text"
+                        className="flex-1 h-full bg-transparent border-none focus:outline-none text-sm font-bold tracking-widest"
+                        placeholder="5x xxx xxxx"
+                        maxLength={9}
+                        value={formData.phone.replace(/(\d{2})(\d{3})(\d{4})/, "$1 $2 $3").trim()}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, "");
+                          if (val.length <= 9 && (val.length === 0 || val.startsWith("5"))) {
+                            setFormData({...formData, phone: val});
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                   <Button 
                     className="w-full mt-4 gap-2" 
@@ -251,7 +303,7 @@ export default function Employees() {
                 </div>
               </div>
               
-              <div className="mt-6 pt-4 border-t flex justify-between items-center">
+              <div className="mt-6 pt-4 border-t flex gap-2 items-center flex-wrap">
                 <Dialog open={isDepositing && depositData.userId === emp.id} onOpenChange={(open) => {
                   setIsDepositing(open);
                   if (open) setDepositData({ ...depositData, userId: emp.id });
@@ -282,7 +334,44 @@ export default function Employees() {
                   </DialogContent>
                 </Dialog>
 
-                <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/5 rounded-lg h-8 px-3">
+                <Dialog open={isEditing && editingEmployee?.id === emp.id} onOpenChange={(open) => {
+                  if (open) {
+                    setEditingEmployee(emp);
+                    setFormData({ name: emp.name, phone: emp.phone.replace(/\D/g, '').slice(-9), email: emp.email, password: "", role: emp.role, permissions: emp.permissions || ["orders"] });
+                  }
+                  setIsEditing(open);
+                }}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-8 rounded-lg text-[10px] gap-1">
+                      <Edit2 className="w-3 h-3" />
+                      تعديل
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle className="text-right">تعديل بيانات {emp.name}</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4 text-right" dir="rtl">
+                      <div className="space-y-2">
+                        <Label>الاسم الكامل</Label>
+                        <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>البريد الإلكتروني</Label>
+                        <Input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                      </div>
+                      <Button className="w-full" onClick={() => updateMutation.mutate({name: formData.name, email: formData.email})} disabled={updateMutation.isPending}>
+                        {updateMutation.isPending ? <Loader2 className="animate-spin" /> : "حفظ التعديلات"}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/5 rounded-lg h-8 px-3" onClick={() => {
+                  if (confirm(`هل تأكد من حذف ${emp.name}؟`)) {
+                    deleteMutation.mutate(emp.id);
+                  }
+                }} disabled={deleteMutation.isPending}>
                   <Trash2 className="w-4 h-4 ml-1" />
                   حذف
                 </Button>
