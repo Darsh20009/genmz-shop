@@ -3,131 +3,158 @@ import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@shared/routes";
 import { useLocation } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ShoppingBag, Package, MapPin, CreditCard, ChevronDown, ChevronUp, Clock } from "lucide-react";
+import { Loader2, ShoppingBag, Package, MapPin, CreditCard, ChevronRight, Clock, Truck, CheckCircle, Hash, Calendar, Wallet } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from "framer-motion";
 
-const StatusBadge = ({ status }: { status: string }) => {
-  const statusMap: Record<string, { label: string, variant: "default" | "secondary" | "outline" | "destructive" }> = {
-    new: { label: "جديد", variant: "default" },
-    processing: { label: "قيد المعالجة", variant: "secondary" },
-    shipped: { label: "تم الشحن", variant: "outline" },
-    completed: { label: "مكتمل", variant: "default" },
-    cancelled: { label: "ملغي", variant: "destructive" },
-  };
-  const config = statusMap[status] || { label: status, variant: "outline" };
-  return <Badge variant={config.variant}>{config.label}</Badge>;
+const statusConfig: Record<string, { icon: any, color: string, label: string, bg: string, border: string }> = {
+  new: { icon: Clock, color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100", label: "طلب جديد" },
+  pending: { icon: Clock, color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100", label: "قيد الانتظار" },
+  processing: { icon: Package, color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100", label: "قيد المعالجة" },
+  shipped: { icon: Truck, color: "text-purple-600", bg: "bg-purple-50", border: "border-purple-100", label: "تم الشحن" },
+  completed: { icon: CheckCircle, color: "text-green-600", bg: "bg-green-50", border: "border-green-100", label: "مكتمل" },
+  delivered: { icon: CheckCircle, color: "text-green-600", bg: "bg-green-50", border: "border-green-100", label: "تم التوصيل" },
+  cancelled: { icon: ShoppingBag, color: "text-red-600", bg: "bg-red-50", border: "border-red-100", label: "ملغي" },
 };
 
 const OrderCard = ({ order }: { order: any }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const status = statusConfig[order.status] || statusConfig.pending;
+  const StatusIcon = status.icon;
 
   return (
-    <Card className="overflow-hidden border-black/5 hover-elevate transition-all duration-300">
-      <CardHeader className="bg-secondary/30 pb-4">
-        <div className="flex flex-wrap justify-between items-center gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-white rounded-lg shadow-sm">
-              <Package className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <CardTitle className="text-sm font-black">طلب #{order.id.slice(-6).toUpperCase()}</CardTitle>
-              <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-bold mt-1">
-                <Clock className="h-3 w-3" />
-                {new Date(order.createdAt).toLocaleDateString("ar-SA", { year: 'numeric', month: 'long', day: 'numeric' })}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <Card className="overflow-hidden border-black/5 hover:border-black/10 transition-all group rounded-[2.5rem] shadow-sm hover:shadow-2xl bg-white mb-8 border">
+        <CardContent className="p-0">
+          <div className="flex flex-col lg:flex-row">
+            {/* Status Side Panel */}
+            <div className={`lg:w-56 ${status.bg} p-8 flex flex-col items-center justify-center text-center gap-4 border-b lg:border-b-0 lg:border-l ${status.border}`}>
+              <motion.div 
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                className={`w-20 h-20 rounded-3xl bg-white shadow-xl flex items-center justify-center ${status.color} border-2 ${status.border}`}
+              >
+                <StatusIcon className="h-10 w-10" />
+              </motion.div>
+              <div className="space-y-1">
+                <span className={`text-[10px] font-black uppercase tracking-widest ${status.color} opacity-40`}>حالة الطلب</span>
+                <p className={`font-black text-lg uppercase tracking-tight ${status.color}`}>{status.label}</p>
               </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <StatusBadge status={order.status} />
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-8 w-8 rounded-full"
-              onClick={() => setIsExpanded(!isExpanded)}
-            >
-              {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-            </Button>
-          </div>
-        </div>
-      </CardHeader>
-      
-      <CardContent className="pt-6 space-y-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="space-y-1">
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1">
-              <CreditCard className="h-3 w-3" /> الإجمالي
-            </p>
-            <p className="font-black text-lg">{order.total} <span className="text-xs">ر.س</span></p>
-          </div>
-          
-          <div className="space-y-1">
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1">
-              <CreditCard className="h-3 w-3" /> الدفع
-            </p>
-            <p className="font-bold text-sm">
-              {order.paymentMethod === 'cod' ? 'عند الاستلام' : 
-               order.paymentMethod === 'bank_transfer' ? 'تحويل بنكي' : 
-               order.paymentMethod === 'apple_pay' ? 'Apple Pay' : 'بطاقة ائتمان'}
-            </p>
-            <Badge variant="outline" className="text-[9px] h-4 px-1 opacity-70">
-              {order.paymentStatus === 'paid' ? 'تم الدفع' : 'بانتظار الدفع'}
-            </Badge>
-          </div>
 
-          <div className="space-y-1">
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1">
-              <MapPin className="h-3 w-3" /> الاستلام
-            </p>
-            <p className="font-bold text-sm">{order.shippingMethod === 'pickup' ? 'استلام فرع' : 'توصيل منزلي'}</p>
-            {order.pickupBranch && <p className="text-[10px] text-muted-foreground truncate">{order.pickupBranch}</p>}
-          </div>
-
-          <div className="space-y-1">
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">التحديث</p>
-            <p className="text-[10px] font-bold text-muted-foreground">
-              {new Date(order.createdAt).toLocaleTimeString("ar-SA", { hour: '2-digit', minute: '2-digit' })}
-            </p>
-          </div>
-        </div>
-
-        {isExpanded && (
-          <div className="pt-6 border-t border-dashed animate-in fade-in slide-in-from-top-2 duration-300">
-            <div className="space-y-4">
-              <h4 className="text-xs font-black uppercase tracking-widest text-muted-foreground">محتويات الطلب</h4>
-              <div className="space-y-3">
-                {order.items.map((item: any, idx: number) => (
-                  <div key={idx} className="flex justify-between items-center p-3 bg-secondary/20 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center font-bold text-xs shadow-sm">
-                        x{item.quantity}
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold">{item.title}</p>
-                        <p className="text-[10px] text-muted-foreground">SKU: {item.variantSku}</p>
-                      </div>
-                    </div>
-                    <p className="font-black text-sm">{item.price * item.quantity} <span className="text-[10px]">ر.س</span></p>
+            {/* Main Content Area */}
+            <div className="flex-1 p-8 lg:p-10 space-y-8">
+              <div className="flex flex-wrap items-start justify-between gap-6">
+                <div className="flex items-center gap-5">
+                  <div className="bg-black/5 p-4 rounded-3xl group-hover:bg-black/10 transition-colors">
+                    <Hash className="h-6 w-6 text-black/30" />
                   </div>
-                ))}
-              </div>
-              
-              {order.shippingAddress && (
-                <div className="mt-6 p-4 bg-primary/5 rounded-xl border border-primary/10">
-                  <h4 className="text-xs font-black uppercase tracking-widest text-primary mb-2 flex items-center gap-2">
-                    <MapPin className="h-3 w-3" /> عنوان التوصيل
-                  </h4>
-                  <p className="text-sm font-bold">{order.shippingAddress.city}, {order.shippingAddress.street}</p>
-                  <p className="text-[10px] text-muted-foreground">{order.shippingAddress.country || 'المملكة العربية السعودية'}</p>
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30">رقم المرجع</span>
+                    <p className="font-black text-xl tracking-tight">#{order.id.slice(-6).toUpperCase()}</p>
+                  </div>
                 </div>
-              )}
+                
+                <div className="flex items-center gap-5">
+                  <div className="bg-black/5 p-4 rounded-3xl">
+                    <Calendar className="h-6 w-6 text-black/30" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30">تاريخ الطلب</span>
+                    <p className="font-bold text-base text-black/70">
+                      {new Date(order.createdAt).toLocaleDateString("ar-SA", { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-black/5">
+                <div className="flex items-center gap-5">
+                  <div className="bg-primary/5 p-4 rounded-3xl">
+                    <Wallet className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30">إجمالي المبلغ</span>
+                    <div className="flex items-baseline gap-1">
+                      <p className="font-black text-3xl text-primary">{order.total}</p>
+                      <span className="text-xs font-black text-black/20 uppercase">ر.س</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-3">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="rounded-full px-8 h-14 font-black uppercase tracking-widest text-[11px] border-black/5 hover:bg-black hover:text-white transition-all shadow-sm active:scale-95"
+                  >
+                    {isExpanded ? "إخفاء التفاصيل" : "عرض المحتويات"}
+                    <ChevronRight className={`mr-2 h-4 w-4 transition-transform duration-500 ${isExpanded ? 'rotate-90' : 'group-hover:translate-x-1'}`} />
+                  </Button>
+                </div>
+              </div>
+
+              <AnimatePresence>
+                {isExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pt-8 space-y-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="h-[2px] w-8 bg-black/10" />
+                        <h4 className="text-[11px] font-black uppercase tracking-[0.3em] text-black/30">محتويات الشحنة</h4>
+                      </div>
+                      
+                      <div className="grid gap-4">
+                        {order.items.map((item: any, idx: number) => (
+                          <div key={idx} className="flex justify-between items-center p-5 bg-black/[0.02] rounded-[1.5rem] border border-black/[0.03] hover:bg-black/[0.04] transition-colors">
+                            <div className="flex items-center gap-5">
+                              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center font-black text-sm shadow-sm border border-black/5">
+                                <span className="text-black/30 ml-1">x</span>{item.quantity}
+                              </div>
+                              <div>
+                                <p className="font-black text-base text-black/80">{item.title}</p>
+                                <p className="text-[10px] font-bold text-black/30 tracking-widest uppercase">SKU: {item.variantSku}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-black text-lg">{item.price * item.quantity} <span className="text-[10px] text-black/20">ر.س</span></p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {order.shippingAddress && (
+                        <div className="mt-8 p-6 bg-primary/[0.03] rounded-[2rem] border border-primary/10 flex items-start gap-5">
+                          <div className="bg-white p-3 rounded-2xl shadow-sm text-primary">
+                            <MapPin className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">عنوان التوصيل</h4>
+                            <p className="font-bold text-sm text-black/70 leading-relaxed">
+                              {order.shippingAddress.city}, {order.shippingAddress.street}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 
@@ -135,23 +162,23 @@ export default function Orders() {
   const { user, isLoading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
 
-  const { data: orders, isLoading, error } = useQuery({
+  const { data: orders, isLoading } = useQuery({
     queryKey: [api.orders.my.path],
     queryFn: async () => {
       const res = await fetch(api.orders.my.path);
       if (!res.ok) throw new Error("Failed to fetch orders");
-      const data = await res.json();
-      console.log("Orders fetched:", data);
-      return data;
+      return await res.json();
     },
     enabled: !!user,
   });
 
-  if (error) {
-    console.error("Orders query error:", error);
-  }
-
-  if (authLoading) return <Layout><div className="container py-24 text-center"><Loader2 className="animate-spin mx-auto text-primary" /></div></Layout>;
+  if (authLoading) return (
+    <Layout>
+      <div className="container py-24 text-center">
+        <Loader2 className="animate-spin mx-auto text-primary h-12 w-12 opacity-20" />
+      </div>
+    </Layout>
+  );
 
   if (!user) {
     setLocation("/login");
@@ -160,31 +187,50 @@ export default function Orders() {
 
   return (
     <Layout>
-      <div className="container py-12 px-4 max-w-4xl mx-auto">
-        <header className="mb-12">
-          <h1 className="font-black text-4xl uppercase tracking-tighter mb-2">طلباتي</h1>
-          <p className="text-muted-foreground font-bold text-sm uppercase tracking-widest">تتبع وإدارة مشترياتك في متجر M&Z</p>
+      <div className="container py-16 px-4 max-w-5xl mx-auto min-h-[80vh]">
+        <header className="mb-16 space-y-4">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="space-y-3"
+          >
+            <h1 className="font-black text-6xl md:text-8xl uppercase tracking-tighter leading-none">طلباتي</h1>
+            <div className="flex items-center gap-4">
+              <div className="h-[3px] w-16 bg-primary rounded-full" />
+              <p className="text-black/30 font-black text-[11px] uppercase tracking-[0.4em]">M&Z LUXURY EXPERIENCE • ORDERS TRACKING</p>
+            </div>
+          </motion.div>
         </header>
 
         {isLoading ? (
-          <div className="space-y-4">
+          <div className="space-y-8">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-32 w-full bg-secondary/50 animate-pulse rounded-2xl" />
+              <div key={i} className="h-64 w-full bg-black/[0.03] animate-pulse rounded-[3rem]" />
             ))}
           </div>
         ) : !orders || orders.length === 0 ? (
-          <div className="text-center py-24 bg-secondary/20 rounded-[2rem] border-2 border-dashed border-black/5">
-            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
-              <ShoppingBag className="h-10 w-10 text-primary" />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center py-32 px-10 bg-black/[0.01] rounded-[4rem] border-2 border-dashed border-black/5"
+          >
+            <div className="w-32 h-32 bg-white rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 shadow-2xl border border-black/5">
+              <ShoppingBag className="h-14 w-14 text-black/10" />
             </div>
-            <h2 className="font-black text-2xl mb-2">لا توجد طلبات بعد</h2>
-            <p className="text-muted-foreground font-bold text-sm mb-8 uppercase tracking-widest">ابدأ التسوق الآن واكتشف مجموعتنا المميزة</p>
-            <Button onClick={() => setLocation("/products")} size="lg" className="rounded-full px-8 font-black uppercase tracking-widest">
-              تسوق الآن
+            <h2 className="font-black text-4xl mb-4 tracking-tight">صندوق طلباتك فارغ</h2>
+            <p className="text-black/30 font-bold text-sm mb-12 uppercase tracking-[0.2em] max-w-sm mx-auto leading-relaxed">
+              لم تقم بأي عمليات شراء حتى الآن. اكتشف أحدث صيحات الموضة في متجرنا
+            </p>
+            <Button
+              onClick={() => setLocation("/products")}
+              size="lg"
+              className="rounded-full px-16 h-16 font-black uppercase tracking-[0.2em] text-xs shadow-2xl hover:shadow-primary/20 active:scale-95 transition-all"
+            >
+              اكتشف المتجر
             </Button>
-          </div>
+          </motion.div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-10">
             {orders.map((order: any) => (
               <OrderCard key={order.id} order={order} />
             ))}
