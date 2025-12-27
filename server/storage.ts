@@ -1,5 +1,5 @@
 import { UserModel, ProductModel, OrderModel, CategoryModel, WalletTransactionModel, ActivityLogModel, CouponModel, BranchModel, BannerModel, CashShiftModel } from "./models";
-import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, OrderStatus, ActivityLog, InsertActivityLog, Coupon, InsertCoupon, Branch, InsertBranch, Banner, InsertBanner, CashShift, InsertCashShift } from "@shared/schema";
+import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, OrderStatus, ActivityLog, InsertActivityLog, Coupon, InsertCoupon, Branch, InsertBranch, Banner, InsertBanner, CashShift, InsertCashShift, BranchInventory } from "@shared/schema";
 
 export interface IStorage {
   // Users
@@ -365,13 +365,15 @@ export class MongoDBStorage implements IStorage {
 
   // Branch Inventory (Stub for POS prep)
   async getBranchInventory(branchId: string): Promise<BranchInventory[]> {
-    // In a real MongoDB implementation, this would query a BranchInventory collection
-    // For now, returning empty to avoid crashes while preserving schema compatibility
     return [];
   }
 
   async updateBranchStock(id: string, stock: number): Promise<BranchInventory> {
     throw new Error("Inventory update not implemented in MongoDB yet");
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return this.getUsers();
   }
 }
 
