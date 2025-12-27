@@ -171,7 +171,7 @@ export default function POS() {
         variantName: `${variant.color} / ${variant.size}`,
         price: Number(product.price),
         quantity: 1,
-        image: product.images[0]
+        image: variant.image || product.images[0]
       }];
     });
   };
