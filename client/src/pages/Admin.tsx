@@ -111,28 +111,70 @@ const StatsCards = memo(() => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <Card className="border-black/5 bg-white shadow-sm p-6">
-          <CardHeader className="px-0 pt-0 flex flex-row items-center justify-between mb-6">
-            <CardTitle className="text-sm font-black uppercase tracking-widest">أكثر المنتجات مبيعاً</CardTitle>
+        <Card className="border-black/5 bg-white shadow-xl p-6 overflow-hidden relative group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl transition-all duration-500 group-hover:bg-primary/10" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/10 rounded-full -ml-12 -mb-12 blur-2xl transition-all duration-500 group-hover:bg-primary/20" />
+          
+          <CardHeader className="px-0 pt-0 flex flex-row items-center justify-between mb-8 relative z-10">
+            <div className="space-y-1">
+              <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
+                <div className="w-1.5 h-6 bg-primary rounded-full animate-pulse" />
+                أكثر المنتجات مبيعاً
+              </CardTitle>
+              <p className="text-[10px] text-black/40 font-bold uppercase tracking-wider mr-3">تحليل أداء المنتجات</p>
+            </div>
+            <div className="bg-secondary/30 p-2 rounded-xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12">
+              <TrendingUp className="w-4 h-4 text-primary" />
+            </div>
           </CardHeader>
-          <div className="h-[300px] w-full">
+
+          <div className="h-[300px] w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats?.topProducts || []} layout="vertical" margin={{ left: 20, right: 30 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
+              <BarChart data={stats?.topProducts || []} layout="vertical" margin={{ left: 10, right: 30 }}>
+                <defs>
+                  <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#000" />
+                    <stop offset="100%" stopColor="#333" />
+                  </linearGradient>
+                  <linearGradient id="barGradientSecondary" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#888" />
+                    <stop offset="100%" stopColor="#bbb" />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f5f5f5" />
                 <XAxis type="number" hide />
                 <YAxis 
                   dataKey="name" 
                   type="category" 
-                  tick={{ fontSize: 10, fontWeight: 'bold' }} 
-                  width={80}
+                  tick={{ fontSize: 11, fontWeight: '900', fill: '#1a1a1a' }} 
+                  width={60}
+                  axisLine={false}
+                  tickLine={false}
                 />
                 <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                  cursor={{ fill: '#f8f8f8' }}
+                  cursor={{ fill: 'rgba(0,0,0,0.02)' }}
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="bg-white/80 backdrop-blur-md p-3 border border-black/5 shadow-2xl rounded-2xl animate-in fade-in zoom-in duration-200">
+                          <p className="text-[10px] font-black uppercase mb-1">{payload[0].payload.name}</p>
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-black">{payload[0].value}</span>
+                            <span className="text-[10px] text-black/40 font-bold uppercase">مبيعة</span>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
                 />
-                <Bar dataKey="quantity" radius={[0, 4, 4, 0]}>
+                <Bar dataKey="quantity" radius={[0, 12, 12, 0]} barSize={32}>
                   {(stats?.topProducts || []).map((_entry: any, index: number) => (
-                    <Cell key={`cell-${index}`} fill={index === 0 ? '#000' : '#888'} />
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={index === 0 ? "url(#barGradient)" : "url(#barGradientSecondary)"} 
+                      className="transition-all duration-300 hover:opacity-80"
+                    />
                   ))}
                 </Bar>
               </BarChart>
