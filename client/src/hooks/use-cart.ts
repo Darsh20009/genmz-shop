@@ -4,7 +4,7 @@ import type { Product } from '@shared/schema';
 
 // Cart specific types
 export interface CartItem {
-  productId: number;
+  productId: string;
   variantSku: string;
   quantity: number;
   price: number;
@@ -17,8 +17,8 @@ export interface CartItem {
 interface CartStore {
   items: CartItem[];
   addItem: (product: Product, variant: any, quantity: number) => void;
-  removeItem: (productId: number, variantSku: string) => void;
-  updateQuantity: (productId: number, variantSku: string, quantity: number) => void;
+  removeItem: (productId: string, variantSku: string) => void;
+  updateQuantity: (productId: string, variantSku: string, quantity: number) => void;
   clearCart: () => void;
   total: () => number;
 }
@@ -51,7 +51,7 @@ export const useCart = create<CartStore>()(
                 quantity,
                 price: Number(product.price),
                 title: product.name,
-                image: product.images[0] || "",
+                image: variant.image || product.images[0] || "",
                 color: variant.color,
                 size: variant.size,
               },

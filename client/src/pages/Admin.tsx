@@ -325,12 +325,18 @@ const EditProductDialog = memo(({ product, categories, open, onOpenChange }: any
 
   const onSubmit = async (data: InsertProduct) => {
     try {
-      await apiRequest("PATCH", `/api/products/${product.id}`, {
+      const payload = {
         ...data,
-        variants,
+        variants: variants.map(v => ({
+          ...v,
+          stock: Number(v.stock),
+          cost: Number(v.cost || 0)
+        })),
         price: data.price.toString(),
         cost: data.cost.toString(),
-      });
+      };
+
+      await apiRequest("PATCH", `/api/products/${product.id}`, payload);
       toast({ title: "تم تحديث المنتج بنجاح" });
       onOpenChange(false);
       queryClient.invalidateQueries({ queryKey: [api.products.list.path] });
@@ -557,21 +563,22 @@ const ProductsTable = memo(() => {
 
   const onSubmit = async (data: InsertProduct) => {
     try {
+      const payload = {
+        ...data,
+        variants: variants.map(v => ({
+          ...v,
+          stock: Number(v.stock),
+          cost: Number(v.cost || 0)
+        })),
+        price: data.price.toString(),
+        cost: data.cost.toString(),
+      };
+
       if (editingProduct) {
-        await apiRequest("PATCH", `/api/products/${editingProduct.id}`, {
-          ...data,
-          variants,
-          price: data.price.toString(),
-          cost: data.cost.toString(),
-        });
+        await apiRequest("PATCH", `/api/products/${editingProduct.id}`, payload);
         toast({ title: "تم تحديث المنتج بنجاح" });
       } else {
-        await createProduct.mutateAsync({ 
-          ...data, 
-          variants,
-          price: data.price.toString(),
-          cost: data.cost.toString(),
-        });
+        await createProduct.mutateAsync(payload);
       }
       setOpen(false);
       setEditingProduct(null);
