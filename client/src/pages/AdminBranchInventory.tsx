@@ -104,9 +104,9 @@ export default function AdminBranchInventory() {
                             <Input 
                               type="number" 
                               defaultValue={invItem?.stock || 0}
-                              onBlur={(e) => {
+                              onChange={(e) => {
                                 const val = parseInt(e.target.value);
-                                if (invItem && val !== invItem.stock) {
+                                if (invItem) {
                                   updateStockMutation.mutate({ id: invItem.id, stock: val });
                                 }
                               }}
