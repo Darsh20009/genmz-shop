@@ -337,11 +337,17 @@ export async function registerRoutes(
 
   app.post("/api/admin/check-phone", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
-    const { phone } = req.body;
+    let { phone } = req.body;
     if (!phone) return res.status(400).json({ message: "رقم الهاتف مطلوب" });
     
+    // Clean phone number - remove spaces and special characters
+    phone = phone.replace(/\s/g, '').replace(/[^\d]/g, '');
+    
     const users = await storage.getUsers();
-    const exists = users.some(u => u.phone === phone);
+    const exists = users.some(u => {
+      const userPhone = u.phone.replace(/\s/g, '').replace(/[^\d]/g, '');
+      return userPhone === phone;
+    });
     res.json({ exists });
   });
 

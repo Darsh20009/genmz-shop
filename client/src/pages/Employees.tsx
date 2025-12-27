@@ -113,19 +113,28 @@ export default function Employees() {
             <div className="space-y-4 py-4" dir="rtl">
               {step === 1 && (
                 <>
-                  <p className="text-sm text-muted-foreground text-right">أدخل رقم هاتف الموظف للتحقق من وجوده في النظام</p>
+                  <p className="text-sm text-muted-foreground text-right">أدخل رقم هاتف الموظف ثم اضغط على "تحقق" للتحقق من وجوده في النظام</p>
                   <div className="space-y-2 text-right">
                     <Label>رقم الموظف (رقم الهاتف)</Label>
                     <Input 
                       value={formData.phone} 
-                      onChange={e => setFormData({...formData, phone: e.target.value})} 
+                      onChange={e => setFormData({...formData, phone: e.target.value.replace(/\s/g, '')})} 
                       placeholder="05xxxxxxxx" 
                       disabled={checkPhoneMutation.isPending}
+                      type="tel"
                     />
+                    <p className="text-xs text-muted-foreground">مثال: 0567326086 أو 0512345678</p>
                   </div>
                   <Button 
                     className="w-full mt-4 gap-2" 
-                    onClick={() => checkPhoneMutation.mutate(formData.phone)} 
+                    onClick={() => {
+                      const cleanPhone = formData.phone.replace(/\s/g, '');
+                      if (!cleanPhone) {
+                        toast({ title: "خطأ", description: "الرجاء إدخال رقم الموظف" });
+                        return;
+                      }
+                      checkPhoneMutation.mutate(cleanPhone);
+                    }}
                     disabled={checkPhoneMutation.isPending || !formData.phone}
                   >
                     {checkPhoneMutation.isPending ? <Loader2 className="animate-spin" /> : <>
