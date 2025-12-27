@@ -22,14 +22,15 @@ export type OrderType = typeof orderTypes[number];
 // User Schema
 export const insertUserSchema = z.object({
   name: z.string().min(1, "اسم العميل مطلوب"),
-  phone: z.string().regex(/^5\d{8}$/, "رقم الهاتف يجب أن يبدأ بـ 5 ويتكون من 9 أرقام"),
-  email: z.string().email("البريد الإلكتروني غير صحيح"),
+  phone: z.string().regex(/^0?5\d{8}$/, "رقم الهاتف يجب أن يبدأ بـ 5 أو 05 ويتكون من 9 أو 10 أرقام"),
+  email: z.string().email("البريد الإلكتروني غير صحيح").optional().or(z.literal("")),
   password: z.string().optional().default(""),
   role: z.enum(userRoles).default("customer"),
   permissions: z.array(z.string()).default([]),
   branchId: z.string().optional(),
   loginType: z.enum(["dashboard", "pos", "both"]).default("dashboard"),
   isActive: z.boolean().default(true),
+  mustChangePassword: z.boolean().default(false),
   loyaltyPoints: z.number().default(0),
   username: z.string().optional(),
   walletBalance: z.string().default("0"),

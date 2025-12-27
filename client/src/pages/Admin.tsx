@@ -1929,7 +1929,7 @@ const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChan
     { id: "orders", label: "الطلبات", icon: ShoppingCart },
     { id: "staff", label: "الموظفين", icon: UserIcon },
     { id: "branches", label: "الفروع", icon: Building },
-    { id: "customers", label: "المستخدمين", icon: Tag },
+    { id: "customers", label: "العملاء", icon: Tag },
     { id: "coupons", label: "أكواد الخصم", icon: DollarSign },
     { id: "marketing", label: "التسويق", icon: LayoutGrid },
     { id: "logs", label: "سجل العمليات", icon: History },

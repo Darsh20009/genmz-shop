@@ -477,6 +477,23 @@ export async function registerRoutes(
     if (!req.isAuthenticated()) return res.sendStatus(401);
     try {
       const { password, ...userData } = req.body;
+      
+      // Clean phone number: remove leading 0 if exists
+      let phone = userData.phone || "";
+      if (phone.startsWith("0")) phone = phone.substring(1);
+      
+      // Ensure email exists, if not generate one from phone
+      const email = userData.email || `${phone}@genmz.com`;
+      
+      // Use phone as username if not provided
+      const username = userData.username || phone;
+
+      // Check if user already exists
+      const existingUser = await storage.getUserByUsername(phone);
+      if (existingUser) {
+        return res.status(400).send("مستخدم بهذا الرقم موجود بالفعل (قد يكون عميلاً)");
+      }
+
       let hashedPassword = "";
       
       if (password) {
@@ -502,10 +519,14 @@ export async function registerRoutes(
 
       const user = await storage.createUser({
         ...userData,
+        phone,
+        email,
+        username,
         password: hashedPassword,
         walletBalance: "0",
         addresses: [],
         isActive: true,
+        mustChangePassword: true,
         permissions: permissions,
         role: role
       });

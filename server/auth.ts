@@ -83,7 +83,7 @@ export function setupAuth(app: Express) {
         }
         
         // Check if user is staff/admin
-        const isStaffOrAdmin = user ? ["admin", "employee", "support"].includes(user.role) : false;
+        const isStaffOrAdmin = user ? ["admin", "employee", "support", "cashier", "accountant"].includes(user.role) : false;
         console.log(`[AUTH] Is staff/admin: ${isStaffOrAdmin}`);
         
         // 1. If it's staff/admin, we require strict password check
@@ -224,7 +224,7 @@ export function setupAuth(app: Express) {
       console.log(`[AUTH] User found: ${user ? 'Yes' : 'No'} (${user?.role})`);
 
       // If staff/admin, validate password
-      if (user && ["admin", "employee", "support"].includes(user.role)) {
+      if (user && ["admin", "employee", "support", "cashier", "accountant"].includes(user.role)) {
         if (!password) {
           return res.status(401).send("كلمة المرور مطلوبة");
         }
@@ -265,7 +265,7 @@ export function setupAuth(app: Express) {
         const isPosAccess = ["pos", "both"].includes(userObj.loginType);
         
         let redirectTo = "/";
-        if (["admin", "employee", "support"].includes(userObj.role)) {
+        if (["admin", "employee", "support", "cashier", "accountant"].includes(userObj.role)) {
           if (isDashboardAccess) {
             redirectTo = "/admin";
           } else if (isPosAccess) {

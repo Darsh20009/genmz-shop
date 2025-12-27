@@ -5,11 +5,12 @@ const userSchema = new Schema<User>(
   {
     username: { type: String, required: true, unique: true },
     password: { type: String, default: "" },
-    role: { type: String, enum: ["admin", "employee", "customer", "support"], default: "customer" },
+    role: { type: String, enum: ["admin", "employee", "customer", "support", "cashier", "accountant"], default: "customer" },
     permissions: [String],
     branchId: { type: String },
     loginType: { type: String, enum: ["dashboard", "pos", "both"], default: "dashboard" },
     isActive: { type: Boolean, default: true },
+    mustChangePassword: { type: Boolean, default: false },
     name: { type: String, required: true },
     email: { type: String, required: true },
     phone: { type: String },
