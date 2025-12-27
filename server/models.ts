@@ -54,6 +54,7 @@ const productSchema = new Schema<Product>(
       sku: String,
       stock: Number,
       cost: { type: Number, default: 0 },
+      image: String,
     }],
     isFeatured: { type: Boolean, default: false },
   },
