@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle } from 
 import React, { useState, useMemo, memo, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertProductSchema, type InsertProduct, orderStatuses } from "@shared/schema";
+import { insertProductSchema, type InsertProduct, orderStatuses, employeePermissions, insertUserSchema, type InsertUser } from "@shared/schema";
 import { api } from "@shared/routes";
 import { Loader2, Plus, DollarSign, ShoppingCart, TrendingUp, BarChart3, ArrowUpRight, Trash2, Search, Filter, ChevronDown, CheckCircle2, XCircle, Truck, PackageCheck, AlertCircle, LayoutGrid, Tag, Edit, ArrowRight, LogOut, Package, Building, User as UserIcon, History, Monitor, Clock } from "lucide-react";
 import { Link } from "wouter";
@@ -1474,12 +1474,12 @@ const CouponsTable = memo(() => {
                 </div>
               </div>
               
-              {form.watch("type") === "cashback" && (
+              {form.watch("type") === ("cashback" as any) && (
                 <div className="space-y-2">
                   <Label className="text-xs font-bold uppercase">أقصى كاش باك (اختياري)</Label>
                   <Input
                     type="number"
-                    {...form.register("maxCashback")}
+                    {...form.register("maxCashback" as any)}
                     placeholder="مثال: 500"
                     className="rounded-none"
                   />
@@ -1489,7 +1489,7 @@ const CouponsTable = memo(() => {
               <div className="space-y-2">
                 <Label className="text-xs font-bold uppercase">الوصف (اختياري)</Label>
                 <Input
-                  {...form.register("description")}
+                  {...form.register("description" as any)}
                   placeholder="مثال: احصل على 10% كاش باك"
                   className="rounded-none text-right"
                 />
@@ -1614,15 +1614,33 @@ const EmployeesManagement = () => {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
+    email: "",
     password: "",
     role: "employee",
-    branchId: "",
-    loginType: "dashboard",
-    permissions: ["orders"]
+    branchId: "main",
+    loginType: "dashboard" as const,
+    permissions: [] as string[]
   });
 
+  const defaultRolePermissions: Record<string, string[]> = {
+    admin: ["orders.view", "orders.edit", "orders.refund", "products.view", "products.edit", "customers.view", "wallet.adjust", "reports.view", "staff.manage", "pos.access", "settings.manage"],
+    employee: ["orders.view", "products.view", "customers.view", "pos.access"],
+    support: ["orders.view", "customers.view"],
+    cashier: ["pos.access", "orders.view"],
+    accountant: ["reports.view", "orders.view"]
+  };
+
+  useEffect(() => {
+    if (formData.role && defaultRolePermissions[formData.role]) {
+      setFormData(prev => ({
+        ...prev,
+        permissions: defaultRolePermissions[formData.role]
+      }));
+    }
+  }, [formData.role]);
+
   const employees = useMemo(() => 
-    users?.filter(u => ["admin", "employee", "support"].includes(u.role)) || []
+    users?.filter(u => ["admin", "employee", "support", "cashier", "accountant"].includes(u.role)) || []
   , [users]);
 
   const createEmployeeMutation = useMutation({
@@ -1637,11 +1655,12 @@ const EmployeesManagement = () => {
       setFormData({
         name: "",
         phone: "",
+        email: "",
         password: "",
         role: "employee",
-        branchId: "",
+        branchId: "main",
         loginType: "dashboard",
-        permissions: ["orders"]
+        permissions: defaultRolePermissions.employee
       });
     },
     onError: (err: any) => {
@@ -1682,39 +1701,49 @@ const EmployeesManagement = () => {
               <Plus className="ml-2 h-4 w-4" /> إضافة موظف جديد
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md rounded-none">
+          <DialogContent className="max-w-2xl rounded-none overflow-y-auto max-h-[90vh]">
             <DialogHeader>
               <DialogTitle className="text-right">إضافة موظف جديد</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 mt-4" dir="rtl">
-              <div className="space-y-2">
-                <Label className="text-right block">الاسم</Label>
-                <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="text-right" />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-right block">رقم الهاتف</Label>
-                <Input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="text-right" />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-right block">كلمة المرور</Label>
-                <Input type="password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="text-right" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-right block">الاسم</Label>
+                  <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="text-right" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-right block">رقم الهاتف</Label>
+                  <Input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="text-right" placeholder="5XXXXXXXX" />
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-right block">الدور</Label>
+                  <Label className="text-right block">البريد الإلكتروني</Label>
+                  <Input value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="text-right" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-right block">كلمة المرور</Label>
+                  <Input type="password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="text-right" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-right block">الدور الوظيفي</Label>
                   <Select value={formData.role} onValueChange={v => setFormData({...formData, role: v})}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="text-right"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="employee">موظف</SelectItem>
-                      <SelectItem value="support">دعم</SelectItem>
-                      <SelectItem value="admin">مدير</SelectItem>
+                      <SelectItem value="admin">مدير (Admin)</SelectItem>
+                      <SelectItem value="employee">موظف (Employee)</SelectItem>
+                      <SelectItem value="support">دعم فني (Support)</SelectItem>
+                      <SelectItem value="cashier">كاشير (Cashier)</SelectItem>
+                      <SelectItem value="accountant">محاسب (Accountant)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
                   <Label className="text-right block">نوع الدخول</Label>
-                  <Select value={formData.loginType} onValueChange={v => setFormData({...formData, loginType: v})}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                  <Select value={formData.loginType} onValueChange={(v: any) => setFormData({...formData, loginType: v})}>
+                    <SelectTrigger className="text-right"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="dashboard">لوحة التحكم</SelectItem>
                       <SelectItem value="pos">POS فقط</SelectItem>
@@ -1724,22 +1753,57 @@ const EmployeesManagement = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label className="text-right block">الفرع</Label>
+                <Label className="text-right block">الفرع المرتبط</Label>
                 <Select value={formData.branchId} onValueChange={v => setFormData({...formData, branchId: v})}>
-                  <SelectTrigger><SelectValue placeholder="اختر الفرع" /></SelectTrigger>
+                  <SelectTrigger className="text-right"><SelectValue placeholder="اختر الفرع" /></SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="main">المركز الرئيسي</SelectItem>
                     {branches?.map(b => (
                       <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="space-y-3 pt-4 border-t border-black/5 text-right">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-black/40">الصلاحيات الممنوحة</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {employeePermissions.map(perm => (
+                    <div key={perm} className="flex items-center gap-2 bg-secondary/10 p-2 border border-black/5">
+                      <Switch 
+                        checked={formData.permissions.includes(perm)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setFormData(prev => ({ ...prev, permissions: [...prev.permissions, perm] }));
+                          } else {
+                            setFormData(prev => ({ ...prev, permissions: prev.permissions.filter(p => p !== perm) }));
+                          }
+                        }}
+                      />
+                      <span className="text-[9px] font-bold">
+                        {perm === 'orders.view' ? 'عرض الطلبات' :
+                         perm === 'orders.edit' ? 'تعديل الطلبات' :
+                         perm === 'orders.refund' ? 'استرجاع الأموال' :
+                         perm === 'products.view' ? 'عرض المنتجات' :
+                         perm === 'products.edit' ? 'تعديل المنتجات' :
+                         perm === 'customers.view' ? 'عرض العملاء' :
+                         perm === 'wallet.adjust' ? 'تعديل المحفظة' :
+                         perm === 'reports.view' ? 'عرض التقارير' :
+                         perm === 'staff.manage' ? 'إدارة الموظفين' :
+                         perm === 'pos.access' ? 'دخول POS' :
+                         perm === 'settings.manage' ? 'إدارة الإعدادات' : perm}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <Button 
                 className="w-full h-12 rounded-none font-black" 
                 onClick={() => createEmployeeMutation.mutate(formData)}
                 disabled={createEmployeeMutation.isPending}
               >
-                {createEmployeeMutation.isPending ? <Loader2 className="animate-spin" /> : "إضافة الموظف"}
+                {createEmployeeMutation.isPending ? <Loader2 className="animate-spin" /> : "إضافة الموظف للأنظمة"}
               </Button>
             </div>
           </DialogContent>
@@ -1768,11 +1832,16 @@ const EmployeesManagement = () => {
                 </div>
                 <div>
                   <p className="text-muted-foreground font-bold uppercase tracking-widest text-[10px]">الفرع</p>
-                  <p className="font-bold">{emp.branchId || "غير محدد"}</p>
+                  <p className="font-bold">{emp.branchId || "المركز الرئيسي"}</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground font-bold uppercase tracking-widest text-[10px]">نوع الدخول</p>
-                  <p className="font-bold">{emp.loginType === "both" ? "الكل" : emp.loginType === "pos" ? "POS" : "Dashboard"}</p>
+                <div className="col-span-2">
+                  <p className="text-muted-foreground font-bold uppercase tracking-widest text-[10px]">الصلاحيات</p>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {emp.permissions?.slice(0, 5).map((p: string) => (
+                      <Badge key={p} variant="outline" className="text-[8px] rounded-none px-1 h-4">{p.split('.')[1] || p}</Badge>
+                    ))}
+                    {emp.permissions?.length > 5 && <span className="text-[8px] font-bold">+{emp.permissions.length - 5}</span>}
+                  </div>
                 </div>
               </div>
 
@@ -1824,7 +1893,7 @@ const EmployeesManagement = () => {
               onClick={() => resetPasswordMutation.mutate({ id: editingUser.id, password: newPassword })}
               disabled={!newPassword || resetPasswordMutation.isPending}
             >
-              حفظ
+              {resetPasswordMutation.isPending ? <Loader2 className="animate-spin" /> : "حفظ"}
             </Button>
           </div>
         </DialogContent>

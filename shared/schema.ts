@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // Enums and Types
-export const userRoles = ["admin", "employee", "customer", "support"] as const;
+export const userRoles = ["admin", "employee", "customer", "support", "cashier", "accountant"] as const;
 export type UserRole = typeof userRoles[number];
 
 export const employeePermissions = [
@@ -13,7 +13,7 @@ export const employeePermissions = [
 ] as const;
 export type EmployeePermission = typeof employeePermissions[number];
 
-export const orderStatuses = ["new", "processing", "shipped", "completed", "cancelled"] as const;
+export const orderStatuses = ["new", "processing", "shipped", "completed", "cancelled", "returned"] as const;
 export type OrderStatus = typeof orderStatuses[number];
 
 export const orderTypes = ["online", "pos"] as const;

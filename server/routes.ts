@@ -279,7 +279,7 @@ export async function registerRoutes(
     const products = await storage.getProducts();
 
     // Define valid orders: ignore cancelled and returned
-    const validOrders = orders.filter(o => o.status !== "cancelled" && o.status !== "returned");
+    const validOrders = orders.filter(o => o.status !== "cancelled" && (o.status as string) !== "returned");
 
     // Total Sales: Sum of all non-cancelled, non-returned orders
     const totalSales = validOrders.reduce((acc, order) => acc + Number(order.total || 0), 0);
@@ -305,7 +305,7 @@ export async function registerRoutes(
       shipped: orders.filter(o => o.status === "shipped").length,
       completed: orders.filter(o => o.status === "completed").length,
       cancelled: orders.filter(o => o.status === "cancelled").length,
-      returned: orders.filter(o => o.status === "returned").length,
+      returned: orders.filter(o => (o.status as string) === "returned").length,
     };
 
     // Top selling products based ONLY on valid orders
