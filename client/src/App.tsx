@@ -23,6 +23,9 @@ import Checkout from "@/pages/Checkout";
 
 import Profile from "@/pages/Profile";
 
+import AdminBranches from "@/pages/AdminBranches";
+import AdminStaff from "@/pages/AdminStaff";
+
 function Router() {
   return (
     <Switch>
@@ -39,6 +42,8 @@ function Router() {
       <Route path="/employees" component={Employees} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/admin" component={Admin} />
+      <Route path="/admin/branches" component={AdminBranches} />
+      <Route path="/admin/staff" component={AdminStaff} />
       <Route path="/terms" component={Terms} />
       <Route component={NotFound} />
     </Switch>
