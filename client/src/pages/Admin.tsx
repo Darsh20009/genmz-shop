@@ -1802,23 +1802,16 @@ import AdminAuditLogs from "./AdminAuditLogs";
 import AdminBranchInventory from "./AdminBranchInventory";
 
 const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChange: (tab: string) => void }) => {
-  const { logoutMutation } = useAuth();
+  const { logout: handleLogout } = useAuth();
   const { setOpenMobile } = useSidebar();
   const [, setLocation] = useLocation();
-  const { toast } = useToast();
 
-  const logout = async () => {
-    try {
-      await logoutMutation.mutateAsync();
-      toast({ title: "تم تسجيل الخروج بنجاح" });
-      setLocation("/");
-    } catch (e: any) {
-      toast({ 
-        title: "خطأ في تسجيل الخروج", 
-        description: e.message || "حاول مرة أخرى",
-        variant: "destructive" 
-      });
-    }
+  const logout = () => {
+    handleLogout(undefined, {
+      onSuccess: () => {
+        setLocation("/");
+      }
+    });
   };
 
   const menuItems = [
