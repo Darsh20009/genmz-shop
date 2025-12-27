@@ -3,9 +3,11 @@ import { persist } from 'zustand/middleware';
 
 export interface Coupon {
   code: string;
-  type: 'percentage' | 'fixed';
+  type: 'percentage' | 'fixed' | 'cashback';
   value: number;
   minOrderAmount?: number;
+  maxCashback?: number;
+  isFirstOrderOnly?: boolean;
 }
 
 interface CouponStore {

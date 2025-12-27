@@ -552,9 +552,54 @@ export async function registerRoutes(
     res.sendStatus(200);
   });
 
+  // Hardcoded coupons
+  const hardcodedCoupons: Record<string, any> = {
+    "GEN@FIRST10": {
+      code: "GEN@FIRST10",
+      type: "percentage",
+      value: 10,
+      isFirstOrderOnly: true,
+      isActive: true,
+    },
+    "@10": {
+      code: "@10",
+      type: "cashback",
+      value: 10,
+      maxCashback: 10,
+      isActive: true,
+    },
+  };
+
   app.get("/api/coupons/:code", async (req, res) => {
+    const code = req.params.code.toUpperCase();
+    
+    // Check hardcoded coupons first
+    const hardcodedCoupon = hardcodedCoupons[code];
+    if (hardcodedCoupon) {
+      // Check if first-order-only coupon
+      if (hardcodedCoupon.isFirstOrderOnly && req.isAuthenticated()) {
+        const user = req.user as any;
+        const userOrders = await storage.getOrdersByUser(user.id || user._id);
+        if (userOrders && userOrders.length > 0) {
+          return res.status(400).json({ message: "هذا الكود صالح للطلب الأول فقط" });
+        }
+      }
+      return res.json(hardcodedCoupon);
+    }
+    
+    // Check database coupons
     const coupon = await storage.getCouponByCode(req.params.code);
     if (!coupon) return res.status(404).json({ message: "كود الخصم غير صحيح أو منتهي" });
+    
+    // Check if first-order-only coupon from database
+    if ((coupon as any).isFirstOrderOnly && req.isAuthenticated()) {
+      const user = req.user as any;
+      const userOrders = await storage.getOrdersByUser(user.id || user._id);
+      if (userOrders && userOrders.length > 0) {
+        return res.status(400).json({ message: "هذا الكود صالح للطلب الأول فقط" });
+      }
+    }
+    
     res.json(coupon);
   });
 

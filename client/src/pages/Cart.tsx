@@ -47,12 +47,27 @@ export default function Cart() {
 
     if (appliedCoupon.type === "percentage") {
       return (subtotal * appliedCoupon.value) / 100;
+    } else if (appliedCoupon.type === "cashback") {
+      // Cashback doesn't reduce the order total, it's credited after purchase
+      return 0;
     } else {
       return appliedCoupon.value;
     }
   };
 
+  const calculateCashback = () => {
+    if (!appliedCoupon || appliedCoupon.type !== "cashback") return 0;
+    const subtotal = total();
+    const cashbackAmount = (subtotal * appliedCoupon.value) / 100;
+    // Apply max cashback limit if exists
+    if (appliedCoupon.maxCashback && cashbackAmount > appliedCoupon.maxCashback) {
+      return appliedCoupon.maxCashback;
+    }
+    return cashbackAmount;
+  };
+
   const discountAmount = calculateDiscount();
+  const cashbackAmount = calculateCashback();
   const subtotal = total();
   const tax = (subtotal * 0.15);
   const finalTotal = subtotal + tax - discountAmount;
@@ -166,6 +181,21 @@ export default function Cart() {
                         <span>-{discountAmount.toLocaleString()} {t('currency')}</span>
                         <div className="flex items-center gap-2">
                           <span className="opacity-60">{t('discount')}</span>
+                          <button
+                            onClick={() => clearCoupon()}
+                            className="opacity-40 hover:opacity-100 transition-opacity text-[9px]"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {appliedCoupon && cashbackAmount > 0 && (
+                      <div className={`flex justify-between text-blue-600 ${language === 'ar' ? '' : 'flex-row-reverse'}`}>
+                        <span>+{cashbackAmount.toLocaleString()} {t('currency')}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="opacity-60">كاش باك</span>
                           <button
                             onClick={() => clearCoupon()}
                             className="opacity-40 hover:opacity-100 transition-opacity text-[9px]"

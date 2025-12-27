@@ -22,7 +22,7 @@ export default function Checkout() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
-  const [paymentMethod, setPaymentMethod] = useState<"wallet" | "apple_pay" | "card">("card");
+  const [paymentMethod, setPaymentMethod] = useState<"wallet">("wallet");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -45,12 +45,27 @@ export default function Checkout() {
 
     if (appliedCoupon.type === "percentage") {
       return (subtotal * appliedCoupon.value) / 100;
+    } else if (appliedCoupon.type === "cashback") {
+      // Cashback doesn't reduce the order total, it's credited after purchase
+      return 0;
     } else {
       return appliedCoupon.value;
     }
   };
 
+  const calculateCashback = () => {
+    if (!appliedCoupon || appliedCoupon.type !== "cashback") return 0;
+    const subtotal = total();
+    const cashbackAmount = (subtotal * appliedCoupon.value) / 100;
+    // Apply max cashback limit if exists
+    if (appliedCoupon.maxCashback && cashbackAmount > appliedCoupon.maxCashback) {
+      return appliedCoupon.maxCashback;
+    }
+    return cashbackAmount;
+  };
+
   const discountAmount = calculateDiscount();
+  const cashbackAmount = calculateCashback();
   const subtotal = total();
   const tax = subtotal * 0.15;
   const shipping = 25;
@@ -225,30 +240,21 @@ export default function Checkout() {
                 <RadioGroup 
                   value={paymentMethod} 
                   onValueChange={(v) => setPaymentMethod(v as any)}
-                  className="grid sm:grid-cols-2 gap-4"
+                  className="grid gap-4"
                 >
-                  {[
-                    { id: "card", label: "بطاقة بنكية (مدى / فيزا)", icon: CreditCard },
-                    { id: "apple_pay", label: "Apple Pay", icon: Apple },
-                    { id: "wallet", label: "رصيد المحفظة", icon: Wallet },
-                  ].map((method) => (
-                    <div 
-                      key={method.id}
-                      className={`group relative flex flex-col p-6 border transition-all cursor-pointer ${paymentMethod === method.id ? "border-primary bg-primary/5" : "border-black/5 bg-[#fcfcfc] hover:border-black/20"}`} 
-                      onClick={() => setPaymentMethod(method.id as any)}
-                    >
-                      <div className="flex justify-between items-start mb-4">
-                        <method.icon className={`h-6 w-6 ${paymentMethod === method.id ? "text-primary" : "text-black/20"}`} />
-                        <RadioGroupItem value={method.id} id={method.id} className="sr-only" />
-                        {method.id === "wallet" && (
-                          <Badge variant="outline" className="text-[10px] border-primary/20 text-primary">
-                            {user?.walletBalance} ر.س
-                          </Badge>
-                        )}
-                      </div>
-                      <Label htmlFor={method.id} className="font-black text-sm uppercase tracking-widest cursor-pointer mb-2">{method.label}</Label>
+                  <div 
+                    className={`group relative flex flex-col p-6 border transition-all cursor-pointer ${paymentMethod === "wallet" ? "border-primary bg-primary/5" : "border-black/5 bg-[#fcfcfc] hover:border-black/20"}`} 
+                    onClick={() => setPaymentMethod("wallet")}
+                  >
+                    <div className="flex justify-between items-start mb-4">
+                      <Wallet className={`h-6 w-6 ${paymentMethod === "wallet" ? "text-primary" : "text-black/20"}`} />
+                      <RadioGroupItem value="wallet" id="wallet" className="sr-only" />
+                      <Badge variant="outline" className="text-[10px] border-primary/20 text-primary">
+                        {user?.walletBalance} ر.س
+                      </Badge>
                     </div>
-                  ))}
+                    <Label htmlFor="wallet" className="font-black text-sm uppercase tracking-widest cursor-pointer mb-2">رصيد المحفظة</Label>
+                  </div>
                 </RadioGroup>
               </section>
             </div>
@@ -293,6 +299,12 @@ export default function Checkout() {
                       <div className="flex justify-between text-green-600">
                         <span>-{discountAmount.toLocaleString()} ر.س</span>
                         <span>الخصم</span>
+                      </div>
+                    )}
+                    {cashbackAmount > 0 && (
+                      <div className="flex justify-between text-blue-600">
+                        <span>+{cashbackAmount.toLocaleString()} ر.س</span>
+                        <span>كاش باك (يُضاف للمحفظة)</span>
                       </div>
                     )}
                     <div className="flex justify-between border-t border-black/5 pt-6 font-black text-3xl tracking-tighter text-black">
