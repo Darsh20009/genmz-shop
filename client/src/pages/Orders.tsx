@@ -195,7 +195,7 @@ export default function Orders() {
             className="space-y-3"
           >
             <h1 className="font-black text-6xl md:text-8xl uppercase tracking-tighter leading-none">طلباتي</h1>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 mt-[29px] mb-[29px]">
               <div className="h-[3px] w-16 bg-primary rounded-full" />
               <p className="text-black/30 font-black text-[11px] uppercase tracking-[0.4em]">M&Z LUXURY EXPERIENCE • ORDERS TRACKING</p>
             </div>
