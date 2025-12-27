@@ -68,21 +68,32 @@ export default function Home() {
       {/* Image Carousel Section */}
       <section className="relative py-8 sm:py-12 md:py-20 lg:py-32 bg-white overflow-hidden">
         <div className="container px-3 sm:px-4">
-          <div className="relative w-full max-w-2xl mx-auto">
-            <motion.div
-              key={currentImageIndex}
-              initial={{ opacity: 0 }}
+          <div className="relative w-full max-w-2xl mx-auto bg-gray-100 rounded-lg overflow-hidden">
+            {/* Current Image */}
+            <motion.img
+              src={heroImages[currentImageIndex]}
+              alt={`Hero ${currentImageIndex + 1}`}
+              key={`current-${currentImageIndex}`}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.6 }}
-              className="bg-gray-100 rounded-lg overflow-hidden"
-            >
-              <img 
-                src={heroImages[currentImageIndex]} 
-                alt={`Hero ${currentImageIndex + 1}`}
-                className="w-full h-auto object-contain"
-              />
-            </motion.div>
+              transition={{ duration: 0.8 }}
+              className="w-full h-auto object-contain block"
+            />
+            {/* Next Image - Overlay */}
+            <motion.div
+              key={`next-${currentImageIndex}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8 }}
+              className="absolute inset-0"
+              style={{
+                backgroundImage: `url(${heroImages[(currentImageIndex + 1) % heroImages.length]})`,
+                backgroundSize: 'contain',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+              }}
+            />
           </div>
         </div>
       </section>
@@ -247,27 +258,23 @@ export default function Home() {
           <div className="relative w-full max-w-5xl mx-auto">
             {/* Carousel Container */}
             <div className="relative h-[500px] md:h-[700px] bg-gray-100 rounded-2xl overflow-hidden shadow-2xl">
-              <motion.div
-                key={collectionIndex}
-                initial={{ opacity: 0 }}
+              {/* Current Image */}
+              <motion.img
+                src={collectionImages[collectionIndex].src}
+                alt={collectionImages[collectionIndex].title}
+                key={`current-collection-${collectionIndex}`}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.6 }}
-                className="absolute inset-0 flex items-center justify-center"
-              >
-                <img 
-                  src={collectionImages[collectionIndex].src} 
-                  alt={collectionImages[collectionIndex].title}
-                  className="w-full h-full object-cover"
-                />
-              </motion.div>
+                transition={{ duration: 0.8 }}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
 
               {/* Overlay with Info */}
               <motion.div
                 key={`overlay-${collectionIndex}`}
-                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.8 }}
                 className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex flex-col items-end justify-end p-8"
               >
                 <div className={`text-white ${language === 'ar' ? 'text-right' : 'text-left'}`}>
