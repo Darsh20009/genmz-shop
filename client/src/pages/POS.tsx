@@ -1,6 +1,6 @@
+import { User, Product, Category, Branch } from "@shared/schema";
 import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Product, Category, Branch } from "@shared/schema";
 import { 
   Search, 
   ShoppingCart, 
@@ -26,6 +26,13 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Label } from "@/components/ui/label";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from "@/components/ui/dialog";
 
 interface CartItem {
   productId: string;
@@ -44,10 +51,32 @@ export default function POS() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [barcodeInput, setBarcodeInput] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [pointsToRedeem, setPointsToRedeem] = useState(0);
 
   const { data: products, isLoading: productsLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
   });
+
+  const { data: customer } = useQuery<any>({
+    queryKey: ["/api/admin/users/search", customerPhone],
+    enabled: customerPhone.length === 9 || customerPhone.length === 10,
+    queryFn: async () => {
+      const res = await fetch(`/api/admin/users/search?phone=${customerPhone}`);
+      if (!res.ok) return null;
+      return res.json();
+    }
+  });
+
+  const loyaltyDiscount = useMemo(() => {
+    if (!customer) return 0;
+    // 10 points = 1 SAR discount
+    return Math.min(Math.floor((customer.loyaltyPoints || 0) / 10), total);
+  }, [customer, total]);
+
+  const handlePrintReceipt = (orderId: string) => {
+    window.print();
+  };
 
   const { data: categories } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
@@ -111,7 +140,7 @@ export default function POS() {
   const checkoutMutation = useMutation({
     mutationFn: async (paymentMethod: string) => {
       const res = await apiRequest("POST", "/api/orders", {
-        userId: user?.id,
+        userId: customer?.id || user?.id, // Use customer id if searched for loyalty
         type: "pos",
         branchId: user?.branchId || "main",
         cashierId: user?.id,
@@ -120,24 +149,28 @@ export default function POS() {
           variantSku: item.variantSku,
           quantity: item.quantity,
           price: item.price,
-          cost: 0, // In a real app, this would come from the product/variant data
+          cost: 0,
           title: item.name
         })),
-        total: total.toString(),
-        subtotal: (total / 1.15).toString(),
-        vatAmount: (total - (total / 1.15)).toString(),
+        total: (total - loyaltyDiscount).toString(),
+        subtotal: ((total - loyaltyDiscount) / 1.15).toString(),
+        vatAmount: ((total - loyaltyDiscount) - ((total - loyaltyDiscount) / 1.15)).toString(),
         shippingCost: "0",
         shippingMethod: "pickup",
         paymentMethod,
         status: "completed",
-        paymentStatus: "paid"
+        paymentStatus: "paid",
+        pointsEarned: Math.floor(total / 10), // Earn 1 point per 10 SAR
+        pointsUsed: pointsToRedeem
       });
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({ title: "تم إتمام الطلب", description: "تم إصدار الفاتورة بنجاح" });
+      handlePrintReceipt(data.id);
       setCart([]);
       setPaymentMethod(null);
+      setCustomerPhone("");
       queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
     },
     onError: (error: Error) => {
@@ -214,6 +247,24 @@ export default function POS() {
         </div>
 
         {/* Product Grid */}
+        <div className="flex items-center gap-4 bg-white p-4 border border-black/5 shadow-sm">
+          <div className="flex-1 relative">
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="رقم هاتف العميل لنقاط الولاء..." 
+              className="pr-10 rounded-none h-11 border-black/5"
+              value={customerPhone}
+              onChange={(e) => setCustomerPhone(e.target.value)}
+            />
+          </div>
+          {customer && (
+            <div className="px-4 border-r border-black/10 text-right">
+              <p className="text-[10px] font-black uppercase">النقاط المتاحة</p>
+              <p className="text-xs font-bold text-green-600">{customer.loyaltyPoints} نقطة ({loyaltyDiscount} SAR خصم)</p>
+            </div>
+          )}
+        </div>
+
         <ScrollArea className="flex-1">
           {productsLoading ? (
             <div className="flex items-center justify-center h-full"><Loader2 className="animate-spin" /></div>

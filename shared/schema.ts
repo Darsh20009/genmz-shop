@@ -30,6 +30,7 @@ export const insertUserSchema = z.object({
   branchId: z.string().optional(),
   loginType: z.enum(["dashboard", "pos", "both"]).default("dashboard"),
   isActive: z.boolean().default(true),
+  loyaltyPoints: z.number().default(0),
   username: z.string().optional(),
   walletBalance: z.string().default("0"),
   addresses: z.array(z.object({
@@ -97,6 +98,7 @@ export const insertProductSchema = z.object({
   price: z.string(),
   cost: z.string(),
   images: z.array(z.string()),
+  barcode: z.string().optional(),
   categoryId: z.string().optional(),
   variants: z.array(z.object({
     color: z.string(),

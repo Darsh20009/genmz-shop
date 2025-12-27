@@ -296,16 +296,23 @@ const EditProductDialog = memo(({ product, categories, open, onOpenChange }: any
                 <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">صورة المنتج الأساسية</Label>
                 <div className="flex gap-2">
                   <Input 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={(e) => handleImageUpload(e)} 
-                    className="rounded-none h-12 text-right cursor-pointer pt-3" 
+                    value={form.watch("images.0") || ""} 
+                    onChange={(e) => form.setValue("images.0", e.target.value)}
+                    className="rounded-none h-12 text-right flex-1"
+                    placeholder="رابط الصورة"
                   />
-                  {form.watch("images.0") && (
-                    <div className="w-12 h-12 border border-black/5 overflow-hidden">
-                      <img src={form.watch("images.0")} alt="" className="w-full h-full object-cover" />
-                    </div>
-                  )}
+                  <div className="relative">
+                    <Button variant="outline" type="button" className="h-12 px-4 rounded-none flex gap-2 overflow-visible">
+                      <Plus className="h-4 w-4" />
+                      <span className="text-[10px] font-black uppercase">رفع</span>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={(e) => handleImageUpload(e)} 
+                        className="absolute inset-0 opacity-0 cursor-pointer" 
+                      />
+                    </Button>
+                  </div>
                 </div>
               </div>
 
@@ -566,16 +573,23 @@ const ProductsTable = memo(() => {
                 <Label className="text-[10px] font-bold uppercase tracking-widest text-black/40">صورة المنتج الأساسية</Label>
                 <div className="flex gap-2">
                   <Input 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={(e) => handleImageUpload(e)} 
-                    className="rounded-none h-12 text-right cursor-pointer pt-3" 
+                    value={form.watch("images.0") || ""} 
+                    onChange={(e) => form.setValue("images.0", e.target.value)}
+                    className="rounded-none h-12 text-right flex-1"
+                    placeholder="رابط الصورة"
                   />
-                  {form.watch("images.0") && (
-                    <div className="w-12 h-12 border border-black/5 overflow-hidden">
-                      <img src={form.watch("images.0")} alt="" className="w-full h-full object-cover" />
-                    </div>
-                  )}
+                  <div className="relative">
+                    <Button variant="outline" type="button" className="h-12 px-4 rounded-none flex gap-2 overflow-visible">
+                      <Plus className="h-4 w-4" />
+                      <span className="text-[10px] font-black uppercase">رفع</span>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={(e) => handleImageUpload(e)} 
+                        className="absolute inset-0 opacity-0 cursor-pointer" 
+                      />
+                    </Button>
+                  </div>
                 </div>
                 <p className="text-[8px] text-black/40 mt-1">يرجى رفع صورة عالية الجودة للمنتج</p>
               </div>
@@ -1848,6 +1862,21 @@ const MarketingManagement = () => {
     isActive: true
   });
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const res = await apiRequest("POST", "/api/upload", formData);
+      const data = await res.json();
+      setFormData(prev => ({ ...prev, image: data.url }));
+      toast({ title: "تم رفع الصورة" });
+    } catch (err) {
+      toast({ variant: "destructive", title: "فشل الرفع" });
+    }
+  };
+
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
       await apiRequest("POST", "/api/admin/marketing", data);
@@ -1891,8 +1920,18 @@ const MarketingManagement = () => {
                 <Input value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="text-right" />
               </div>
               <div className="space-y-2">
-                <Label className="text-right block">رابط الصورة</Label>
-                <Input value={formData.image} onChange={e => setFormData({...formData, image: e.target.value})} className="text-right" />
+                <Label className="text-right block">الصورة</Label>
+                <div className="flex gap-2">
+                  <Input value={formData.image} onChange={e => setFormData({...formData, image: e.target.value})} className="text-right" placeholder="رابط الصورة" />
+                  <div className="relative">
+                    <Button variant="outline" size="icon" className="h-10 w-10 rounded-none shrink-0" asChild>
+                      <label className="cursor-pointer">
+                        <Plus className="h-4 w-4" />
+                        <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                      </label>
+                    </Button>
+                  </div>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label className="text-right block">رابط التوجيه (اختياري)</Label>

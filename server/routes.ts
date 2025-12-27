@@ -633,7 +633,14 @@ export async function registerRoutes(
     res.sendStatus(200);
   });
 
-  // POS & Shifts
+  app.get("/api/admin/users/search", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const { phone } = req.query;
+    if (!phone) return res.status(400).send("Phone required");
+    const user = await storage.getUserByUsername(phone as string);
+    if (!user) return res.status(404).send("User not found");
+    res.json(user);
+  });
   app.get("/api/pos/shifts", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     const shifts = await storage.getCashShifts();
