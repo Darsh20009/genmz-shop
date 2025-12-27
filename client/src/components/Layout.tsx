@@ -264,7 +264,6 @@ export function Layout({ children }: { children: ReactNode }) {
             <h3 className="font-bold text-lg mb-6">{t('help')}</h3>
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li><Link href="/terms" className="hover:text-primary transition-colors">{t('terms')}</Link></li>
-              <li className="hover:text-primary cursor-pointer transition-colors">{t('faq')}</li>
             </ul>
           </div>
           <div>
