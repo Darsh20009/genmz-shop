@@ -37,7 +37,7 @@ export const useCart = create<CartStore>()(
           set({
             items: items.map(item =>
               item.productId === product.id && item.variantSku === variant.sku
-                ? { ...item, quantity: item.quantity + quantity }
+                ? { ...item, quantity: item.quantity + quantity, image: variant.image || item.image }
                 : item
             ),
           });

@@ -122,10 +122,20 @@ export default function ProductDetails() {
     );
   }
 
+  const handleVariantSelect = (variant: any) => {
+    setSelectedVariant(variant);
+    // Find index of the variant's image in product images to sync gallery
+    const imageIndex = product.images.findIndex(img => img === variant.image);
+    if (imageIndex !== -1) {
+      setCurrentImageIndex(imageIndex);
+    }
+  };
+
   const handleAddToCart = () => {
     if (!selectedVariant) return;
     
     setIsAnimating(true);
+    // Ensure the variant image is passed correctly to the cart
     addItem(product, selectedVariant, quantity);
     
     // Animation reset
