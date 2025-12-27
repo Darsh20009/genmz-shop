@@ -144,9 +144,9 @@ export function Layout({ children }: { children: ReactNode }) {
             <Link href="/cart">
               <Button variant="ghost" size="icon" className="relative no-default-hover-elevate hover:text-primary h-11 w-11 active:scale-95 transition-transform">
                 <ShoppingBag className="h-6 w-6" />
-                {cartItems.length > 0 && (
+                {cartItems.reduce((acc, item) => acc + item.quantity, 0) > 0 && (
                   <span className={`absolute -top-1 ${language === 'ar' ? '-right-1' : '-left-1'} h-5 w-5 rounded-full bg-black text-[10px] font-black text-white flex items-center justify-center shadow-md`}>
-                    {cartItems.length}
+                    {cartItems.reduce((acc, item) => acc + item.quantity, 0)}
                   </span>
                 )}
               </Button>

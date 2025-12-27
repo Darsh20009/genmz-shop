@@ -128,12 +128,7 @@ export default function ProductDetails() {
     setIsAnimating(true);
     addItem(product, selectedVariant, quantity);
     
-    toast({
-      title: t('addedToCart'),
-      description: `${product.name} ${t('addedToCartDesc')}`,
-    });
-
-    // Reset animation after it completes
+    // Animation reset
     setTimeout(() => setIsAnimating(false), 1000);
   };
 
