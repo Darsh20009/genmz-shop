@@ -27,6 +27,7 @@ import AdminBranches from "@/pages/AdminBranches";
 import AdminStaff from "@/pages/AdminStaff";
 
 import AdminAuditLogs from "@/pages/AdminAuditLogs";
+import POS from "@/pages/POS";
 
 function Router() {
   return (
@@ -47,6 +48,7 @@ function Router() {
       <Route path="/admin/branches" component={AdminBranches} />
       <Route path="/admin/staff" component={AdminStaff} />
       <Route path="/admin/audit-logs" component={AdminAuditLogs} />
+      <Route path="/pos" component={POS} />
       <Route path="/terms" component={Terms} />
       <Route component={NotFound} />
     </Switch>

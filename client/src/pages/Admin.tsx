@@ -16,7 +16,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProductSchema, type InsertProduct, orderStatuses } from "@shared/schema";
 import { api } from "@shared/routes";
-import { Loader2, Plus, DollarSign, ShoppingCart, TrendingUp, BarChart3, ArrowUpRight, Trash2, Search, Filter, ChevronDown, CheckCircle2, XCircle, Truck, PackageCheck, AlertCircle, LayoutGrid, Tag, Edit, ArrowRight, LogOut, Package, Building, User as UserIcon, History } from "lucide-react";
+import { Loader2, Plus, DollarSign, ShoppingCart, TrendingUp, BarChart3, ArrowUpRight, Trash2, Search, Filter, ChevronDown, CheckCircle2, XCircle, Truck, PackageCheck, AlertCircle, LayoutGrid, Tag, Edit, ArrowRight, LogOut, Package, Building, User as UserIcon, History, Monitor } from "lucide-react";
+import { Link } from "wouter";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -1659,6 +1660,7 @@ const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChan
     { id: "overview", label: "نظرة عامة", icon: BarChart3 },
     { id: "products", label: "المنتجات", icon: PackageCheck },
     { id: "inventory", label: "المخزون", icon: Package },
+    { id: "pos_link", label: "نقطة البيع (POS)", icon: Monitor, url: "/pos" },
     { id: "orders", label: "الطلبات", icon: ShoppingCart },
     { id: "staff", label: "الموظفين", icon: UserIcon },
     { id: "branches", label: "الفروع", icon: Building },
@@ -1681,14 +1683,26 @@ const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChan
               <SidebarMenu>
                 {menuItems.map((item) => (
                   <SidebarMenuItem key={item.id}>
-                    <SidebarMenuButton 
-                      onClick={() => onTabChange(item.id)}
-                      data-active={activeTab === item.id}
-                      className="h-12 px-6 rounded-none data-[active=true]:bg-black data-[active=true]:text-white text-white/70 hover:text-white hover:bg-black/20 transition-all"
-                    >
-                      <item.icon className="h-4 w-4 ml-3" />
-                      <span className="font-bold text-xs uppercase tracking-widest">{item.label}</span>
-                    </SidebarMenuButton>
+                    {item.url ? (
+                      <SidebarMenuButton 
+                        asChild
+                        className="h-12 px-6 rounded-none text-white/70 hover:text-white hover:bg-black/20 transition-all"
+                      >
+                        <Link href={item.url}>
+                          <item.icon className="h-4 w-4 ml-3" />
+                          <span className="font-bold text-xs uppercase tracking-widest">{item.label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    ) : (
+                      <SidebarMenuButton 
+                        onClick={() => onTabChange(item.id)}
+                        data-active={activeTab === item.id}
+                        className="h-12 px-6 rounded-none data-[active=true]:bg-black data-[active=true]:text-white text-white/70 hover:text-white hover:bg-black/20 transition-all"
+                      >
+                        <item.icon className="h-4 w-4 ml-3" />
+                        <span className="font-bold text-xs uppercase tracking-widest">{item.label}</span>
+                      </SidebarMenuButton>
+                    )}
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
