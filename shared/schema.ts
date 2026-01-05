@@ -359,10 +359,155 @@ export const insertOrderSchema = z.object({
   moyasarPaymentId: z.string().optional(),
   moyasarStatus: z.enum(["initiated", "paid", "failed", "authorized", "captured", "refunded", "voided"]).optional(),
   moyasarPaymentUrl: z.string().optional(),
+  bankTransferReceipt: z.string().optional(),
 });
 
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type Order = InsertOrder & { _id: string; id: string; createdAt: Date; orderNumber: string };
+
+// Wallet Transaction Schema
+export const insertWalletTransactionSchema = z.object({
+  userId: z.string(),
+  amount: z.number(),
+  type: z.enum(["deposit", "withdrawal", "payment", "refund", "cashback"]),
+  description: z.string(),
+});
+
+export type InsertWalletTransaction = z.infer<typeof insertWalletTransactionSchema>;
+export type WalletTransaction = InsertWalletTransaction & { _id: string; id: string; createdAt: Date };
+
+// Branch Schema
+export const insertBranchSchema = z.object({
+  name: z.string().min(1),
+  location: z.string().optional(),
+  phone: z.string().optional(),
+  isActive: z.boolean().default(true),
+});
+
+export type InsertBranch = z.infer<typeof insertBranchSchema>;
+export type Branch = InsertBranch & { _id: string; id: string };
+
+// Banner Schema
+export const insertBannerSchema = z.object({
+  title: z.string().min(1),
+  image: z.string().min(1),
+  link: z.string().optional(),
+  type: z.enum(["banner", "popup"]).default("banner"),
+  isActive: z.boolean().default(true),
+});
+
+export type InsertBanner = z.infer<typeof insertBannerSchema>;
+export type Banner = InsertBanner & { _id: string; id: string };
+
+// Shipping Company Schema
+export const insertShippingCompanySchema = z.object({
+  name: z.string().min(1),
+  price: z.number(),
+  estimatedDays: z.number(),
+  isActive: z.boolean().default(true),
+  storageXCode: z.string().optional(),
+});
+
+export type InsertShippingCompany = z.infer<typeof insertShippingCompanySchema>;
+export type ShippingCompany = InsertShippingCompany & { _id: string; id: string };
+
+// Page Schema
+export const insertPageSchema = z.object({
+  title: z.string().min(1),
+  slug: z.string().min(1),
+  content: z.string().min(1),
+  isActive: z.boolean().default(true),
+});
+
+export type InsertPage = z.infer<typeof insertPageSchema>;
+export type Page = InsertPage & { _id: string; id: string };
+
+// Stock Transfer Schema
+export const insertStockTransferSchema = z.object({
+  fromBranchId: z.string(),
+  toBranchId: z.string(),
+  productId: z.string(),
+  variantSku: z.string(),
+  quantity: z.number(),
+  status: z.enum(["pending", "completed", "cancelled"]).default("pending"),
+  requestedBy: z.string(),
+  approvedBy: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+export type InsertStockTransfer = z.infer<typeof insertStockTransferSchema>;
+export type StockTransfer = InsertStockTransfer & { _id: string; id: string; createdAt: Date };
+
+// Invoice Schema
+export const insertInvoiceSchema = z.object({
+  userId: z.string(),
+  orderId: z.string().optional(),
+  invoiceNumber: z.string(),
+  issueDate: z.date().default(new Date()),
+  dueDate: z.date().optional(),
+  status: z.enum(["draft", "issued", "paid", "void", "refunded"]).default("draft"),
+  items: z.array(z.object({
+    description: z.string(),
+    quantity: z.number(),
+    unitPrice: z.number(),
+    taxRate: z.number().default(15),
+    taxAmount: z.number(),
+    total: z.number(),
+  })),
+  subtotal: z.number(),
+  taxTotal: z.number(),
+  total: z.number(),
+  notes: z.string().optional(),
+  qrCode: z.string().optional(),
+});
+
+export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
+export type Invoice = InsertInvoice & { _id: string; id: string; createdAt: Date };
+
+// Bank Transfer Schema
+export const insertBankTransferSchema = z.object({
+  orderId: z.string(),
+  userId: z.string(),
+  amount: z.number(),
+  bankName: z.string(),
+  accountHolder: z.string(),
+  referenceNumber: z.string().optional(),
+  receiptImage: z.string(),
+  status: z.enum(["pending", "verified", "rejected"]).default("pending"),
+  verifiedBy: z.string().optional(),
+  verifiedAt: z.date().optional(),
+  rejectionReason: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+export type InsertBankTransfer = z.infer<typeof insertBankTransferSchema>;
+export type BankTransfer = InsertBankTransfer & { _id: string; id: string; createdAt: Date };
+
+// Shipment Schema
+export const insertShipmentSchema = z.object({
+  orderId: z.string(),
+  trackingNumber: z.string(),
+  provider: z.string().default("Storage Station"),
+  status: z.enum(["pending", "picked_up", "in_transit", "out_for_delivery", "delivered", "failed"]).default("pending"),
+  estimatedDelivery: z.date().optional(),
+  actualDelivery: z.date().optional(),
+  events: z.array(z.object({
+    status: z.string(),
+    location: z.string().optional(),
+    timestamp: z.date(),
+    description: z.string(),
+  })).default([]),
+  recipientName: z.string(),
+  recipientPhone: z.string(),
+  deliveryAddress: z.object({
+    city: z.string(),
+    street: z.string(),
+    country: z.string().default("SA"),
+  }),
+});
+
+export type InsertShipment = z.infer<typeof insertShipmentSchema>;
+export type Shipment = InsertShipment & { _id: string; id: string; createdAt: Date };
 
 // Abandoned Cart Schema
 export const insertAbandonedCartSchema = z.object({
