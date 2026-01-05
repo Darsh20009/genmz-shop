@@ -374,6 +374,8 @@ export default function Checkout() {
 
             const resData = await response.json();
             if (resData.success && resData.transactionUrl) {
+              // Store order ID in session storage to verify on return if needed
+              sessionStorage.setItem("lastMoyasarOrderId", order.id || order._id);
               window.location.href = resData.transactionUrl;
               return;
             } else {
@@ -381,6 +383,12 @@ export default function Checkout() {
             }
           } catch (e: any) {
             console.error("[MOYASAR] Payment Error:", e);
+            // Delete the pending order if payment initiation fails to keep DB clean
+            try {
+              await apiRequest("DELETE", `/api/admin/orders/${order.id || order._id}`);
+            } catch (delError) {
+              console.error("Failed to cleanup pending order:", delError);
+            }
             toast({
               title: "خطأ",
               description: e.message || "فشل في معالجة دفع ميسر",
