@@ -798,8 +798,6 @@ export default function Checkout() {
                     )}
                   </div>
                 </div>
-              </section>
-
                 {/* Tamara & Tabby Widgets */}
                 <div className="mt-6 pt-6 border-t space-y-4">
                   <div 
@@ -817,7 +815,6 @@ export default function Checkout() {
                     }}
                   />
                 </div>
-                <script src="https://checkout.tabby.ai/tabby-promo-widget.js"></script>
               </section>
             </div>
 
