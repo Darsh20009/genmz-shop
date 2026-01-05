@@ -14,6 +14,9 @@ export class MoyasarService {
 
   constructor() {
     this.secretKey = process.env.MOYASAR_API_KEY || "";
+    if (!this.secretKey) {
+      console.warn("[MOYASAR] Warning: MOYASAR_API_KEY is not set in environment variables.");
+    }
   }
 
   private get authHeader() {
