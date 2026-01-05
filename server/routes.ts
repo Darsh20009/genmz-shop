@@ -550,6 +550,11 @@ export async function registerRoutes(
       });
 
       await storage.updateOrderPaymentStatus(orderId, "pending", "moyasar");
+      await (storage as any).updateOrderMoyasarDetails(orderId, {
+        paymentId: payment.id,
+        status: "initiated",
+        paymentUrl: payment.source.transaction_url
+      });
 
       res.json({
         success: true,

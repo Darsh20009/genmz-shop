@@ -291,6 +291,36 @@ export class MongoStorage implements IStorage {
 
     const order = await OrderModel.findByIdAndUpdate(id, update, { new: true }).lean();
     if (!order) throw new Error("Order not found");
+
+    // Create wallet transaction if paid via wallet
+    if (status === "paid" && provider === "wallet") {
+      const orderTotal = parseFloat(order.total);
+      const user = await UserModel.findById(order.userId);
+      if (user) {
+        const currentBalance = parseFloat(user.walletBalance || "0");
+        await UserModel.findByIdAndUpdate(order.userId, { 
+          walletBalance: (currentBalance - orderTotal).toString() 
+        });
+        await WalletTransactionModel.create({
+          userId: order.userId,
+          amount: -orderTotal,
+          type: "payment",
+          description: `دفع قيمة الطلب #${order.orderNumber || order._id.toString().slice(-8).toUpperCase()}`
+        });
+      }
+    }
+
+    return { ...order, id: order._id.toString() } as any;
+  }
+
+  async updateOrderMoyasarDetails(id: string, details: { paymentId?: string, status?: string, paymentUrl?: string }): Promise<Order> {
+    const update: any = {};
+    if (details.paymentId) update.moyasarPaymentId = details.paymentId;
+    if (details.status) update.moyasarStatus = details.status;
+    if (details.paymentUrl) update.moyasarPaymentUrl = details.paymentUrl;
+
+    const order = await OrderModel.findByIdAndUpdate(id, { $set: update }, { new: true }).lean();
+    if (!order) throw new Error("Order not found");
     return { ...order, id: order._id.toString() } as any;
   }
   async updateOrderReceipt(id: string, receiptUrl: string): Promise<Order> {
