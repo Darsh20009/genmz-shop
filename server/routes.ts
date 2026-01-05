@@ -600,13 +600,21 @@ export async function registerRoutes(
         return res.status(400).json({ success: false, message: "Order ID not found" });
       }
 
+      const OrderModel = (await import("./models")).OrderModel;
+
       if (payment.status === "paid") {
         await storage.updateOrderPaymentStatus(orderId, "paid", "moyasar");
         // Store Moyasar Payment ID
-        await OrderModel.findByIdAndUpdate(orderId, { moyasarPaymentId: payment.id });
+        await OrderModel.findByIdAndUpdate(orderId, { 
+          moyasarPaymentId: payment.id,
+          moyasarStatus: "paid"
+        });
         console.log(`[MOYASAR Webhook] Order ${orderId} marked as paid`);
       } else if (payment.status === "failed") {
         await storage.updateOrderPaymentStatus(orderId, "failed", "moyasar");
+        await OrderModel.findByIdAndUpdate(orderId, { 
+          moyasarStatus: "failed"
+        });
         console.log(`[MOYASAR Webhook] Order ${orderId} marked as failed`);
       }
 
