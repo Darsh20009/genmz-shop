@@ -126,7 +126,7 @@ export async function registerRoutes(
       const products = await storage.getProducts();
       const stats = {
         totalItems: products.reduce((acc, p) => acc + (p.variants?.reduce((sum, v) => sum + (v.stock || 0), 0) || 0), 0),
-        lowStockItems: products.filter(p => p.variants?.some(v => (v.stock || 0) <= 5)).length,
+        lowStockItems: products.filter(p => p.variants?.some(v => (v.stock || 0) <= (p.minStockLevel || 10))).length,
         outOfStockItems: products.filter(p => p.variants?.every(v => (v.stock || 0) <= 0)).length
       };
       res.json(stats);

@@ -106,6 +106,8 @@ const productSchema = new Schema<Product>(
     price: { type: String, required: true },
     cost: { type: String, required: true },
     images: [String],
+    category: String,
+    minStockLevel: { type: Number, default: 10 },
     variants: [{
       color: String,
       size: String,

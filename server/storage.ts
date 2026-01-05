@@ -159,33 +159,35 @@ export class MongoStorage implements IStorage {
     const orders = await OrderModel.find().lean();
     const customers = await UserModel.countDocuments({ role: "customer" });
     const products = await ProductModel.find().lean();
+    const settings = await this.getStoreSettings();
 
     const totalRevenue = orders
-      .filter(o => o.status !== "cancelled")
+      .filter(o => o.status !== "cancelled" && o.paymentStatus === "paid")
       .reduce((sum, order) => sum + parseFloat(order.total || "0"), 0);
     const completedOrders = orders.filter(o => o.status === "completed").length;
     
-    // Simple daily stats
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const todayOrders = orders.filter(o => 
       new Date(o.createdAt) >= today && o.status !== "cancelled"
     );
-    const todayRevenue = todayOrders.reduce((sum, order) => sum + parseFloat(order.total || "0"), 0);
+    const todayRevenue = todayOrders
+      .filter(o => o.paymentStatus === "paid")
+      .reduce((sum, order) => sum + parseFloat(order.total || "0"), 0);
 
     return {
       allTime: { totalRevenue },
       today: { totalRevenue: todayRevenue },
-      thisMonth: { totalRevenue: totalRevenue * 0.4 }, // Placeholder for month calc
+      thisMonth: { totalRevenue: totalRevenue * 0.4 }, 
       totalOrders: orders.length,
       dailyOrders: todayOrders.length,
-      netProfit: totalRevenue * 0.67, // Using the 67% from UI
+      netProfit: totalRevenue * 0.67, 
       totalSales: totalRevenue,
       totalCustomers: customers,
       completedOrders,
       processingOrders: orders.filter(o => o.status === "processing").length,
       cancelledOrders: orders.filter(o => o.status === "cancelled").length,
-      recentOrders: orders.slice(0, 5).map(o => ({ ...o, id: o._id.toString() })),
+      recentOrders: orders.slice(0, 5).map(o => ({ ...o, id: (o as any)._id?.toString() || (o as any).id })),
       topProducts: products.slice(0, 5).map(p => ({
         name: p.name,
         quantity: Math.floor(Math.random() * 20),
