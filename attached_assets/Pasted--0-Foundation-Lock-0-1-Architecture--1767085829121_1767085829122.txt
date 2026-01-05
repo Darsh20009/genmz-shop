@@ -1,0 +1,321 @@
+المرحلة 0️⃣ — تثبيت الأساس (Foundation Lock)
+
+بدونها أي تطوير بعد كده هيطلع مهزوز
+
+0.1 Architecture Decisions (قرارات لا رجعة فيها)
+
+⬜ تعريف صريح:
+
+Product = كيان واحد (Store + POS)
+
+Customer = كيان واحد (Wallet + Orders)
+
+Order.type = online | pos
+
+Branch = نقطة بيع فقط (لا تملك مخزون)
+
+⬜ فصل واضح:
+
+Frontend
+
+Business Logic
+
+Data Layer
+
+⬜ توثيق القرار في ملف ARCHITECTURE.md
+
+0.2 Data Models Cleanup
+
+⬜ مراجعة كل Schemas
+
+⬜ التأكد إن:
+
+order.branch_id
+
+order.cashier_id
+
+staff.branch_id
+
+⬜ إزالة أي منطق مخزون مرتبط بالفرع (لو موجود)
+
+⬜ توحيد naming conventions
+
+المرحلة 1️⃣ — Design System & Frontend Base
+
+دي اللي بتخلي المستخدم يقول “واو” من أول ثانية
+
+1.1 Design System
+
+⬜ Typography (2 خطوط فقط)
+
+⬜ Color Tokens (Primary / Success / Warning / Danger)
+
+⬜ Spacing Scale
+
+⬜ Border Radius rules
+
+⬜ Shadow rules
+
+1.2 UI Components (Reusable)
+
+⬜ Button (variants + sizes)
+
+⬜ Input / Select / Switch
+
+⬜ Modal / Drawer
+
+⬜ Table (base)
+
+⬜ Badge / Status pill
+
+⬜ Toast (success / error / warning)
+
+⬜ Skeleton Loader
+
+المرحلة 2️⃣ — Onboarding & UX Psychology
+
+دي اللي زد وسلة بيكسبوا بيها
+
+2.1 Onboarding Logic
+
+⬜ Detect missing setup steps
+
+⬜ Progress calculation
+
+⬜ Show/Hide onboarding automatically
+
+⬜ Deep links لكل خطوة
+
+2.2 Empty States (لكل صفحة)
+
+⬜ Title واضح
+
+⬜ Description بشري
+
+⬜ CTA زر واحد
+
+⬜ Optional secondary action
+
+المرحلة 3️⃣ — Staff & RBAC (Enterprise Level)
+
+دي النقلة من نظام هاوي لنظام شركات
+
+3.1 Staff Core
+
+⬜ Add employee
+
+⬜ Activate / deactivate
+
+⬜ Reset password
+
+⬜ Assign branch
+
+⬜ Define login type:
+
+dashboard
+
+pos
+
+both
+
+3.2 Roles System
+
+⬜ Role entity مستقل
+
+⬜ Preset roles:
+
+Super Admin
+
+Admin
+
+Branch Manager
+
+Cashier
+
+Accountant
+
+Support
+
+⬜ Role = مجموعة permissions
+
+3.3 Permissions (Granular)
+
+⬜ orders.view
+
+⬜ orders.edit
+
+⬜ orders.refund
+
+⬜ products.view/edit
+
+⬜ customers.view
+
+⬜ wallet.adjust
+
+⬜ reports.view
+
+⬜ staff.manage
+
+⬜ pos.access
+
+⬜ settings.manage
+
+المرحلة 4️⃣ — Audit Log (مهم جدًا)
+
+ده اللي يخليك Enterprise فعلًا
+
+⬜ Log كل عملية:
+
+من
+
+متى
+
+ماذا تغير
+
+⬜ Financial logs منفصلة
+
+⬜ Immutable logs (لا حذف)
+
+⬜ UI لعرض السجل + filters
+
+المرحلة 5️⃣ — Branches System
+
+الفروع = Context مش مخزون
+
+5.1 Branch Management
+
+⬜ Add branch
+
+⬜ Location (map)
+
+⬜ Status (active / closed)
+
+⬜ Assign staff
+
+⬜ Enable POS per branch
+
+المرحلة 6️⃣ — POS System (الجزء الأخطر)
+
+هنا الفرق الحقيقي
+
+6.1 POS UI
+
+⬜ Fast grid UI
+
+⬜ Category tabs
+
+⬜ SKU / Barcode search
+
+⬜ Keyboard shortcuts
+
+⬜ Cart UX واضح
+
+6.2 POS Logic
+
+⬜ order.type = POS
+
+⬜ branch_id required
+
+⬜ cashier_id required
+
+⬜ Cash payment (POS only)
+
+⬜ Wallet integration
+
+6.3 Printing
+
+⬜ Receipt template
+
+⬜ QR code
+
+⬜ Branch + cashier + datetime
+
+المرحلة 7️⃣ — Offline POS (Advanced)
+
+دي ميزة قاتلة
+
+⬜ Service Worker
+
+⬜ IndexedDB queue
+
+⬜ Offline order creation
+
+⬜ Auto-sync عند رجوع النت
+
+⬜ Conflict resolution
+
+المرحلة 8️⃣ — Cash Management
+
+دي اللي بتخلي المحاسبين يثقوا فيك
+
+8.1 Shifts
+
+⬜ Open shift
+
+⬜ Opening balance
+
+⬜ Close shift
+
+⬜ Expected vs actual cash
+
+⬜ Difference calculation
+
+8.2 Reports
+
+⬜ Sales per branch
+
+⬜ Sales per cashier
+
+⬜ Cash vs Card
+
+⬜ Daily / monthly
+
+المرحلة 9️⃣ — Unified Reports
+
+كل حاجة في لوحة واحدة
+
+⬜ Online + POS sales
+
+⬜ Product performance
+
+⬜ Customer wallet usage
+
+⬜ Branch comparison
+
+⬜ Export (CSV / PDF)
+
+المرحلة 🔟 — API + Webhooks (Enterprise)
+
+عشان أي شركة كبيرة تثق فيك
+
+APIs
+
+⬜ Staff API
+
+⬜ Branches API
+
+⬜ POS Orders API
+
+⬜ Cash Shifts API
+
+Webhooks
+
+⬜ pos.order.created
+
+⬜ shift.opened
+
+⬜ shift.closed
+
+⬜ cash.mismatch.detected
+
+المرحلة 11️⃣ — Performance & Polish
+
+اللمسة الأخيرة
+
+⬜ Caching
+
+⬜ Prefetch
+
+⬜ Lazy loading
+
+⬜ Mobile admin UX
