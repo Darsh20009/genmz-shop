@@ -1,4 +1,4 @@
-import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, OrderStatus, ActivityLog, InsertActivityLog, Coupon, InsertCoupon, Branch, InsertBranch, Banner, InsertBanner, CashShift, InsertCashShift, BranchInventory, ShippingCompany, InsertShippingCompany, AuditLog, InsertAuditLog, Role, InsertRole, StockTransfer, InsertStockTransfer, Invoice, InsertInvoice, BankTransfer, InsertBankTransfer, Shipment, InsertShipment, AbandonedCart, InsertAbandonedCart, Review, InsertReview, StoreSettings, InsertStoreSettings } from "@shared/schema";
+import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, OrderStatus, ActivityLog, InsertActivityLog, Coupon, InsertCoupon, Branch, InsertBranch, Banner, InsertBanner, CashShift, InsertCashShift, ShippingCompany, InsertShippingCompany, AuditLog, InsertAuditLog, Role, InsertRole, StockTransfer, InsertStockTransfer, Invoice, InsertInvoice, BankTransfer, InsertBankTransfer, Shipment, InsertShipment, AbandonedCart, InsertAbandonedCart, Review, InsertReview, StoreSettings, InsertStoreSettings } from "@shared/schema";
 import { UserModel, ProductModel, OrderModel, CategoryModel, WalletTransactionModel, ActivityLogModel, CouponModel, BranchModel, BannerModel, CashShiftModel, ShippingCompanyModel, AuditLogModel, RoleModel, StockTransferModel, InvoiceModel, BankTransferModel, ShipmentModel, CartModel, AbandonedCartModel, ReviewModel, StoreSettingsModel, OptionModel, FilterModel } from "./models";
 
 export interface IStorage {
@@ -21,17 +21,20 @@ export interface IStorage {
   getOrder(id: string): Promise<Order | undefined>;
   getOrders(): Promise<Order[]>;
   createOrder(order: InsertOrder): Promise<Order>;
-  updateOrderStatus(id: string, status: OrderStatus): Promise<Order>;
+  updateOrderStatus(id: string, status: string, details?: any): Promise<Order>;
   updateOrderReceipt(id: string, receiptUrl: string): Promise<Order>;
+  updateOrderPaymentStatus(id: string, status: string, provider?: string): Promise<Order>;
 
   // Categories
   getCategories(): Promise<Category[]>;
   getCategory(id: string): Promise<Category | undefined>;
   createCategory(category: InsertCategory): Promise<Category>;
+  updateCategory(id: string, category: Partial<InsertCategory>): Promise<Category>;
 
   // Wallet
   getWalletTransactions(userId: string): Promise<WalletTransaction[]>;
   createWalletTransaction(transaction: InsertWalletTransaction): Promise<WalletTransaction>;
+  updateUserWallet(userId: string, balance: number): Promise<User>;
 
   // Activity Logs
   getActivityLogs(): Promise<ActivityLog[]>;
@@ -45,6 +48,7 @@ export interface IStorage {
   // Branches
   getBranches(): Promise<Branch[]>;
   createBranch(branch: InsertBranch): Promise<Branch>;
+  updateBranch(id: string, branch: Partial<InsertBranch>): Promise<Branch>;
 
   // Banners
   getBanners(): Promise<Banner[]>;
@@ -54,6 +58,8 @@ export interface IStorage {
   getActiveShift(cashierId: string): Promise<CashShift | undefined>;
   createCashShift(shift: InsertCashShift): Promise<CashShift>;
   closeCashShift(id: string, closingData: { closingBalance: number, actualCash: number }): Promise<CashShift>;
+  getCashShifts(): Promise<CashShift[]>;
+  updateCashShift(id: string, data: Partial<CashShift>): Promise<CashShift>;
 
   // Shipping
   getShippingCompanies(): Promise<ShippingCompany[]>;
@@ -74,18 +80,24 @@ export interface IStorage {
   // Invoices
   getInvoices(): Promise<Invoice[]>;
   createInvoice(invoice: InsertInvoice): Promise<Invoice>;
+  getInvoice(id: string): Promise<Invoice | undefined>;
 
   // Bank Transfers
   getBankTransfers(): Promise<BankTransfer[]>;
   createBankTransfer(transfer: InsertBankTransfer): Promise<BankTransfer>;
+  updateBankTransfer(id: string, data: Partial<BankTransfer>): Promise<BankTransfer>;
 
   // Shipments
   getShipments(): Promise<Shipment[]>;
   createShipment(shipment: InsertShipment): Promise<Shipment>;
+  getShipmentByTracking(tracking: string): Promise<Shipment | undefined>;
+  getShipmentByOrder(orderId: string): Promise<Shipment | undefined>;
+  updateShipmentStatus(id: string, status: string): Promise<Shipment>;
 
   // Abandoned Carts
   getAbandonedCarts(): Promise<AbandonedCart[]>;
   createAbandonedCart(cart: InsertAbandonedCart): Promise<AbandonedCart>;
+  updateAbandonedCart(id: string, data: Partial<AbandonedCart>): Promise<AbandonedCart>;
 
   // Reviews
   getReviews(productId?: string): Promise<Review[]>;
@@ -111,7 +123,29 @@ export interface IStorage {
 
   // Cart
   getCart(userId: string): Promise<any>;
+  saveCart(userId: string, items: any[]): Promise<any>;
+  clearCart(userId: string): Promise<void>;
   
+  // Pages
+  getPages(): Promise<any[]>;
+  createPage(data: any): Promise<any>;
+  updatePage(id: string, data: any): Promise<any>;
+  deletePage(id: string): Promise<void>;
+
+  // FAQ
+  getFAQs(): Promise<any[]>;
+  createFAQ(data: any): Promise<any>;
+  updateFAQ(id: string, data: any): Promise<any>;
+  deleteFAQ(id: string): Promise<void>;
+
+  // Customer Groups
+  getCustomerGroups(): Promise<any[]>;
+  createCustomerGroup(data: any): Promise<any>;
+
+  // Themes
+  getThemes(): Promise<any[]>;
+  activateTheme(id: string): Promise<any>;
+
   // Orders by User
   getOrdersByUser(userId: string): Promise<Order[]>;
 
@@ -234,6 +268,16 @@ export class MongoStorage implements IStorage {
     const order = await OrderModel.create(insertOrder);
     return { ...order.toObject(), id: order._id.toString() } as any;
   }
+  async updateOrderStatus(id: string, status: string, details?: any): Promise<Order> {
+    const update: any = { status };
+    if (details) {
+      if (details.tracking) update.trackingNumber = details.tracking;
+      if (details.adminNotes) update.adminNotes = details.adminNotes;
+    }
+    const order = await OrderModel.findByIdAndUpdate(id, update, { new: true }).lean();
+    if (!order) throw new Error("Order not found");
+    return { ...order, id: order._id.toString() } as any;
+  }
   async updateOrderPaymentStatus(id: string, status: string, provider?: string): Promise<Order> {
     const update: any = { paymentStatus: status };
     if (provider) update.paymentMethod = provider;
@@ -266,6 +310,11 @@ export class MongoStorage implements IStorage {
     const category = await CategoryModel.create(insertCategory);
     return { ...category.toObject(), id: category._id.toString() } as any;
   }
+  async updateCategory(id: string, category: Partial<InsertCategory>): Promise<Category> {
+    const updated = await CategoryModel.findByIdAndUpdate(id, category, { new: true }).lean();
+    if (!updated) throw new Error("Category not found");
+    return { ...updated, id: updated._id.toString() } as any;
+  }
 
   // Wallet
   async getWalletTransactions(userId: string): Promise<WalletTransaction[]> {
@@ -275,6 +324,11 @@ export class MongoStorage implements IStorage {
   async createWalletTransaction(insertTransaction: InsertWalletTransaction): Promise<WalletTransaction> {
     const transaction = await WalletTransactionModel.create(insertTransaction);
     return { ...transaction.toObject(), id: transaction._id.toString() } as any;
+  }
+  async updateUserWallet(userId: string, balance: number): Promise<User> {
+    const user = await UserModel.findByIdAndUpdate(userId, { walletBalance: balance }, { new: true }).lean();
+    if (!user) throw new Error("User not found");
+    return { ...user, id: user._id.toString() } as any;
   }
 
   // Activity Logs
@@ -310,6 +364,11 @@ export class MongoStorage implements IStorage {
     const branch = await BranchModel.create(insertBranch);
     return { ...branch.toObject(), id: branch._id.toString() } as any;
   }
+  async updateBranch(id: string, branch: Partial<InsertBranch>): Promise<Branch> {
+    const updated = await BranchModel.findByIdAndUpdate(id, branch, { new: true }).lean();
+    if (!updated) throw new Error("Branch not found");
+    return { ...updated, id: updated._id.toString() } as any;
+  }
 
   // Banners
   async getBanners(): Promise<Banner[]> {
@@ -335,6 +394,15 @@ export class MongoStorage implements IStorage {
     const shift = await CashShiftModel.findByIdAndUpdate(id, { ...closingData, difference, status: "closed", closedAt: new Date() }, { new: true }).lean();
     if (!shift) throw new Error("Shift not found");
     return { ...shift, id: shift._id.toString() } as any;
+  }
+  async getCashShifts(): Promise<CashShift[]> {
+    const shifts = await CashShiftModel.find().sort({ createdAt: -1 }).lean();
+    return shifts.map(s => ({ ...s, id: s._id.toString() } as any));
+  }
+  async updateCashShift(id: string, data: Partial<CashShift>): Promise<CashShift> {
+    const updated = await CashShiftModel.findByIdAndUpdate(id, data, { new: true }).lean();
+    if (!updated) throw new Error("Shift not found");
+    return { ...updated, id: updated._id.toString() } as any;
   }
 
   // Shipping
@@ -386,6 +454,10 @@ export class MongoStorage implements IStorage {
     const invoice = await InvoiceModel.create(insertInvoice);
     return { ...invoice.toObject(), id: invoice._id.toString() } as any;
   }
+  async getInvoice(id: string): Promise<Invoice | undefined> {
+    const invoice = await InvoiceModel.findById(id).lean();
+    return invoice ? { ...invoice, id: invoice._id.toString() } as any : undefined;
+  }
 
   // Bank Transfers
   async getBankTransfers(): Promise<BankTransfer[]> {
@@ -395,6 +467,11 @@ export class MongoStorage implements IStorage {
   async createBankTransfer(insertTransfer: InsertBankTransfer): Promise<BankTransfer> {
     const transfer = await BankTransferModel.create(insertTransfer);
     return { ...transfer.toObject(), id: transfer._id.toString() } as any;
+  }
+  async updateBankTransfer(id: string, data: Partial<BankTransfer>): Promise<BankTransfer> {
+    const updated = await BankTransferModel.findByIdAndUpdate(id, data, { new: true }).lean();
+    if (!updated) throw new Error("Bank transfer not found");
+    return { ...updated, id: updated._id.toString() } as any;
   }
 
   // Shipments
@@ -406,6 +483,19 @@ export class MongoStorage implements IStorage {
     const shipment = await ShipmentModel.create(insertShipment);
     return { ...shipment.toObject(), id: shipment._id.toString() } as any;
   }
+  async getShipmentByTracking(tracking: string): Promise<Shipment | undefined> {
+    const shipment = await ShipmentModel.findOne({ trackingNumber: tracking }).lean();
+    return shipment ? { ...shipment, id: shipment._id.toString() } as any : undefined;
+  }
+  async getShipmentByOrder(orderId: string): Promise<Shipment | undefined> {
+    const shipment = await ShipmentModel.findOne({ orderId }).lean();
+    return shipment ? { ...shipment, id: shipment._id.toString() } as any : undefined;
+  }
+  async updateShipmentStatus(id: string, status: string): Promise<Shipment> {
+    const shipment = await ShipmentModel.findByIdAndUpdate(id, { status }, { new: true }).lean();
+    if (!shipment) throw new Error("Shipment not found");
+    return { ...shipment, id: shipment._id.toString() } as any;
+  }
 
   // Abandoned Carts
   async getAbandonedCarts(): Promise<AbandonedCart[]> {
@@ -415,6 +505,11 @@ export class MongoStorage implements IStorage {
   async createAbandonedCart(insertCart: InsertAbandonedCart): Promise<AbandonedCart> {
     const cart = await AbandonedCartModel.create(insertCart);
     return { ...cart.toObject(), id: cart._id.toString() } as any;
+  }
+  async updateAbandonedCart(id: string, data: Partial<AbandonedCart>): Promise<AbandonedCart> {
+    const updated = await AbandonedCartModel.findByIdAndUpdate(id, data, { new: true }).lean();
+    if (!updated) throw new Error("Abandoned cart not found");
+    return { ...updated, id: updated._id.toString() } as any;
   }
 
   // Reviews
