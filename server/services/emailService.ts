@@ -8,11 +8,14 @@ const hasSmtpConfig = process.env.SMTP_USERNAME && process.env.SMTP_PASSWORD;
 const transporter = hasSmtpConfig ? nodemailer.createTransport({
   host: process.env.SMTP_HOST || "pro.turbo-smtp.com",
   port: parseInt(process.env.SMTP_PORT || "465"),
-  secure: process.env.SMTP_PORT === "465", // true for 465, false for other ports
+  secure: true, // Force true for port 465
   auth: {
     user: process.env.SMTP_USERNAME,
     pass: process.env.SMTP_PASSWORD,
   },
+  tls: {
+    rejectUnauthorized: false // Helps with some environment restrictions
+  }
 }) : null;
 
 export interface OrderEmailData {

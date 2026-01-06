@@ -581,6 +581,34 @@ export async function registerRoutes(
 
       if (payment.status === "paid") {
         await storage.updateOrderPaymentStatus(orderId, "paid", "moyasar");
+        
+        // Trigger Shipping Integration (ShipHero) after payment
+        try {
+          const order = await storage.getOrder(orderId);
+          if (order) {
+            console.log(`[SHIPPING] Triggering ShipHero for order ${orderId}`);
+            await shipHeroService.createOrder(order);
+          }
+        } catch (shipError) {
+          console.error("[SHIPPING] Failed to sync with ShipHero:", shipError);
+        }
+
+        // Send confirmation email
+        try {
+          const order = await storage.getOrder(orderId);
+          if (order) {
+            await (await import("./services/emailService")).sendOrderConfirmationEmail({
+              customerName: order.customerName || "Customer",
+              customerEmail: order.customerEmail,
+              orderId: order.id,
+              orderTotal: `${order.total} ر.س`,
+              items: order.items || []
+            });
+          }
+        } catch (emailError) {
+          console.error("[EMAIL] Failed to send confirmation:", emailError);
+        }
+
         // Store Moyasar Payment ID
         const OrderModel = (await import("./models")).OrderModel;
         await OrderModel.findByIdAndUpdate(orderId, { moyasarPaymentId: id as string });
