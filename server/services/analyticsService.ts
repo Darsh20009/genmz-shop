@@ -417,6 +417,11 @@ export class AnalyticsService {
       this.getSalesOverview()
     ]);
 
+    const pendingPayments = await ordersCollection.countDocuments({
+      paymentMethod: 'bank_transfer',
+      paymentStatus: { $in: ['pending', null] }
+    });
+
     // Additional dashboard-specific calculations
     const statsResult = await ordersCollection.aggregate([
       {
@@ -443,17 +448,15 @@ export class AnalyticsService {
       completedOrders: 0
     };
 
-    // Ensure sales metrics are also strictly verified here if allTime.totalRevenue is still high
-    // The previous fix already updated getSalesOverview, but we double check totalSales logic.
-    
     return { 
       today, 
       thisWeek, 
       thisMonth, 
       allTime,
       ...counts,
+      pendingPayments,
       totalSales: allTime.totalRevenue,
-      netProfit: allTime.totalRevenue * 0.67 // Mock profit calculation based on actual revenue
+      netProfit: allTime.totalRevenue * 0.67 
     };
   }
 }

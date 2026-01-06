@@ -68,36 +68,49 @@ export default function AdminDashboard() {
   const formattedDate = currentDate.toLocaleDateString('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' });
 
   const displayStats = {
-    allTime: { totalRevenue: stats?.allTime?.totalRevenue || 111212.1 },
-    today: { totalRevenue: stats?.today?.totalRevenue || 270 },
-    thisMonth: { totalRevenue: stats?.thisMonth?.totalRevenue || 1354.4 },
-    totalOrders: stats?.totalOrders || 27,
-    dailyOrders: stats?.dailyOrders || 4,
-    netProfit: stats?.netProfit || 74506.14,
-    totalSales: stats?.totalSales || 111212.1,
-    totalCustomers: stats?.totalCustomers || 21,
-    completedOrders: stats?.completedOrders || 25,
+    allTime: { totalRevenue: stats?.allTime?.totalRevenue || 0 },
+    today: { totalRevenue: stats?.today?.totalRevenue || 0 },
+    thisMonth: { totalRevenue: stats?.thisMonth?.totalRevenue || 0 },
+    totalOrders: stats?.totalOrders || 0,
+    dailyOrders: stats?.dailyOrders || 0,
+    netProfit: stats?.netProfit || 0,
+    totalSales: stats?.totalSales || 0,
+    totalCustomers: stats?.totalCustomers || 0,
+    completedOrders: stats?.completedOrders || 0,
     processingOrders: stats?.processingOrders || 0,
     cancelledOrders: stats?.cancelledOrders || 0,
-    recentOrders: stats?.recentOrders?.length > 0 ? stats.recentOrders : [
-      { id: "1442B09", customerName: "عميل عام", createdAt: new Date().toISOString(), total: 450, status: "completed" },
-      { id: "PAC7B37", customerName: "عميل عام", createdAt: new Date().toISOString(), total: 120, status: "completed" },
-      { id: "411B174", customerName: "عميل عام", createdAt: new Date().toISOString(), total: 85, status: "completed" },
-      { id: "91B1AC", customerName: "عميل عام", createdAt: new Date().toISOString(), total: 340, status: "completed" },
-      { id: "911B3B9", customerName: "عميل عام", createdAt: new Date().toISOString(), total: 210, status: "completed" },
-    ],
-    topProducts: stats?.topProducts?.length > 0 ? stats.topProducts : [
-      { name: "قهوة 03", quantity: 15, revenue: 93000, image: "https://images.unsplash.com/photo-1541167760496-1628856ab772?w=100&h=100&fit=crop" },
-      { name: "qahwa cup", quantity: 4, revenue: 60, image: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=100&h=100&fit=crop" },
-      { name: "هودي جيل زد | سطل كاب", quantity: 4, revenue: 750, image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=100&h=100&fit=crop" },
-      { name: "سوس", quantity: 1, revenue: 200, image: "https://images.unsplash.com/photo-1472393365320-dc7724244995?w=100&h=100&fit=crop" },
-      { name: "02", quantity: 1, revenue: 280, image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=100&h=100&fit=crop" },
-    ]
+    pendingPayments: stats?.pendingPayments || 0,
+    recentOrders: stats?.recentOrders || [],
+    topProducts: stats?.topProducts || []
   };
 
   return (
     <Layout>
       <div className="min-h-screen bg-[#f8fafc] dark:bg-[#020617] p-3 sm:p-6 lg:p-8 space-y-6" dir="rtl">
+        {displayStats.pendingPayments > 0 && (
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-amber-50 border-2 border-amber-200 p-4 rounded-[1.5rem] flex items-center justify-between gap-4 shadow-sm"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-amber-100 rounded-xl text-amber-600">
+                <Clock className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-black text-amber-900 text-sm">تنبيه: مراجعة دفع معلقة</h4>
+                <p className="text-amber-700 text-xs font-bold">يوجد {displayStats.pendingPayments} طلبات بانتظار تأكيد التحويل البنكي</p>
+              </div>
+            </div>
+            <Button 
+              size="sm" 
+              className="bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold text-xs"
+              onClick={() => setLocation("/admin/orders?status=bank_transfer_pending")}
+            >
+              عرض الطلبات
+            </Button>
+          </motion.div>
+        )}
         {/* Top Header */}
         <motion.div 
           initial={{ y: -10, opacity: 0 }}
@@ -163,25 +176,25 @@ export default function AdminDashboard() {
         </motion.div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="rounded-[2.5rem] p-6 shadow-sm border-none bg-white dark:bg-slate-900 flex flex-col items-center text-center space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <Card className="rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 shadow-sm border-none bg-white dark:bg-slate-900 flex flex-col items-center text-center space-y-3">
             <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
               <ShoppingCart className="w-6 h-6" />
             </div>
-            <p className="text-muted-foreground text-sm font-bold">إجمالي الطلبات</p>
-            <div className="text-4xl font-black">{displayStats.totalOrders}</div>
+            <p className="text-muted-foreground text-xs sm:text-sm font-bold">إجمالي الطلبات</p>
+            <div className="text-3xl sm:text-4xl font-black">{displayStats.totalOrders}</div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">مكتمل اليوم:</span>
-              <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 rounded-lg font-black">{displayStats.dailyOrders}</Badge>
+              <span className="text-[10px] sm:text-xs text-muted-foreground">مكتمل اليوم:</span>
+              <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 rounded-lg font-black text-[10px] sm:text-xs">{displayStats.dailyOrders}</Badge>
             </div>
           </Card>
 
-          <Card className="rounded-[2.5rem] p-6 shadow-sm border-none bg-white dark:bg-slate-900 flex flex-col items-center text-center space-y-3">
+          <Card className="rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 shadow-sm border-none bg-white dark:bg-slate-900 flex flex-col items-center text-center space-y-3">
             <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl">
               <TrendingUp className="w-6 h-6" />
             </div>
-            <p className="text-muted-foreground text-sm font-bold">صافي الأرباح</p>
-            <div className="text-3xl font-black text-amber-600">
+            <p className="text-muted-foreground text-xs sm:text-sm font-bold">صافي الأرباح</p>
+            <div className="text-2xl sm:text-3xl font-black text-amber-600">
               {displayStats.netProfit.toLocaleString()}
               <span className="text-xs font-medium mr-1">ر.س</span>
             </div>
@@ -193,17 +206,17 @@ export default function AdminDashboard() {
             </div>
           </Card>
 
-          <Card className="rounded-[2.5rem] p-6 shadow-sm border-none bg-white dark:bg-slate-900 flex flex-col items-center text-center space-y-3">
+          <Card className="rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 shadow-sm border-none bg-white dark:bg-slate-900 flex flex-col items-center text-center space-y-3">
             <div className="p-3 bg-purple-50 text-purple-600 rounded-2xl">
               <Users className="w-6 h-6" />
             </div>
-            <p className="text-muted-foreground text-sm font-bold">قاعدة العملاء</p>
-            <div className="text-4xl font-black">{displayStats.totalCustomers}</div>
+            <p className="text-muted-foreground text-xs sm:text-sm font-bold">قاعدة العملاء</p>
+            <div className="text-3xl sm:text-4xl font-black">{displayStats.totalCustomers}</div>
             <div className="flex -space-x-2 space-x-reverse">
               {[1, 2, 3].map(i => (
-                <div key={i} className="w-7 h-7 rounded-full border-2 border-white bg-slate-200" />
+                <div key={i} className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 border-white bg-slate-200" />
               ))}
-              <div className="w-7 h-7 rounded-full border-2 border-white bg-primary flex items-center justify-center text-[10px] text-white font-bold">
+              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 border-white bg-primary flex items-center justify-center text-[8px] sm:text-[10px] text-white font-bold">
                 +18
               </div>
             </div>
