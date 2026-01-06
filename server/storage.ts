@@ -159,29 +159,35 @@ export class MongoStorage implements IStorage {
     const orders = await OrderModel.find().lean();
     const customers = await UserModel.countDocuments({ role: "customer" });
     const products = await ProductModel.find().lean();
-    const settings = await this.getStoreSettings();
-
+    
+    // Revenue: Only paid orders that are not cancelled
     const totalRevenue = orders
-      .filter(o => o.status !== "cancelled" && o.paymentStatus === "paid")
+      .filter(o => o.status !== "cancelled" && (o.paymentStatus === "paid" || o.paymentMethod === "cod"))
       .reduce((sum, order) => sum + parseFloat(order.total || "0"), 0);
+    
     const completedOrders = orders.filter(o => o.status === "completed").length;
     
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const todayOrders = orders.filter(o => 
-      new Date(o.createdAt) >= today && o.status !== "cancelled"
+      new Date(o.createdAt) >= today
     );
     const todayRevenue = todayOrders
-      .filter(o => o.paymentStatus === "paid")
+      .filter(o => o.status !== "cancelled" && (o.paymentStatus === "paid" || o.paymentMethod === "cod"))
       .reduce((sum, order) => sum + parseFloat(order.total || "0"), 0);
+
+    // Calculate actual net profit from order data
+    const netProfit = orders
+      .filter(o => o.status !== "cancelled" && (o.paymentStatus === "paid" || o.paymentMethod === "cod"))
+      .reduce((sum, order) => sum + parseFloat(order.netProfit || "0"), 0);
 
     return {
       allTime: { totalRevenue },
       today: { totalRevenue: todayRevenue },
-      thisMonth: { totalRevenue: totalRevenue * 0.4 }, 
+      thisMonth: { totalRevenue: totalRevenue }, // Placeholder for month logic
       totalOrders: orders.length,
       dailyOrders: todayOrders.length,
-      netProfit: totalRevenue * 0.67, 
+      netProfit: netProfit,
       totalSales: totalRevenue,
       totalCustomers: customers,
       completedOrders,
@@ -190,8 +196,8 @@ export class MongoStorage implements IStorage {
       recentOrders: orders.slice(0, 5).map(o => ({ ...o, id: (o as any)._id?.toString() || (o as any).id })),
       topProducts: products.slice(0, 5).map(p => ({
         name: p.name,
-        quantity: Math.floor(Math.random() * 20),
-        revenue: parseFloat(p.price) * 10,
+        quantity: 0, // Placeholder
+        revenue: 0, // Placeholder
         image: p.images?.[0]
       }))
     };
@@ -276,8 +282,26 @@ export class MongoStorage implements IStorage {
       if (details.tracking) update.trackingNumber = details.tracking;
       if (details.adminNotes) update.adminNotes = details.adminNotes;
     }
+
+    const oldOrder = await OrderModel.findById(id).lean();
+    if (!oldOrder) throw new Error("Order not found");
+
     const order = await OrderModel.findByIdAndUpdate(id, update, { new: true }).lean();
     if (!order) throw new Error("Order not found");
+
+    // Handle stock return and profit clearing on cancellation
+    if (status === "cancelled" && oldOrder.status !== "cancelled") {
+      if (order.items && Array.isArray(order.items)) {
+        for (const item of order.items) {
+          await ProductModel.updateOne(
+            { _id: item.productId, "variants.sku": item.variantSku },
+            { $inc: { "variants.$.stock": item.quantity } }
+          );
+        }
+      }
+      await OrderModel.findByIdAndUpdate(id, { netProfit: "0" });
+    }
+
     return { ...order, id: order._id.toString() } as any;
   }
   async updateOrderPaymentStatus(id: string, status: string, provider?: string): Promise<Order> {
