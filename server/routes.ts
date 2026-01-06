@@ -579,21 +579,21 @@ export async function registerRoutes(
       
       if (!orderId) return res.status(400).send("Order ID not found in payment metadata");
 
-      if (payment.status === "paid") {
-        await storage.updateOrderPaymentStatus(orderId, "paid", "moyasar");
-        
-        // Trigger Shipping Integration (ShipHero) after payment
+      // Trigger Shipping Integration (ShipHero) after payment
+      const triggerShipping = async (orderId: string) => {
         try {
           const order = await storage.getOrder(orderId);
           if (order) {
-            console.log(`[SHIPPING] Triggering ShipHero for order ${orderId}`);
+            console.log(`[SHIPPING] Triggering ShipHero for order ${order.orderNumber || orderId}`);
             await shipHeroService.createOrder(order);
           }
         } catch (shipError) {
           console.error("[SHIPPING] Failed to sync with ShipHero:", shipError);
         }
+      };
 
-        // Send confirmation email
+      // Send confirmation email after payment
+      const sendConfirmation = async (orderId: string) => {
         try {
           const order = await storage.getOrder(orderId);
           if (order) {
@@ -608,6 +608,13 @@ export async function registerRoutes(
         } catch (emailError) {
           console.error("[EMAIL] Failed to send confirmation:", emailError);
         }
+      };
+
+      if (payment.status === "paid") {
+        await storage.updateOrderPaymentStatus(orderId, "paid", "moyasar");
+        
+        await triggerShipping(orderId);
+        await sendConfirmation(orderId);
 
         // Store Moyasar Payment ID
         const OrderModel = (await import("./models")).OrderModel;
@@ -1105,6 +1112,8 @@ export async function registerRoutes(
       if (trackingNumber) updateData.trackingNumber = trackingNumber;
       if (adminNotes !== undefined) updateData.adminNotes = adminNotes;
 
+      const previousOrder = await storage.getOrder(req.params.id);
+
       order = await storage.updateOrderStatus(req.params.id, status as any, { 
         provider: shippingProvider, 
         tracking: trackingNumber,
@@ -1113,6 +1122,16 @@ export async function registerRoutes(
 
       if (paymentStatus) {
         await storage.updateOrderPaymentStatus(req.params.id, paymentStatus);
+        
+        // If payment is marked as paid manually (bank transfer), trigger shipping
+        if (paymentStatus === "paid" && previousOrder?.paymentStatus !== "paid") {
+          try {
+            console.log(`[SHIPPING] Triggering ShipHero after manual payment approval for order ${req.params.id}`);
+            await shipHeroService.createOrder(order);
+          } catch (shipError) {
+            console.error("[SHIPPING] Failed to sync with ShipHero on manual approval:", shipError);
+          }
+        }
       }
 
       if (note) {
