@@ -96,16 +96,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
     const SidebarContent = () => (
       <div className="flex flex-col h-full bg-card overflow-hidden">
         <div className="flex h-16 items-center gap-3 border-b px-6 shrink-0">
-          <img src={logoImg} alt="Logo" className="h-8 w-auto object-contain dark:invert" />
+          <img src={logoImg} alt="Logo" className="h-10 w-auto object-contain dark:invert" />
           <span className="font-black uppercase tracking-widest text-sm truncate">Gen M & Z</span>
         </div>
-        <div className="flex-1 overflow-y-auto py-6 px-4 space-y-2 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1 custom-scrollbar">
           {sidebarItems.map((item) => (
             <div key={item.id} className="space-y-1">
               <Link href={item.path} onClick={() => setIsSidebarOpen(false)}>
                 <Button
                   variant={location === item.path ? "default" : "ghost"}
-                  className={`w-full justify-start gap-3 h-11 px-4 rounded-xl font-bold transition-all duration-200 ${
+                  className={`w-full justify-start gap-3 h-12 lg:h-11 px-4 rounded-xl font-bold transition-all duration-200 ${
                     location === item.path ? "bg-primary text-primary-foreground shadow-lg shadow-primary/10 translate-x-1" : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                   }`}
                 >
@@ -119,7 +119,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     <Link key={child.path} href={child.path} onClick={() => setIsSidebarOpen(false)}>
                       <Button
                         variant="ghost"
-                        className={`w-full justify-start text-xs h-9 rounded-lg font-bold transition-all ${
+                        className={`w-full justify-start text-xs h-10 lg:h-9 rounded-lg font-bold transition-all ${
                           location === child.path ? "text-foreground bg-accent" : "text-muted-foreground hover:text-foreground hover:bg-accent"
                         }`}
                       >
@@ -132,8 +132,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </div>
           ))}
         </div>
-        <div className="border-t p-4 bg-muted/30 shrink-0">
-          <Button variant="ghost" className="w-full justify-start gap-3 text-destructive hover:bg-destructive/10 rounded-xl font-bold h-11" onClick={() => logout()}>
+        <div className="border-t p-4 bg-muted/30 shrink-0 pb-8 lg:pb-4">
+          <Button variant="ghost" className="w-full justify-start gap-3 text-destructive hover:bg-destructive/10 rounded-xl font-bold h-12 lg:h-11" onClick={() => logout()}>
             <LogOut className="h-5 w-5 shrink-0" />
             <span className="truncate">{language === 'ar' ? 'تسجيل الخروج' : 'Logout'}</span>
           </Button>

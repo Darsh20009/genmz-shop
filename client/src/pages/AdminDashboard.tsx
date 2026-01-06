@@ -146,7 +146,7 @@ export default function AdminDashboard() {
 
         {/* Sales Card - Main Focus */}
         <motion.div variants={item} initial="hidden" animate="show">
-          <Card className="border-none shadow-xl bg-[#435ebe] text-white rounded-[2.5rem] p-6 relative overflow-hidden group">
+          <Card className="responsive-card border-none shadow-xl bg-[#435ebe] text-white relative overflow-hidden group">
             <div className="absolute -right-10 -bottom-10 opacity-10 group-hover:scale-110 transition-transform duration-700">
               <DollarSign className="w-48 h-48" />
             </div>
@@ -176,8 +176,8 @@ export default function AdminDashboard() {
         </motion.div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          <Card className="rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 shadow-sm border-none bg-white dark:bg-slate-900 flex flex-col items-center text-center space-y-3">
+        <div className="admin-grid">
+          <Card className="responsive-card border-none shadow-sm bg-white dark:bg-slate-900 flex flex-col items-center text-center space-y-3">
             <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
               <ShoppingCart className="w-6 h-6" />
             </div>
@@ -189,7 +189,7 @@ export default function AdminDashboard() {
             </div>
           </Card>
 
-          <Card className="rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 shadow-sm border-none bg-white dark:bg-slate-900 flex flex-col items-center text-center space-y-3">
+          <Card className="responsive-card border-none shadow-sm bg-white dark:bg-slate-900 flex flex-col items-center text-center space-y-3">
             <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl">
               <TrendingUp className="w-6 h-6" />
             </div>
@@ -206,7 +206,7 @@ export default function AdminDashboard() {
             </div>
           </Card>
 
-          <Card className="rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 shadow-sm border-none bg-white dark:bg-slate-900 flex flex-col items-center text-center space-y-3">
+          <Card className="responsive-card border-none shadow-sm bg-white dark:bg-slate-900 flex flex-col items-center text-center space-y-3">
             <div className="p-3 bg-purple-50 text-purple-600 rounded-2xl">
               <Users className="w-6 h-6" />
             </div>
@@ -224,7 +224,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Chart Section */}
-        <Card className="rounded-[2.5rem] border-none shadow-sm bg-white dark:bg-slate-900 p-6">
+        <Card className="responsive-card border-none shadow-sm bg-white dark:bg-slate-900 p-6">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-xl font-black">نمو المبيعات</h3>
@@ -263,7 +263,7 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Status Breakdown */}
-        <Card className="rounded-[2.5rem] border-none shadow-sm bg-white dark:bg-slate-900 p-6">
+        <Card className="responsive-card border-none shadow-sm bg-white dark:bg-slate-900 p-6">
           <h3 className="text-xl font-black text-center mb-1">توزيع الحالات</h3>
           <p className="text-muted-foreground text-xs font-bold text-center mb-6">نظرة عامة على الطلبات</p>
           <div className="flex flex-col items-center">
