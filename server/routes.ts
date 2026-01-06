@@ -665,7 +665,29 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/shipping-companies", async (_req, res, next) => {
+  app.post("/api/admin/customers/:id/balance", protectAdmin, async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const { amount, type, description } = req.body;
+      const user = await storage.getUser(id);
+      if (!user) return res.status(404).json({ message: "العميل غير موجود" });
+
+      const currentBalance = parseFloat(user.walletBalance || "0");
+      const newBalance = type === "deposit" ? currentBalance + amount : currentBalance - amount;
+      
+      await storage.updateUserWallet(id, newBalance);
+      await storage.createWalletTransaction({
+        userId: id,
+        amount: type === "deposit" ? amount : -amount,
+        type: type as any,
+        description: description || (type === "deposit" ? "إيداع رصيد من الإدارة" : "سحب رصيد من الإدارة")
+      });
+
+      res.json({ success: true, balance: newBalance });
+    } catch (err) {
+      next(err);
+    }
+  });
     try {
       const settings = await storage.getStoreSettings();
       const integrations = settings.shippingIntegrations?.filter(i => i.isActive) || [];

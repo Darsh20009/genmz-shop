@@ -400,8 +400,54 @@ const filterSchema = new mongoose.Schema({
   options: [{ type: String }],
 });
 
-const OptionModel = mongoose.model("Option", optionSchema);
-const FilterModel = mongoose.model("Filter", filterSchema);
+const pageSchema = new Schema<Page>(
+  {
+    title: { type: String, required: true },
+    slug: { type: String, required: true, unique: true },
+    content: { type: String, required: true },
+    isActive: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
+
+const faqSchema = new Schema<FAQ>(
+  {
+    question: { type: String, required: true },
+    answer: { type: String, required: true },
+    category: String,
+    isActive: { type: Boolean, default: true },
+    order: { type: Number, default: 0 },
+  },
+  { timestamps: true }
+);
+
+const customerGroupSchema = new Schema<CustomerGroup>(
+  {
+    name: { type: String, required: true },
+    description: String,
+    criteria: Schema.Types.Mixed,
+    isActive: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
+
+const themeSchema = new Schema<Theme>(
+  {
+    name: { type: String, required: true },
+    version: { type: String, default: "1.0.0" },
+    author: String,
+    previewImage: String,
+    config: { type: Schema.Types.Mixed, default: {} },
+    isActive: { type: Boolean, default: false },
+    isCustom: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
+
+const PageModel = mongoose.model<Page>("Page", pageSchema);
+const FAQModel = mongoose.model<FAQ>("FAQ", faqSchema);
+const CustomerGroupModel = mongoose.model<CustomerGroup>("CustomerGroup", customerGroupSchema);
+const ThemeModel = mongoose.model<Theme>("Theme", themeSchema);
 const UserModel = mongoose.model<User>("User", userSchema);
 const ProductModel = mongoose.model<Product>("Product", productSchema);
 const OrderModel = mongoose.model<Order>("Order", orderSchema);
@@ -449,5 +495,9 @@ export {
   ReviewModel,
   StoreSettingsModel,
   OptionModel,
-  FilterModel
+  FilterModel,
+  PageModel,
+  FAQModel,
+  CustomerGroupModel,
+  ThemeModel
 };
