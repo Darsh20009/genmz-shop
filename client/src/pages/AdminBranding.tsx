@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Upload, Save } from "lucide-react";
+import { Upload, Save, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,9 +29,14 @@ export default function AdminBranding() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/branding"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
       toast({ title: "تم تحديث هوية المتجر بنجاح" });
     },
   });
+
+  const handleUpdate = () => {
+    updateBrandingMutation.mutate({ primaryColor, secondaryColor });
+  };
 
   return (
     <Layout>
@@ -73,9 +78,10 @@ export default function AdminBranding() {
               </div>
               <Button
                 className="w-full"
-                onClick={() => updateBrandingMutation.mutate({ primaryColor, secondaryColor })}
+                onClick={handleUpdate}
+                disabled={updateBrandingMutation.isPending}
               >
-                <Save className="w-4 h-4 ml-2" />
+                {updateBrandingMutation.isPending ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <Save className="w-4 h-4 ml-2" />}
                 حفظ الألوان
               </Button>
             </CardContent>

@@ -321,17 +321,24 @@ export async function registerRoutes(
     }
   });
 
-  // Store Settings
-  app.get("/api/settings", async (_req, res, next) => {
+  // Branding/Visual Identity
+  app.get("/api/branding", async (_req, res, next) => {
     try {
       const settings = await storage.getStoreSettings();
-      res.json(settings);
+      res.json({
+        primaryColor: settings.primaryColor,
+        secondaryColor: settings.secondaryColor,
+        logo: settings.logo,
+        favicon: settings.favicon,
+        coverImage: settings.coverImage,
+        copyrightText: settings.copyrightText
+      });
     } catch (err) {
       next(err);
     }
   });
 
-  app.patch("/api/settings", protectAdmin, async (req, res, next) => {
+  app.patch("/api/branding", protectAdmin, async (req, res, next) => {
     try {
       const settings = await storage.updateStoreSettings(req.body);
       res.json(settings);
@@ -340,8 +347,8 @@ export async function registerRoutes(
     }
   });
 
-  // Pages
-  app.get("/api/admin/pages", protectAdmin, async (_req, res, next) => {
+  // Pages (fix for frontend expectations)
+  app.get("/api/pages", async (_req, res, next) => {
     try {
       const pages = await storage.getPages();
       res.json(pages);
@@ -350,7 +357,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/admin/pages", protectAdmin, async (req, res, next) => {
+  app.post("/api/pages", protectAdmin, async (req, res, next) => {
     try {
       const page = await storage.createPage(req.body);
       res.status(201).json(page);
@@ -359,19 +366,57 @@ export async function registerRoutes(
     }
   });
 
-  app.patch("/api/admin/pages/:id", protectAdmin, async (req, res, next) => {
+  app.delete("/api/pages/:id", protectAdmin, async (req, res, next) => {
     try {
-      const page = await storage.updatePage(req.params.id, req.body);
-      res.json(page);
+      await storage.deletePage(req.params.id);
+      res.json({ success: true });
     } catch (err) {
       next(err);
     }
   });
 
-  app.delete("/api/admin/pages/:id", protectAdmin, async (req, res, next) => {
+  // Coupons/Discount Codes
+  app.get("/api/admin/coupons", protectAdmin, async (_req, res, next) => {
     try {
-      await storage.deletePage(req.params.id);
-      res.sendStatus(200);
+      const coupons = await storage.getCoupons();
+      res.json(coupons);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.post("/api/admin/coupons", protectAdmin, async (req, res, next) => {
+    try {
+      const coupon = await storage.createCoupon(req.body);
+      res.status(201).json(coupon);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.patch("/api/admin/coupons/:id", protectAdmin, async (req, res, next) => {
+    try {
+      const coupon = await storage.updateCoupon(req.params.id, req.body);
+      res.json(coupon);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.delete("/api/admin/coupons/:id", protectAdmin, async (req, res, next) => {
+    try {
+      await storage.deleteCoupon(req.params.id);
+      res.json({ success: true });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Settings
+  app.patch("/api/admin/settings", protectAdmin, async (req, res, next) => {
+    try {
+      const settings = await storage.updateStoreSettings(req.body);
+      res.json(settings);
     } catch (err) {
       next(err);
     }
@@ -688,6 +733,8 @@ export async function registerRoutes(
       next(err);
     }
   });
+
+  app.get("/api/shipping-companies", async (_req, res, next) => {
     try {
       const settings = await storage.getStoreSettings();
       const integrations = settings.shippingIntegrations?.filter(i => i.isActive) || [];

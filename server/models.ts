@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import type { User, Product, Order, Category, WalletTransaction, ActivityLog, Coupon, Branch, Banner, CashShift, ShippingCompany, AuditLog, Role, StockTransfer, Invoice, BankTransfer, Shipment, LoyaltyTransaction, AbandonedCart, Review, StoreSettings } from "@shared/schema";
+import type { User, Product, Order, Category, WalletTransaction, ActivityLog, Coupon, Branch, Banner, CashShift, ShippingCompany, AuditLog, Role, StockTransfer, Invoice, BankTransfer, Shipment, LoyaltyTransaction, AbandonedCart, Review, StoreSettings, Page, FAQ, CustomerGroup, Theme } from "@shared/schema";
 
 const abandonedCartSchema = new Schema<AbandonedCart>(
   {
@@ -444,60 +444,31 @@ const themeSchema = new Schema<Theme>(
   { timestamps: true }
 );
 
-const PageModel = mongoose.model<Page>("Page", pageSchema);
-const FAQModel = mongoose.model<FAQ>("FAQ", faqSchema);
-const CustomerGroupModel = mongoose.model<CustomerGroup>("CustomerGroup", customerGroupSchema);
-const ThemeModel = mongoose.model<Theme>("Theme", themeSchema);
-const UserModel = mongoose.model<User>("User", userSchema);
-const ProductModel = mongoose.model<Product>("Product", productSchema);
-const OrderModel = mongoose.model<Order>("Order", orderSchema);
-const CategoryModel = mongoose.model<Category>("Category", categorySchema);
-const WalletTransactionModel = mongoose.model<WalletTransaction>("WalletTransaction", walletTransactionSchema);
-const ActivityLogModel = mongoose.model<ActivityLog>("ActivityLog", activityLogSchema);
-const CouponModel = mongoose.model<Coupon>("Coupon", couponSchema);
-const BranchModel = mongoose.model<Branch>("Branch", branchSchema);
-const BannerModel = mongoose.model<Banner>("Banner", bannerSchema);
-const CashShiftModel = mongoose.model<CashShift>("CashShift", cashShiftSchema);
-const ShippingCompanyModel = mongoose.model<ShippingCompany>("ShippingCompany", shippingCompanySchema);
-const AuditLogModel = mongoose.model<AuditLog>("AuditLog", auditLogSchema);
-const RoleModel = mongoose.model<Role>("Role", roleSchema);
-const StockTransferModel = mongoose.model<StockTransfer>("StockTransfer", stockTransferSchema);
-const InvoiceModel = mongoose.model<Invoice>("Invoice", invoiceSchema);
-const BankTransferModel = mongoose.model<BankTransfer>("BankTransfer", bankTransferSchema);
-const ShipmentModel = mongoose.model<Shipment>("Shipment", shipmentSchema);
-const LoyaltyTransactionModel = mongoose.model<LoyaltyTransaction>("LoyaltyTransaction", loyaltyTransactionSchema);
-const CartModel = mongoose.model("Cart", cartSchema);
-const AbandonedCartModel = mongoose.model<AbandonedCart>("AbandonedCart", abandonedCartSchema);
-const ReviewModel = mongoose.model<Review>("Review", reviewSchema);
-const StoreSettingsModel = mongoose.model<StoreSettings>("StoreSettings", storeSettingsSchema);
-
-export { 
-  UserModel, 
-  ProductModel, 
-  OrderModel, 
-  CategoryModel, 
-  WalletTransactionModel, 
-  ActivityLogModel, 
-  CouponModel, 
-  BranchModel, 
-  BannerModel, 
-  CashShiftModel, 
-  ShippingCompanyModel, 
-  AuditLogModel, 
-  RoleModel, 
-  StockTransferModel, 
-  InvoiceModel, 
-  BankTransferModel, 
-  ShipmentModel, 
-  LoyaltyTransactionModel, 
-  CartModel,
-  AbandonedCartModel,
-  ReviewModel,
-  StoreSettingsModel,
-  OptionModel,
-  FilterModel,
-  PageModel,
-  FAQModel,
-  CustomerGroupModel,
-  ThemeModel
-};
+export const AbandonedCartModel = mongoose.model<AbandonedCart>("AbandonedCart", abandonedCartSchema);
+export const ReviewModel = mongoose.model<Review>("Review", reviewSchema);
+export const StoreSettingsModel = mongoose.model<StoreSettings>("StoreSettings", storeSettingsSchema);
+export const OptionModel = mongoose.model("Option", optionSchema);
+export const FilterModel = mongoose.model("Filter", filterSchema);
+export const PageModel = mongoose.model<Page>("Page", pageSchema);
+export const FAQModel = mongoose.model<FAQ>("FAQ", faqSchema);
+export const CustomerGroupModel = mongoose.model<CustomerGroup>("CustomerGroup", customerGroupSchema);
+export const ThemeModel = mongoose.model<Theme>("Theme", themeSchema);
+export const UserModel = mongoose.model<User>("User", userSchema);
+export const ProductModel = mongoose.model<Product>("Product", productSchema);
+export const OrderModel = mongoose.model<Order>("Order", orderSchema);
+export const CategoryModel = mongoose.model<Category>("Category", categorySchema);
+export const WalletTransactionModel = mongoose.model<WalletTransaction>("WalletTransaction", walletTransactionSchema);
+export const ActivityLogModel = mongoose.model<ActivityLog>("ActivityLog", activityLogSchema);
+export const CouponModel = mongoose.model<Coupon>("Coupon", couponSchema);
+export const BranchModel = mongoose.model<Branch>("Branch", branchSchema);
+export const BannerModel = mongoose.model<Banner>("Banner", bannerSchema);
+export const CashShiftModel = mongoose.model<CashShift>("CashShift", cashShiftSchema);
+export const ShippingCompanyModel = mongoose.model<ShippingCompany>("ShippingCompany", shippingCompanySchema);
+export const AuditLogModel = mongoose.model<AuditLog>("AuditLog", auditLogSchema);
+export const RoleModel = mongoose.model<Role>("Role", roleSchema);
+export const StockTransferModel = mongoose.model<StockTransfer>("StockTransfer", stockTransferSchema);
+export const InvoiceModel = mongoose.model<Invoice>("Invoice", invoiceSchema);
+export const BankTransferModel = mongoose.model<BankTransfer>("BankTransfer", bankTransferSchema);
+export const ShipmentModel = mongoose.model<Shipment>("Shipment", shipmentSchema);
+export const LoyaltyTransactionModel = mongoose.model<LoyaltyTransaction>("LoyaltyTransaction", loyaltyTransactionSchema);
+export const CartModel = mongoose.model("Cart", cartSchema);
