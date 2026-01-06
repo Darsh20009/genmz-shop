@@ -290,7 +290,7 @@ export class MongoStorage implements IStorage {
     if (!order) throw new Error("Order not found");
 
     // Handle stock return and profit clearing on cancellation
-    if (status === "cancelled" && oldOrder.status !== "cancelled") {
+    if (status === "cancelled" && (oldOrder.status as string) !== "cancelled") {
       if (order.items && Array.isArray(order.items)) {
         for (const item of order.items) {
           await ProductModel.updateOne(
@@ -304,6 +304,7 @@ export class MongoStorage implements IStorage {
 
     return { ...order, id: order._id.toString() } as any;
   }
+
   async updateOrderPaymentStatus(id: string, status: string, provider?: string): Promise<Order> {
     const update: any = { paymentStatus: status };
     if (provider) update.paymentMethod = provider;
@@ -315,6 +316,24 @@ export class MongoStorage implements IStorage {
 
     const order = await OrderModel.findByIdAndUpdate(id, update, { new: true }).lean();
     if (!order) throw new Error("Order not found");
+
+    // Handle refund logic
+    if (status === "refunded") {
+      const orderTotal = parseFloat(order.total);
+      const user = await UserModel.findById(order.userId);
+      if (user) {
+        const currentBalance = parseFloat(user.walletBalance || "0");
+        await UserModel.findByIdAndUpdate(order.userId, { 
+          walletBalance: (currentBalance + orderTotal).toString() 
+        });
+        await WalletTransactionModel.create({
+          userId: order.userId,
+          amount: orderTotal,
+          type: "refund",
+          description: `إرجاع قيمة الطلب #${order.orderNumber || order._id.toString().slice(-8).toUpperCase()}`
+        });
+      }
+    }
 
     // Create wallet transaction if paid via wallet
     if (status === "paid" && provider === "wallet") {

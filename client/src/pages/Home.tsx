@@ -115,25 +115,25 @@ export default function Home() {
       </section>
 
       {/* Creative Hero Section */}
-      <section className="relative min-h-[80vh] sm:min-h-screen lg:min-h-[90vh] flex items-center overflow-hidden bg-white">
-        <div className="container relative z-10 grid lg:grid-cols-2 gap-8 items-center px-4 py-8 sm:py-12 lg:py-20">
+      <section className="relative min-h-[70vh] sm:min-h-screen lg:min-h-[90vh] flex items-center overflow-hidden bg-white">
+        <div className="container relative z-10 grid lg:grid-cols-2 gap-8 items-center px-4 py-6 sm:py-12 lg:py-20">
           <motion.div 
             initial={{ opacity: 0, x: language === 'ar' ? 50 : -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className={`z-20 ${language === 'ar' ? "text-right order-1" : "text-left order-1 lg:order-none"}`}
+            className={`z-20 w-full ${language === 'ar' ? "text-right order-1" : "text-left order-1 lg:order-none"}`}
           >
             <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.2em] text-primary mb-2 sm:mb-4 uppercase">{t('newCollection')}</span>
-            <h1 className="font-display text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black leading-[0.9] mb-4 sm:mb-8 text-black tracking-tighter">
+            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black leading-[0.9] mb-4 sm:mb-8 text-black tracking-tighter text-balance">
               GEN M & Z
-              <span className="block text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl mt-2 sm:mt-4 font-light text-muted-foreground italic font-serif">{t('heroTitle')}</span>
+              <span className="block text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl mt-2 sm:mt-4 font-light text-muted-foreground italic font-serif">{t('heroTitle')}</span>
             </h1>
-            <p className={`text-muted-foreground text-xs sm:text-base md:text-lg lg:text-xl mb-6 sm:mb-10 md:mb-12 max-w-md ${language === 'ar' ? 'mr-0 ml-auto' : 'ml-0 mr-auto'} leading-relaxed font-light`}>
+            <p className={`text-muted-foreground text-sm sm:text-base md:text-lg lg:text-xl mb-6 sm:mb-10 md:mb-12 max-w-md ${language === 'ar' ? 'mr-0 ml-auto' : 'ml-0 mr-auto'} leading-relaxed font-light text-balance`}>
               {t('heroDesc')}
             </p>
-            <div className={`flex gap-3 sm:gap-6 flex-wrap ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`flex flex-col sm:flex-row gap-3 sm:gap-6 ${language === 'ar' ? 'sm:justify-end' : 'sm:justify-start'}`}>
               <Link href="/products" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto px-6 sm:px-10 py-5 sm:py-8 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] rounded-none shadow-2xl hover-elevate transition-all bg-black text-white border-none active-elevate-2">
+                <Button size="lg" className="w-full sm:w-auto px-6 sm:px-10 py-6 sm:py-8 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] rounded-none shadow-2xl hover-elevate transition-all bg-black text-white border-none active-elevate-2">
                   {t('discoverCollection')} {language === 'ar' ? <ChevronLeft className="mr-2 sm:mr-3 h-4 sm:h-5 w-4 sm:w-5 rotate-180" /> : <ChevronRight className="ml-2 sm:ml-3 h-4 sm:h-5 w-4 sm:w-5" />}
                 </Button>
               </Link>

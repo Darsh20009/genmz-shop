@@ -55,23 +55,31 @@
 
   /* Responsive Table Wrapper */
   .table-responsive {
-    @apply w-full overflow-x-auto;
+    @apply w-full overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0;
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Admin Card Responsive Grid */
+  /* Improved Admin Grid for Mobile */
   .admin-grid {
-    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6;
+    @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-6;
   }
 
-  /* Mobile Grid */
-  .mobile-grid {
-    @apply grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4;
-  }
-
-  /* Card and Modal responsiveness */
+  /* Mobile-first Padding and Borders */
   .responsive-card {
-    @apply rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8;
+    @apply rounded-xl sm:rounded-[2.5rem] p-4 sm:p-6 lg:p-8 border-none shadow-sm;
+  }
+
+  /* Fix for Mobile Touch Targets */
+  @media (max-width: 640px) {
+    .btn-mobile-full {
+      @apply w-full h-12;
+    }
+    .input-mobile-lg {
+      @apply h-12 text-base;
+    }
+    .text-mobile-balance {
+      text-wrap: balance;
+    }
   }
 }
 

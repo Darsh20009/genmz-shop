@@ -156,26 +156,26 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </Sheet>
 
         <div className="flex-1 lg:ms-72 w-full overflow-hidden">
-          <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-background/80 backdrop-blur-md px-4 md:px-8 shadow-sm">
-            <div className="flex items-center gap-2 md:gap-4 flex-1 min-w-0">
-              <Button variant="ghost" size="icon" className="lg:hidden h-10 w-10 shrink-0" onClick={() => setIsSidebarOpen(true)}>
-                <Menu className="h-6 w-6" />
+          <header className="sticky top-0 z-40 flex h-14 sm:h-16 items-center justify-between border-b bg-background/80 backdrop-blur-md px-3 sm:px-6 md:px-8 shadow-sm">
+            <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+              <Button variant="ghost" size="icon" className="lg:hidden h-9 w-9 shrink-0" onClick={() => setIsSidebarOpen(true)}>
+                <Menu className="h-5 w-5" />
               </Button>
-              <h2 className="text-xs md:text-sm font-black uppercase tracking-widest text-muted-foreground truncate">
+              <h2 className="text-[10px] sm:text-xs md:text-sm font-black uppercase tracking-widest text-muted-foreground truncate max-w-[120px] sm:max-w-none">
                 {sidebarItems.find(i => location.startsWith(i.path))?.label || t('adminPanel')}
               </h2>
             </div>
-            <div className="flex items-center gap-2 md:gap-3">
-              <Button variant="ghost" size="icon" onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')} className="rounded-full hover:bg-accent h-9 w-9 md:h-10 md:w-10">
-                <Globe className="h-4 w-4 md:h-5 md:w-5" />
+            <div className="flex items-center gap-1.5 sm:gap-3">
+              <Button variant="ghost" size="icon" onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')} className="rounded-full hover:bg-accent h-8 w-8 sm:h-10 sm:w-10">
+                <Globe className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-2 px-1 md:px-2 hover:bg-accent rounded-full transition-all">
-                    <div className="h-7 w-7 md:h-8 md:w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-black text-[10px] md:text-xs shadow-inner">
+                  <Button variant="ghost" className="flex items-center gap-1.5 sm:gap-2 px-1 sm:px-2 hover:bg-accent rounded-full transition-all h-8 sm:h-10">
+                    <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-black text-[8px] sm:text-xs shadow-inner shrink-0">
                       {user?.username?.[0]?.toUpperCase()}
                     </div>
-                    <span className="hidden sm:inline text-xs font-bold text-muted-foreground">{user?.username}</span>
+                    <span className="hidden md:inline text-xs font-bold text-muted-foreground truncate max-w-[60px] sm:max-w-[100px]">{user?.username}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 rounded-xl border-none shadow-2xl p-2 bg-popover text-popover-foreground">

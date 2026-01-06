@@ -86,25 +86,25 @@ export default function AdminDashboard() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-[#f8fafc] dark:bg-[#020617] p-3 sm:p-6 lg:p-8 space-y-6" dir="rtl">
+      <div className="min-h-screen bg-[#f8fafc] dark:bg-[#020617] p-4 sm:p-6 lg:p-8 space-y-6 overflow-x-hidden" dir="rtl">
         {displayStats.pendingPayments > 0 && (
           <motion.div 
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-amber-50 border-2 border-amber-200 p-4 rounded-[1.5rem] flex items-center justify-between gap-4 shadow-sm"
+            className="bg-amber-50 border-2 border-amber-200 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm"
           >
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-100 rounded-xl text-amber-600">
-                <Clock className="w-5 h-5" />
+            <div className="flex items-center gap-3 w-full">
+              <div className="p-2 bg-amber-100 rounded-xl text-amber-600 shrink-0">
+                <Calendar className="w-5 h-5" />
               </div>
               <div>
                 <h4 className="font-black text-amber-900 text-sm">تنبيه: مراجعة دفع معلقة</h4>
-                <p className="text-amber-700 text-xs font-bold">يوجد {displayStats.pendingPayments} طلبات بانتظار تأكيد التحويل البنكي</p>
+                <p className="text-amber-700 text-xs font-bold">يوجد {displayStats.pendingPayments} طلبات بانتظار تأكيد التحويل</p>
               </div>
             </div>
             <Button 
               size="sm" 
-              className="bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold text-xs"
+              className="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold text-xs h-10"
               onClick={() => setLocation("/admin/orders?status=bank_transfer_pending")}
             >
               عرض الطلبات
@@ -115,9 +115,9 @@ export default function AdminDashboard() {
         <motion.div 
           initial={{ y: -10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="bg-white dark:bg-slate-900 p-5 rounded-[2.5rem] border shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4"
+          className="bg-white dark:bg-slate-900 p-5 rounded-[2rem] sm:rounded-[2.5rem] border shadow-sm flex flex-col lg:flex-row items-center justify-between gap-4"
         >
-          <div className="text-center sm:text-right">
+          <div className="text-center lg:text-right w-full lg:w-auto">
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
               مرحباً، <span className="text-primary">{user?.name}</span>
             </h1>
@@ -125,17 +125,17 @@ export default function AdminDashboard() {
               {dayName}، {formattedDate}
             </p>
           </div>
-          <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
             <Button 
               variant="outline" 
-              className="flex-1 sm:flex-none rounded-full px-6 h-12 gap-2 border-2 hover:bg-slate-50 transition-all font-bold"
+              className="w-full sm:w-auto rounded-full px-6 h-12 gap-2 border-2 hover:bg-slate-50 transition-all font-bold"
               onClick={() => window.open('/', '_blank')}
             >
               <Eye className="w-4 h-4" />
               عرض المتجر
             </Button>
             <Button 
-              className="flex-1 sm:flex-none rounded-full px-6 h-12 gap-2 bg-[#00a878] hover:bg-[#008f65] border-none shadow-lg shadow-emerald-100 font-bold text-white"
+              className="w-full sm:w-auto rounded-full px-6 h-12 gap-2 bg-[#00a878] hover:bg-[#008f65] border-none shadow-lg shadow-emerald-100 font-bold text-white"
               onClick={() => setLocation('/admin/reports')}
             >
               <Zap className="w-4 h-4 fill-white" />
