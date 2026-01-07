@@ -50,40 +50,43 @@ export default function AdminAnalytics() {
         <motion.div 
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border shadow-sm"
+          className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white dark:bg-slate-900 p-8 rounded-[3rem] border shadow-sm"
         >
           <div className="space-y-1">
             <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-4">
-              <div className="p-3 bg-primary/10 rounded-2xl text-primary">
+              <div className="p-3 bg-primary/10 rounded-2xl text-primary shadow-inner">
                 <BarChart3 className="w-8 h-8" />
               </div>
-              لوحة التحليلات
+              لوحة التحليلات الذكية
             </h1>
-            <p className="text-muted-foreground font-medium pr-14">إحصائيات شاملة ومؤشرات أداء متجرك</p>
+            <p className="text-muted-foreground font-medium pr-14 italic">تحليل مباشر لمؤشرات الأداء والنمو</p>
           </div>
-          <div className="bg-slate-50 dark:bg-slate-800 px-6 py-3 rounded-2xl flex items-center gap-3 text-slate-600 dark:text-slate-300 font-bold">
-            <Calendar className="w-5 h-5 text-primary" />
-            تحديث تلقائي
+          <div className="bg-slate-100/50 dark:bg-slate-800/50 px-6 py-3 rounded-2xl flex items-center gap-3 text-slate-600 dark:text-slate-300 font-black border shadow-sm">
+            <div className="relative">
+              <Calendar className="w-5 h-5 text-primary" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+            </div>
+            تحديث مباشر
           </div>
         </motion.div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card className="border-none shadow-sm bg-white dark:bg-slate-900 rounded-[2.5rem] hover-elevate overflow-hidden group h-full">
-              <div className="h-1.5 md:h-2 w-full bg-indigo-500/10 group-hover:bg-indigo-500 transition-colors" />
-              <CardContent className="p-4 md:p-8">
-                <div className="flex justify-between items-start mb-2 md:mb-4">
-                  <div className="p-2 md:p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl text-indigo-500 group-hover:rotate-12 transition-transform">
-                    <DollarSign className="w-5 h-5 md:w-6 md:h-6" />
+            <Card className="border-none shadow-sm bg-white dark:bg-slate-900 rounded-[3rem] hover-elevate overflow-hidden group h-full">
+              <div className="h-2 w-full bg-indigo-500/10 group-hover:bg-indigo-500 transition-colors" />
+              <CardContent className="p-8">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl text-indigo-500 group-hover:rotate-12 transition-transform shadow-sm">
+                    <DollarSign className="w-6 h-6" />
                   </div>
-                  <Badge variant="secondary" className="bg-emerald-50 text-emerald-600 border-none rounded-lg text-[10px] md:text-xs">+12%</Badge>
+                  <Badge className="bg-emerald-50 text-emerald-600 border-none rounded-lg font-black text-xs shadow-sm">+12%</Badge>
                 </div>
-                <p className="text-[10px] md:text-sm font-black text-slate-400 uppercase tracking-widest mb-1">إجمالي المبيعات</p>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 dark:text-white break-words">{formatCurrency(overview?.allTime?.totalRevenue || 0)}</h2>
-                <div className="mt-2 md:mt-4 pt-2 md:pt-4 border-t border-slate-50 dark:border-slate-800 flex items-center gap-2 text-[10px] md:text-xs font-bold text-slate-400">
-                  <TrendingUp className="w-3 h-3 md:w-4 md:h-4 text-emerald-500" />
-                  اليوم: {formatCurrency(overview?.today?.totalRevenue || 0)}
+                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">إجمالي المبيعات</p>
+                <h2 className="text-3xl font-black text-slate-900 dark:text-white break-words tracking-tighter">{formatCurrency(overview?.allTime?.totalRevenue || 0)}</h2>
+                <div className="mt-6 pt-6 border-t border-slate-50 dark:border-slate-800 flex items-center gap-3 text-xs font-bold text-slate-400">
+                  <TrendingUp className="w-4 h-4 text-emerald-500" />
+                  مبيعات اليوم: <span className="text-slate-900 dark:text-white">{formatCurrency(overview?.today?.totalRevenue || 0)}</span>
                 </div>
               </CardContent>
             </Card>
