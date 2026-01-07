@@ -326,12 +326,16 @@ export async function registerRoutes(
     try {
       const settings = await storage.getStoreSettings();
       res.json({
+        name: settings.name,
         primaryColor: settings.primaryColor,
         secondaryColor: settings.secondaryColor,
         logo: settings.logo,
+        logoEn: settings.logoEn,
         favicon: settings.favicon,
         coverImage: settings.coverImage,
-        copyrightText: settings.copyrightText
+        copyrightText: settings.copyrightText,
+        seoTitle: settings.seoTitle,
+        seoDescription: settings.seoDescription
       });
     } catch (err) {
       next(err);
@@ -342,6 +346,31 @@ export async function registerRoutes(
     try {
       const settings = await storage.updateStoreSettings(req.body);
       res.json(settings);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Wallet Management
+  app.post("/api/admin/customers/:id/wallet", protectAdmin, async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const { amount, type, description } = req.body;
+      const user = await storage.getUser(id);
+      if (!user) return res.status(404).json({ message: "العميل غير موجود" });
+
+      const currentBalance = parseFloat(user.walletBalance || "0");
+      const newBalance = type === "deposit" ? currentBalance + amount : currentBalance - amount;
+      
+      await storage.updateUserWallet(id, newBalance);
+      await storage.createWalletTransaction({
+        userId: id,
+        amount,
+        type,
+        description: description || (type === "deposit" ? "إيداع رصيد من قبل الإدارة" : "سحب رصيد من قبل الإدارة")
+      });
+
+      res.json({ success: true, newBalance });
     } catch (err) {
       next(err);
     }

@@ -550,12 +550,31 @@ export class MongoStorage implements IStorage {
   async getStoreSettings(): Promise<StoreSettings> {
     const settings = await StoreSettingsModel.findOne().lean();
     if (!settings) {
-      const defaultSettings = { name: "جين إم زد", primaryColor: "#000000", secondaryColor: "#ffffff", languages: ["ar"], defaultLanguage: "ar", currency: "SAR", taxPercentage: 15, enableReviews: true, enableQuestions: true, enableStockNotifications: true, minStockLevel: 10, navigationLinks: [] };
+      const defaultSettings = { 
+        name: "جين إم زد", 
+        primaryColor: "#000000", 
+        secondaryColor: "#ffffff", 
+        languages: ["ar"], 
+        defaultLanguage: "ar", 
+        currency: "SAR", 
+        taxPercentage: 15, 
+        enableReviews: true, 
+        enableQuestions: true, 
+        enableStockNotifications: true, 
+        minStockLevel: 10, 
+        navigationLinks: [],
+        communication: {
+          orderMessages: true,
+          abandonedCartAlerts: true,
+          reviewRequests: true
+        }
+      };
       const created = await StoreSettingsModel.create(defaultSettings);
       return { ...created.toObject(), id: created._id.toString() } as any;
     }
     return { ...settings, id: settings._id.toString() } as any;
   }
+
   async updateStoreSettings(settings: Partial<InsertStoreSettings>): Promise<StoreSettings> {
     const current = await this.getStoreSettings();
     const updated = await StoreSettingsModel.findByIdAndUpdate(current.id, settings, { new: true }).lean();
@@ -569,7 +588,8 @@ export class MongoStorage implements IStorage {
   }
   async createFilter(data: any): Promise<any> {
     const filter = await FilterModel.create(data);
-    return { ...filter.toObject(), id: filter._id.toString() } as any;
+    const obj = filter.toObject();
+    return { ...obj, id: obj._id.toString() } as any;
   }
   async updateFilter(id: string, data: any): Promise<any> {
     const filter = await FilterModel.findByIdAndUpdate(id, data, { new: true }).lean();
@@ -586,7 +606,8 @@ export class MongoStorage implements IStorage {
   }
   async createOption(data: any): Promise<any> {
     const option = await OptionModel.create(data);
-    return { ...option.toObject(), id: option._id.toString() } as any;
+    const obj = option.toObject();
+    return { ...obj, id: obj._id.toString() } as any;
   }
   async updateOption(id: string, data: any): Promise<any> {
     const option = await OptionModel.findByIdAndUpdate(id, data, { new: true }).lean();
