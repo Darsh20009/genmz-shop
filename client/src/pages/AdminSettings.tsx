@@ -41,6 +41,16 @@ export default function AdminSettings() {
     });
   };
 
+  const handleSaveBranding = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    mutation.mutate({
+      primaryColor: formData.get("primaryColor"),
+      secondaryColor: formData.get("secondaryColor"),
+      copyrightText: formData.get("copyrightText"),
+    });
+  };
+
   const handleSaveCommunication = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
@@ -248,7 +258,14 @@ export default function AdminSettings() {
                     </div>
                     <Switch name="enableQuestions" defaultChecked={settings?.enableQuestions} />
                   </div>
-                  <Button type="submit" disabled={mutation.isPending}>
+                  <div className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl">
+                    <div className="space-y-1">
+                      <Label className="font-bold">تنبيهات المخزون</Label>
+                      <p className="text-xs text-muted-foreground">تفعيل تنبيهات انخفاض المخزون</p>
+                    </div>
+                    <Switch name="enableStockNotifications" defaultChecked={settings?.enableStockNotifications} />
+                  </div>
+                  <Button type="submit" className="h-12 px-8 rounded-xl font-bold" disabled={mutation.isPending}>
                     {mutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "حفظ إعدادات الشراء"}
                   </Button>
                 </CardContent>

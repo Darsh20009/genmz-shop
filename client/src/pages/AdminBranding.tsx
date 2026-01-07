@@ -22,20 +22,19 @@ export default function AdminBranding() {
     },
   });
 
-  const updateBrandingMutation = useMutation({
-    mutationFn: async (data: any) => {
-      const res = await apiRequest("PATCH", "/api/branding", data);
+  const mutation = useMutation({
+    mutationFn: async (newSettings: any) => {
+      const res = await apiRequest("PATCH", "/api/admin/settings", newSettings);
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/branding"] });
       queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
-      toast({ title: "تم تحديث هوية المتجر بنجاح" });
+      toast({ title: "تم التحديث", description: "تم حفظ الهوية البصرية بنجاح" });
     },
   });
 
   const handleUpdate = () => {
-    updateBrandingMutation.mutate({ primaryColor, secondaryColor });
+    mutation.mutate({ primaryColor, secondaryColor });
   };
 
   return (

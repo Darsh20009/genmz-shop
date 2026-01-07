@@ -495,8 +495,38 @@ export async function registerRoutes(
   // Settings Update
   app.patch("/api/admin/settings", protectAdmin, async (req, res, next) => {
     try {
-      const settings = await storage.updateStoreSettings(req.body);
+      const current = await storage.getStoreSettings();
+      const updatedData = { ...req.body };
+      
+      // If communication is partially provided, merge it
+      if (req.body.communication) {
+        updatedData.communication = {
+          ...current.communication,
+          ...req.body.communication
+        };
+      }
+
+      const settings = await storage.updateStoreSettings(updatedData);
       res.json(settings);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.get("/api/admin/users", protectAdmin, async (_req, res, next) => {
+    try {
+      const users = await storage.getUsers();
+      res.json(users);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Alias for loyalty page
+  app.get("/api/admin/customers", protectAdmin, async (_req, res, next) => {
+    try {
+      const users = await storage.getUsers();
+      res.json(users);
     } catch (err) {
       next(err);
     }
