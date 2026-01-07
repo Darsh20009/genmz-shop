@@ -10,7 +10,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { MarketingBanners } from "@/components/marketing-banners";
-import heroImg from "@assets/Screenshot_2025-12-25_100613_1766646961781.png";
+import heroImg from "@assets/Screenshot_2025-12-25_100613_1767801995135.png";
+import logoImg from "@assets/Screenshot_2026-01-06_130310_1767801980425.png";
 import heroImg2 from "@assets/Screenshot_2025-12-26_014345_1766730066129.png";
 import heroImg3 from "@assets/Screenshot_2025-12-26_014353_1766730066129.png";
 import heroImg4 from "@assets/Screenshot_2025-12-26_014400_1766730066130.png";
@@ -46,6 +47,12 @@ export default function Home() {
       images.forEach((src) => {
         const img = new Image();
         img.src = src;
+        // Optimization: Image preloading hint
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = src;
+        document.head.appendChild(link);
       });
     };
     preloadImages(heroImages);
@@ -102,6 +109,8 @@ export default function Home() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
+                  loading="eager"
+                  decoding="async"
                   transition={{ 
                     duration: 1.2,
                     ease: "easeInOut"
@@ -125,7 +134,7 @@ export default function Home() {
           >
             <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.2em] text-primary mb-2 sm:mb-4 uppercase">{t('newCollection')}</span>
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black leading-[0.9] mb-4 sm:mb-8 text-black tracking-tighter text-balance">
-              GEN M & Z
+              <img src={logoImg} alt="Gen M & Z Logo" className="h-12 sm:h-20 md:h-24 lg:h-32 mb-4" />
               <span className="block text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl mt-2 sm:mt-4 font-light text-muted-foreground italic font-serif">{t('heroTitle')}</span>
             </h1>
             <p className={`text-muted-foreground text-sm sm:text-base md:text-lg lg:text-xl mb-6 sm:mb-10 md:mb-12 max-w-md ${language === 'ar' ? 'mr-0 ml-auto' : 'ml-0 mr-auto'} leading-relaxed font-light text-balance`}>
@@ -134,7 +143,7 @@ export default function Home() {
             <div className={`flex flex-col sm:flex-row gap-3 sm:gap-6 ${language === 'ar' ? 'sm:justify-end' : 'sm:justify-start'}`}>
               <Link href="/products" className="w-full sm:w-auto">
                 <Button size="lg" className="w-full sm:w-auto px-6 sm:px-10 py-6 sm:py-8 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] rounded-none shadow-2xl hover-elevate transition-all bg-black text-white border-none active-elevate-2">
-                  {t('discoverCollection')} {language === 'ar' ? <ChevronLeft className="mr-2 sm:mr-3 h-4 sm:h-5 w-4 sm:w-5 rotate-180" /> : <ChevronRight className="ml-2 sm:ml-3 h-4 sm:h-5 w-4 sm:w-5" />}
+                  {language === 'ar' ? 'اكتشف المجموعة' : t('discoverCollection')} {language === 'ar' ? <ChevronLeft className="mr-2 sm:mr-3 h-4 sm:h-5 w-4 sm:w-5 rotate-180" /> : <ChevronRight className="ml-2 sm:ml-3 h-4 sm:h-5 w-4 sm:w-5" />}
                 </Button>
               </Link>
             </div>
@@ -151,6 +160,8 @@ export default function Home() {
               <img 
                 src={heroImg} 
                 alt="Gen M & Z Hero" 
+                loading="eager"
+                decoding="async"
                 className="w-full h-full object-cover shadow-2xl transition-all duration-1000"
               />
               <div className={`absolute -bottom-4 sm:-bottom-6 ${language === 'ar' ? '-right-4 sm:-right-6' : '-left-4 sm:-left-6'} bg-black text-white p-4 sm:p-6 hidden sm:block`}>
