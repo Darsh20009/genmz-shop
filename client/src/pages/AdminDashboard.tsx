@@ -86,25 +86,26 @@ export default function AdminDashboard() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-[#f8fafc] dark:bg-[#020617] p-4 sm:p-6 lg:p-8 space-y-6 overflow-x-hidden" dir="rtl">
+      <div className="min-h-screen bg-[#f1f5f9] dark:bg-[#020617] p-4 sm:p-6 lg:p-8 space-y-8 overflow-x-hidden" dir="rtl">
         {displayStats.pendingPayments > 0 && (
           <motion.div 
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-amber-50 border-2 border-amber-200 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm"
+            className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm"
           >
             <div className="flex items-center gap-3 w-full">
               <div className="p-2 bg-amber-100 rounded-xl text-amber-600 shrink-0">
                 <Calendar className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-black text-amber-900 text-sm">تنبيه: مراجعة دفع معلقة</h4>
-                <p className="text-amber-700 text-xs font-bold">يوجد {displayStats.pendingPayments} طلبات بانتظار تأكيد التحويل</p>
+                <h4 className="font-bold text-amber-900 text-sm">مراجعة دفع معلقة</h4>
+                <p className="text-amber-700 text-xs font-medium">يوجد {displayStats.pendingPayments} طلبات بانتظار تأكيد التحويل</p>
               </div>
             </div>
             <Button 
               size="sm" 
-              className="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold text-xs h-10"
+              variant="outline"
+              className="w-full sm:w-auto border-amber-200 text-amber-700 hover:bg-amber-100 rounded-xl font-bold text-xs h-9"
               onClick={() => setLocation("/admin/orders?status=bank_transfer_pending")}
             >
               عرض الطلبات
@@ -112,63 +113,59 @@ export default function AdminDashboard() {
           </motion.div>
         )}
         {/* Top Header */}
-        <motion.div 
-          initial={{ y: -10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="bg-white dark:bg-slate-900 p-5 rounded-[2rem] sm:rounded-[2.5rem] border shadow-sm flex flex-col lg:flex-row items-center justify-between gap-4"
-        >
-          <div className="text-center lg:text-right w-full lg:w-auto">
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-              مرحباً، <span className="text-primary">{user?.name}</span>
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+          <div className="text-right w-full lg:w-auto">
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              لوحة <span className="text-primary">التحكم</span>
             </h1>
-            <p className="text-muted-foreground text-xs font-bold mt-1">
-              {dayName}، {formattedDate}
+            <p className="text-slate-500 text-sm font-medium mt-1">
+              أهلاً بك، {user?.name} • {dayName}، {formattedDate}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
             <Button 
               variant="outline" 
-              className="w-full sm:w-auto rounded-full px-6 h-12 gap-2 border-2 hover:bg-slate-50 transition-all font-bold"
+              className="w-full sm:w-auto rounded-xl px-5 h-11 gap-2 border-slate-200 hover:bg-white hover:shadow-sm transition-all font-bold text-slate-600"
               onClick={() => window.open('/', '_blank')}
             >
               <Eye className="w-4 h-4" />
-              عرض المتجر
+              المتجر
             </Button>
             <Button 
-              className="w-full sm:w-auto rounded-full px-6 h-12 gap-2 bg-[#00a878] hover:bg-[#008f65] border-none shadow-lg shadow-emerald-100 font-bold text-white"
+              className="w-full sm:w-auto rounded-xl px-5 h-11 gap-2 bg-slate-900 hover:bg-slate-800 border-none shadow-md font-bold text-white"
               onClick={() => setLocation('/admin/reports')}
             >
               <Zap className="w-4 h-4 fill-white" />
-              تقرير سريع
+              تقرير
             </Button>
           </div>
-        </motion.div>
+        </div>
 
         {/* Sales Card - Main Focus */}
         <motion.div variants={item} initial="hidden" animate="show">
-          <Card className="responsive-card border-none shadow-xl bg-[#435ebe] text-white relative overflow-hidden group">
-            <div className="absolute -right-10 -bottom-10 opacity-10 group-hover:scale-110 transition-transform duration-700">
-              <DollarSign className="w-48 h-48" />
+          <Card className="responsive-card border-none shadow-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white relative overflow-hidden group rounded-[2.5rem]">
+            <div className="absolute -right-10 -bottom-10 opacity-5 group-hover:scale-110 transition-transform duration-700">
+              <DollarSign className="w-64 h-64" />
             </div>
-            <div className="relative z-10 flex flex-col items-center text-center space-y-2">
-              <div className="flex items-center gap-2 opacity-80 font-bold text-sm">
-                <div className="p-1.5 bg-white/20 rounded-lg">
-                  <Wallet className="w-4 h-4" />
-                </div>
-                إجمالي المبيعات (الكل)
+            <div className="relative z-10 flex flex-col items-center text-center space-y-4 py-4">
+              <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/10">
+                <Wallet className="w-4 h-4 text-emerald-400" />
+                <span className="text-xs font-bold tracking-wide uppercase">إجمالي مبيعات المتجر</span>
               </div>
-              <div className="text-4xl sm:text-5xl font-black">
-                {displayStats.allTime.totalRevenue.toLocaleString()} 
-                <span className="text-lg font-medium mr-2 opacity-70">ر.س</span>
-              </div>
-              <div className="grid grid-cols-2 gap-4 w-full max-w-sm mt-4">
-                <div className="bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/10 text-center">
-                  <p className="text-[10px] uppercase tracking-wider opacity-60 font-bold">اليوم</p>
-                  <p className="text-lg font-black">{displayStats.today.totalRevenue.toLocaleString()} <span className="text-[10px] opacity-60">ر.س</span></p>
+              <div className="space-y-1">
+                <div className="text-5xl sm:text-6xl font-black tracking-tighter">
+                  {displayStats.allTime.totalRevenue.toLocaleString()} 
                 </div>
-                <div className="bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/10 text-center">
-                  <p className="text-[10px] uppercase tracking-wider opacity-60 font-bold">الشهر</p>
-                  <p className="text-lg font-black">{displayStats.thisMonth.totalRevenue.toLocaleString()} <span className="text-[10px] opacity-60">ر.س</span></p>
+                <div className="text-emerald-400 font-bold text-sm">ريال سعودي</div>
+              </div>
+              <div className="grid grid-cols-2 gap-6 w-full max-w-md mt-6">
+                <div className="bg-white/5 backdrop-blur-xl p-4 rounded-[1.5rem] border border-white/10 text-center hover:bg-white/10 transition-colors">
+                  <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">اليوم</p>
+                  <p className="text-xl font-black">{displayStats.today.totalRevenue.toLocaleString()} <span className="text-xs font-medium text-slate-400">ر.س</span></p>
+                </div>
+                <div className="bg-white/5 backdrop-blur-xl p-4 rounded-[1.5rem] border border-white/10 text-center hover:bg-white/10 transition-colors">
+                  <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">الشهر</p>
+                  <p className="text-xl font-black">{displayStats.thisMonth.totalRevenue.toLocaleString()} <span className="text-xs font-medium text-slate-400">ر.س</span></p>
                 </div>
               </div>
             </div>

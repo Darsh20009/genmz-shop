@@ -45,22 +45,26 @@ export default function AdminSettings() {
 
   return (
     <Layout>
-      <div className="p-4 md:p-8 space-y-8" dir="rtl">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Settings className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-black">إعدادات المتجر</h1>
+      <div className="p-4 md:p-8 space-y-8 bg-[#f8fafc] dark:bg-[#020617] min-h-screen" dir="rtl">
+        <div className="flex items-center justify-between bg-white dark:bg-slate-900 p-6 rounded-[1.5rem] border shadow-sm">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-primary/10 rounded-2xl">
+              <Settings className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-black tracking-tight">الإعدادات</h1>
+              <p className="text-slate-500 text-sm font-medium">إدارة تفاصيل المتجر والهوية</p>
+            </div>
           </div>
         </div>
 
         <Tabs defaultValue={defaultTab} className="w-full">
-          <TabsList className="w-full justify-start overflow-x-auto h-auto p-1 bg-muted/50 rounded-2xl mb-8">
-            <TabsTrigger value="general" className="rounded-xl px-6 py-2.5 font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">عام</TabsTrigger>
-            <TabsTrigger value="branding" className="rounded-xl px-6 py-2.5 font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">هوية المتجر</TabsTrigger>
-            <TabsTrigger value="communication" className="rounded-xl px-6 py-2.5 font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">التواصل</TabsTrigger>
-            <TabsTrigger value="checkout" className="rounded-xl px-6 py-2.5 font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">إتمام الشراء</TabsTrigger>
-            <TabsTrigger value="working-hours" className="rounded-xl px-6 py-2.5 font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">أوقات العمل</TabsTrigger>
-            <TabsTrigger value="compliance" className="rounded-xl px-6 py-2.5 font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">الامتثال (ZATCA)</TabsTrigger>
+          <TabsList className="w-full justify-start overflow-x-auto h-auto p-1.5 bg-slate-100 dark:bg-slate-800 rounded-2xl mb-8 border border-slate-200 dark:border-slate-700">
+            <TabsTrigger value="general" className="rounded-xl px-6 py-2.5 font-bold text-sm data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm transition-all">عام</TabsTrigger>
+            <TabsTrigger value="branding" className="rounded-xl px-6 py-2.5 font-bold text-sm data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm transition-all">هوية المتجر</TabsTrigger>
+            <TabsTrigger value="communication" className="rounded-xl px-6 py-2.5 font-bold text-sm data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm transition-all">التواصل</TabsTrigger>
+            <TabsTrigger value="checkout" className="rounded-xl px-6 py-2.5 font-bold text-sm data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm transition-all">إتمام الشراء</TabsTrigger>
+            <TabsTrigger value="working-hours" className="rounded-xl px-6 py-2.5 font-bold text-sm data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm transition-all">أوقات العمل</TabsTrigger>
           </TabsList>
 
           <TabsContent value="general" className="space-y-6">
@@ -104,35 +108,43 @@ export default function AdminSettings() {
           </TabsContent>
 
           <TabsContent value="branding" className="space-y-6">
-            <Card className="rounded-[2rem] border-none shadow-sm">
-              <CardHeader>
-                <CardTitle className="font-black flex items-center gap-2">
+            <Card className="rounded-[1.5rem] border-none shadow-sm overflow-hidden bg-white dark:bg-slate-900">
+              <CardHeader className="border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+                <CardTitle className="font-black text-lg flex items-center gap-2">
                   <Palette className="w-5 h-5 text-primary" />
                   الهوية البصرية
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="grid gap-3">
-                    <Label className="font-bold pr-2">اللون الرئيسي</Label>
-                    <Input type="color" defaultValue={settings?.primaryColor || "#000000"} className="h-12 rounded-xl p-1 w-full" />
+              <CardContent className="p-6 space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <Label className="font-bold text-sm pr-1">اللون الرئيسي</Label>
+                    <div className="flex gap-4">
+                      <Input type="color" defaultValue={settings?.primaryColor || "#000000"} className="h-14 w-14 rounded-xl p-1 cursor-pointer" />
+                      <Input defaultValue={settings?.primaryColor || "#000000"} className="h-14 flex-1 rounded-xl font-mono text-center" />
+                    </div>
                   </div>
-                  <div className="grid gap-3">
-                    <Label className="font-bold pr-2">اللون الثانوي</Label>
-                    <Input type="color" defaultValue={settings?.secondaryColor || "#ffffff"} className="h-12 rounded-xl p-1 w-full" />
+                  <div className="space-y-4">
+                    <Label className="font-bold text-sm pr-1">اللون الثانوي</Label>
+                    <div className="flex gap-4">
+                      <Input type="color" defaultValue={settings?.secondaryColor || "#ffffff"} className="h-14 w-14 rounded-xl p-1 cursor-pointer" />
+                      <Input defaultValue={settings?.secondaryColor || "#ffffff"} className="h-14 flex-1 rounded-xl font-mono text-center" />
+                    </div>
                   </div>
                 </div>
-                <div className="grid gap-3">
-                  <Label className="font-bold pr-2">نص حقوق الطبع والنشر</Label>
-                  <Input defaultValue={settings?.copyrightText} className="h-12 rounded-xl" />
+                <div className="space-y-4">
+                  <Label className="font-bold text-sm pr-1">نص حقوق المتجر</Label>
+                  <Input defaultValue={settings?.copyrightText} className="h-14 rounded-xl" placeholder="© 2024 جميع الحقوق محفوظة" />
                 </div>
-                <Button 
-                  onClick={() => mutation.mutate({})} 
-                  className="h-12 px-8 rounded-xl font-bold"
-                  disabled={mutation.isPending}
-                >
-                  {mutation.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : "حفظ الهوية"}
-                </Button>
+                <div className="flex justify-end pt-4 border-t border-slate-50 dark:border-slate-800">
+                  <Button 
+                    onClick={() => mutation.mutate({})} 
+                    className="h-12 px-10 rounded-xl font-bold bg-primary shadow-lg shadow-primary/20"
+                    disabled={mutation.isPending}
+                  >
+                    {mutation.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : "حفظ الهوية"}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
