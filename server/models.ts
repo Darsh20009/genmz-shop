@@ -41,6 +41,7 @@ const storeSettingsSchema = new Schema<StoreSettings>(
   {
     name: { type: String, required: true },
     logo: String,
+    logoEn: String,
     favicon: String,
     coverImage: String,
     primaryColor: { type: String, default: "#000000" },
@@ -55,6 +56,13 @@ const storeSettingsSchema = new Schema<StoreSettings>(
     enableQuestions: { type: Boolean, default: true },
     enableStockNotifications: { type: Boolean, default: true },
     minStockLevel: { type: Number, default: 10 },
+    seoTitle: String,
+    seoDescription: String,
+    communication: {
+      orderMessages: { type: Boolean, default: true },
+      abandonedCartAlerts: { type: Boolean, default: true },
+      reviewRequests: { type: Boolean, default: true }
+    }
   },
   { timestamps: true }
 );

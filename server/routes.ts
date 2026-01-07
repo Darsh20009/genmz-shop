@@ -351,6 +351,15 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/settings", async (_req, res, next) => {
+    try {
+      const settings = await storage.getStoreSettings();
+      res.json(settings);
+    } catch (err) {
+      next(err);
+    }
+  });
+
   // Wallet Management
   app.post("/api/admin/customers/:id/wallet", protectAdmin, async (req, res, next) => {
     try {
@@ -376,7 +385,7 @@ export async function registerRoutes(
     }
   });
 
-  // Pages (fix for frontend expectations)
+  // Pages
   app.get("/api/pages", async (_req, res, next) => {
     try {
       const pages = await storage.getPages();
@@ -390,6 +399,15 @@ export async function registerRoutes(
     try {
       const page = await storage.createPage(req.body);
       res.status(201).json(page);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.patch("/api/pages/:id", protectAdmin, async (req, res, next) => {
+    try {
+      const page = await storage.updatePage(req.params.id, req.body);
+      res.json(page);
     } catch (err) {
       next(err);
     }
@@ -441,7 +459,7 @@ export async function registerRoutes(
     }
   });
 
-  // Settings
+  // Settings Update
   app.patch("/api/admin/settings", protectAdmin, async (req, res, next) => {
     try {
       const settings = await storage.updateStoreSettings(req.body);
