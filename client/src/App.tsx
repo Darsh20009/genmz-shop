@@ -192,7 +192,7 @@ function Router() {
       <Route path="/admin/loyalty">
         <ProtectedRoute component={AdminLoyalty} permission="settings.manage" />
       </Route>
-      <Route path="/admin/sales-report">
+      <Route path="/admin/reports/sales">
         <ProtectedRoute component={SalesReport} permission="reports.view" />
       </Route>
       <Route path="/admin/customers">
