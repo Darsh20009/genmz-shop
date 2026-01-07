@@ -53,6 +53,17 @@ export default function AdminPages() {
     },
   });
 
+  const updatePageMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string, data: any }) => {
+      const res = await apiRequest("PATCH", `/api/pages/${id}`, data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/pages"] });
+      toast({ title: "تم تحديث الصفحة بنجاح" });
+    },
+  });
+
   const filteredPages = (pages as any[]).filter((p: any) =>
     p.title?.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -139,7 +150,36 @@ export default function AdminPages() {
                       </TableCell>
                       <TableCell>
                         <Button variant="ghost" size="sm"><Eye className="w-4 h-4" /></Button>
-                        <Button variant="ghost" size="sm"><Edit className="w-4 h-4" /></Button>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="sm"><Edit className="w-4 h-4" /></Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>تعديل الصفحة</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div>
+                                <Label>اسم الصفحة</Label>
+                                <Input defaultValue={page.title} id={`edit-title-${page.id}`} />
+                              </div>
+                              <div>
+                                <Label>المحتوى</Label>
+                                <Textarea defaultValue={page.content} id={`edit-content-${page.id}`} rows={6} />
+                              </div>
+                              <Button
+                                className="w-full"
+                                onClick={() => {
+                                  const title = (document.getElementById(`edit-title-${page.id}`) as HTMLInputElement).value;
+                                  const content = (document.getElementById(`edit-content-${page.id}`) as HTMLTextAreaElement).value;
+                                  updatePageMutation.mutate({ id: page.id, data: { title, content } });
+                                }}
+                              >
+                                حفظ التغييرات
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                         <Button variant="ghost" size="sm" onClick={() => deletePageMutation.mutate(page.id)}>
                           <Trash2 className="w-4 h-4 text-destructive" />
                         </Button>

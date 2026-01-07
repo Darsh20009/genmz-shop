@@ -570,7 +570,8 @@ export class MongoStorage implements IStorage {
         }
       };
       const created = await StoreSettingsModel.create(defaultSettings);
-      return { ...created.toObject(), id: created._id.toString() } as any;
+      const obj = created.toObject();
+      return { ...obj, id: obj._id.toString() } as any;
     }
     return { ...settings, id: settings._id.toString() } as any;
   }

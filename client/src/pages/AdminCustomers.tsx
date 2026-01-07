@@ -90,7 +90,7 @@ function BalanceForm({ customerId }: { customerId: string }) {
 
   const mutation = useMutation({
     mutationFn: async (data: any) => {
-      const res = await apiRequest("POST", `/api/admin/customers/${customerId}/balance`, data);
+      const res = await apiRequest("POST", `/api/admin/customers/${customerId}/wallet`, data);
       return res.json();
     },
     onSuccess: () => {

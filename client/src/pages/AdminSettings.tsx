@@ -30,6 +30,38 @@ export default function AdminSettings() {
     },
   });
 
+  const handleSaveGeneral = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    mutation.mutate({
+      name: formData.get("name"),
+      currency: formData.get("currency"),
+      taxNumber: formData.get("taxNumber"),
+      taxPercentage: Number(formData.get("taxPercentage")),
+    });
+  };
+
+  const handleSaveCommunication = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    mutation.mutate({
+      communication: {
+        orderMessages: formData.get("orderMessages") === "on",
+        abandonedCartAlerts: formData.get("abandonedCartAlerts") === "on",
+        reviewRequests: formData.get("reviewRequests") === "on",
+      }
+    });
+  };
+
+  const handleSaveCheckout = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    mutation.mutate({
+      enableReviews: formData.get("enableReviews") === "on",
+      enableQuestions: formData.get("enableQuestions") === "on",
+    });
+  };
+
   const searchParams = new URLSearchParams(currentLocation.split('?')[1]);
   const defaultTab = searchParams.get('tab') || 'general';
 
@@ -68,146 +100,160 @@ export default function AdminSettings() {
           </TabsList>
 
           <TabsContent value="general" className="space-y-6">
-            <Card className="rounded-[2rem] border-none shadow-sm">
-              <CardHeader>
-                <CardTitle className="font-black flex items-center gap-2">
-                  <Globe className="w-5 h-5 text-primary" />
-                  البيانات الأساسية والمالية
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="grid gap-3">
-                    <Label className="font-bold pr-2">اسم المتجر</Label>
-                    <Input defaultValue={settings?.name} className="h-12 rounded-xl" />
+            <form onSubmit={handleSaveGeneral}>
+              <Card className="rounded-[2rem] border-none shadow-sm">
+                <CardHeader>
+                  <CardTitle className="font-black flex items-center gap-2">
+                    <Globe className="w-5 h-5 text-primary" />
+                    البيانات الأساسية والمالية
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid gap-3">
+                      <Label className="font-bold pr-2">اسم المتجر</Label>
+                      <Input name="name" defaultValue={settings?.name} className="h-12 rounded-xl" />
+                    </div>
+                    <div className="grid gap-3">
+                      <Label className="font-bold pr-2">العملة الافتراضية</Label>
+                      <Input name="currency" defaultValue={settings?.currency || "SAR"} className="h-12 rounded-xl" />
+                    </div>
                   </div>
-                  <div className="grid gap-3">
-                    <Label className="font-bold pr-2">العملة الافتراضية</Label>
-                    <Input defaultValue={settings?.currency || "SAR"} className="h-12 rounded-xl" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid gap-3">
+                      <Label className="font-bold pr-2">الرقم الضريبي</Label>
+                      <Input name="taxNumber" defaultValue={settings?.taxNumber} className="h-12 rounded-xl" placeholder="مثال: 300000000000003" />
+                    </div>
+                    <div className="grid gap-3">
+                      <Label className="font-bold pr-2">نسبة الضريبة (%)</Label>
+                      <Input name="taxPercentage" type="number" defaultValue={settings?.taxPercentage || 15} className="h-12 rounded-xl" />
+                    </div>
                   </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="grid gap-3">
-                    <Label className="font-bold pr-2">الرقم الضريبي</Label>
-                    <Input defaultValue={settings?.taxNumber} className="h-12 rounded-xl" placeholder="مثال: 300000000000003" />
-                  </div>
-                  <div className="grid gap-3">
-                    <Label className="font-bold pr-2">نسبة الضريبة (%)</Label>
-                    <Input type="number" defaultValue={settings?.taxPercentage || 15} className="h-12 rounded-xl" />
-                  </div>
-                </div>
-                <Button 
-                  onClick={() => mutation.mutate({})} 
-                  className="h-12 px-8 rounded-xl font-bold"
-                  disabled={mutation.isPending}
-                >
-                  {mutation.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : "حفظ التغييرات"}
-                </Button>
-              </CardContent>
-            </Card>
+                  <Button 
+                    type="submit"
+                    className="h-12 px-8 rounded-xl font-bold"
+                    disabled={mutation.isPending}
+                  >
+                    {mutation.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : "حفظ التغييرات"}
+                  </Button>
+                </CardContent>
+              </Card>
+            </form>
           </TabsContent>
 
           <TabsContent value="branding" className="space-y-6">
-            <Card className="rounded-[1.5rem] border-none shadow-sm overflow-hidden bg-white dark:bg-slate-900">
-              <CardHeader className="border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
-                <CardTitle className="font-black text-lg flex items-center gap-2">
-                  <Palette className="w-5 h-5 text-primary" />
-                  الهوية البصرية
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                    <Label className="font-bold text-sm pr-1">اللون الرئيسي</Label>
-                    <div className="flex gap-4">
-                      <Input type="color" defaultValue={settings?.primaryColor || "#000000"} className="h-14 w-14 rounded-xl p-1 cursor-pointer" />
-                      <Input defaultValue={settings?.primaryColor || "#000000"} className="h-14 flex-1 rounded-xl font-mono text-center" />
+            <form onSubmit={handleSaveBranding}>
+              <Card className="rounded-[1.5rem] border-none shadow-sm overflow-hidden bg-white dark:bg-slate-900">
+                <CardHeader className="border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+                  <CardTitle className="font-black text-lg flex items-center gap-2">
+                    <Palette className="w-5 h-5 text-primary" />
+                    الهوية البصرية
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                      <Label className="font-bold text-sm pr-1">اللون الرئيسي</Label>
+                      <div className="flex gap-4">
+                        <Input name="primaryColor" type="color" defaultValue={settings?.primaryColor || "#000000"} className="h-14 w-14 rounded-xl p-1 cursor-pointer" />
+                        <Input defaultValue={settings?.primaryColor || "#000000"} className="h-14 flex-1 rounded-xl font-mono text-center" readOnly />
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <Label className="font-bold text-sm pr-1">اللون الثانوي</Label>
+                      <div className="flex gap-4">
+                        <Input name="secondaryColor" type="color" defaultValue={settings?.secondaryColor || "#ffffff"} className="h-14 w-14 rounded-xl p-1 cursor-pointer" />
+                        <Input defaultValue={settings?.secondaryColor || "#ffffff"} className="h-14 flex-1 rounded-xl font-mono text-center" readOnly />
+                      </div>
                     </div>
                   </div>
                   <div className="space-y-4">
-                    <Label className="font-bold text-sm pr-1">اللون الثانوي</Label>
-                    <div className="flex gap-4">
-                      <Input type="color" defaultValue={settings?.secondaryColor || "#ffffff"} className="h-14 w-14 rounded-xl p-1 cursor-pointer" />
-                      <Input defaultValue={settings?.secondaryColor || "#ffffff"} className="h-14 flex-1 rounded-xl font-mono text-center" />
-                    </div>
+                    <Label className="font-bold text-sm pr-1">نص حقوق المتجر</Label>
+                    <Input name="copyrightText" defaultValue={settings?.copyrightText} className="h-14 rounded-xl" placeholder="© 2024 جميع الحقوق محفوظة" />
                   </div>
-                </div>
-                <div className="space-y-4">
-                  <Label className="font-bold text-sm pr-1">نص حقوق المتجر</Label>
-                  <Input defaultValue={settings?.copyrightText} className="h-14 rounded-xl" placeholder="© 2024 جميع الحقوق محفوظة" />
-                </div>
-                <div className="flex justify-end pt-4 border-t border-slate-50 dark:border-slate-800">
-                  <Button 
-                    onClick={() => mutation.mutate({})} 
-                    className="h-12 px-10 rounded-xl font-bold bg-primary shadow-lg shadow-primary/20"
-                    disabled={mutation.isPending}
-                  >
-                    {mutation.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : "حفظ الهوية"}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                  <div className="flex justify-end pt-4 border-t border-slate-50 dark:border-slate-800">
+                    <Button 
+                      type="submit"
+                      className="h-12 px-10 rounded-xl font-bold bg-primary shadow-lg shadow-primary/20"
+                      disabled={mutation.isPending}
+                    >
+                      {mutation.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : "حفظ الهوية"}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </form>
           </TabsContent>
 
           <TabsContent value="communication" className="space-y-6">
-            <Card className="rounded-[2rem] border-none shadow-sm">
-              <CardHeader>
-                <CardTitle className="font-black flex items-center gap-2">
-                  <Bell className="w-5 h-5 text-primary" />
-                  تنبيهات العملاء
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl">
-                  <div className="space-y-1">
-                    <Label className="font-bold">رسائل الطلبات</Label>
-                    <p className="text-xs text-muted-foreground">تنبيه العميل عند تغيير حالة الطلب</p>
+            <form onSubmit={handleSaveCommunication}>
+              <Card className="rounded-[2rem] border-none shadow-sm">
+                <CardHeader>
+                  <CardTitle className="font-black flex items-center gap-2">
+                    <Bell className="w-5 h-5 text-primary" />
+                    تنبيهات العملاء
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl">
+                    <div className="space-y-1">
+                      <Label className="font-bold">رسائل الطلبات</Label>
+                      <p className="text-xs text-muted-foreground">تنبيه العميل عند تغيير حالة الطلب</p>
+                    </div>
+                    <Switch name="orderMessages" defaultChecked={settings?.communication?.orderMessages} />
                   </div>
-                  <Switch checked={settings?.communication?.orderMessages} />
-                </div>
-                <div className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl">
-                  <div className="space-y-1">
-                    <Label className="font-bold">تنبيهات السلات المتروكة</Label>
-                    <p className="text-xs text-muted-foreground">إرسال رسائل تذكير تلقائية</p>
+                  <div className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl">
+                    <div className="space-y-1">
+                      <Label className="font-bold">تنبيهات السلات المتروكة</Label>
+                      <p className="text-xs text-muted-foreground">إرسال رسائل تذكير تلقائية</p>
+                    </div>
+                    <Switch name="abandonedCartAlerts" defaultChecked={settings?.communication?.abandonedCartAlerts} />
                   </div>
-                  <Switch checked={settings?.communication?.abandonedCartAlerts} />
-                </div>
-                <div className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl">
-                  <div className="space-y-1">
-                    <Label className="font-bold">طلبات التقييم</Label>
-                    <p className="text-xs text-muted-foreground">تشجيع العملاء على تقييم المنتجات</p>
+                  <div className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl">
+                    <div className="space-y-1">
+                      <Label className="font-bold">طلبات التقييم</Label>
+                      <p className="text-xs text-muted-foreground">تشجيع العملاء على تقييم المنتجات</p>
+                    </div>
+                    <Switch name="reviewRequests" defaultChecked={settings?.communication?.reviewRequests} />
                   </div>
-                  <Switch checked={settings?.communication?.reviewRequests} />
-                </div>
-              </CardContent>
-            </Card>
+                  <Button type="submit" disabled={mutation.isPending}>
+                    {mutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "حفظ إعدادات التواصل"}
+                  </Button>
+                </CardContent>
+              </Card>
+            </form>
           </TabsContent>
 
           <TabsContent value="checkout" className="space-y-6">
-            <Card className="rounded-[2rem] border-none shadow-sm">
-              <CardHeader>
-                <CardTitle className="font-black flex items-center gap-2">
-                  <ShoppingCart className="w-5 h-5 text-primary" />
-                  إعدادات الشراء
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl">
-                  <div className="space-y-1">
-                    <Label className="font-bold">تفعيل التقييمات</Label>
-                    <p className="text-xs text-muted-foreground">السماح للعملاء بتقييم المنتجات</p>
+            <form onSubmit={handleSaveCheckout}>
+              <Card className="rounded-[2rem] border-none shadow-sm">
+                <CardHeader>
+                  <CardTitle className="font-black flex items-center gap-2">
+                    <ShoppingCart className="w-5 h-5 text-primary" />
+                    إعدادات الشراء
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl">
+                    <div className="space-y-1">
+                      <Label className="font-bold">تفعيل التقييمات</Label>
+                      <p className="text-xs text-muted-foreground">السماح للعملاء بتقييم المنتجات</p>
+                    </div>
+                    <Switch name="enableReviews" defaultChecked={settings?.enableReviews} />
                   </div>
-                  <Switch checked={settings?.enableReviews} />
-                </div>
-                <div className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl">
-                  <div className="space-y-1">
-                    <Label className="font-bold">قسم الأسئلة والأجوبة</Label>
-                    <p className="text-xs text-muted-foreground">تمكين العملاء من طرح الأسئلة</p>
+                  <div className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl">
+                    <div className="space-y-1">
+                      <Label className="font-bold">قسم الأسئلة والأجوبة</Label>
+                      <p className="text-xs text-muted-foreground">تمكين العملاء من طرح الأسئلة</p>
+                    </div>
+                    <Switch name="enableQuestions" defaultChecked={settings?.enableQuestions} />
                   </div>
-                  <Switch checked={settings?.enableQuestions} />
-                </div>
-              </CardContent>
-            </Card>
+                  <Button type="submit" disabled={mutation.isPending}>
+                    {mutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "حفظ إعدادات الشراء"}
+                  </Button>
+                </CardContent>
+              </Card>
+            </form>
           </TabsContent>
 
           <TabsContent value="working-hours" className="space-y-6">
