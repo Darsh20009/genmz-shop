@@ -116,6 +116,8 @@ import AdminInventoryAudit from "@/pages/AdminInventoryAudit";
 import AdminCustomFields from "@/pages/AdminCustomFields";
 import AdminNavigation from "@/pages/AdminNavigation";
 
+import { VisualEditorProvider } from "@/components/VisualEditor";
+
 function Router() {
   const { user } = useAuth();
 
@@ -294,8 +296,10 @@ export default function App() {
           <ThemeProvider defaultTheme="light" storageKey="genmz-theme">
             <TooltipProvider>
               <AuthProvider>
-                <Toaster />
-                <AppContent />
+                <VisualEditorProvider>
+                  <Toaster />
+                  <AppContent />
+                </VisualEditorProvider>
               </AuthProvider>
             </TooltipProvider>
           </ThemeProvider>

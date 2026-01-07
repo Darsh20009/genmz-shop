@@ -2972,6 +2972,24 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/content", async (_req, res, next) => {
+    try {
+      const blocks = await storage.getContentBlocks();
+      res.json(blocks);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.patch("/api/content/:key", protectAdmin, async (req, res, next) => {
+    try {
+      const block = await storage.updateContentBlock(req.params.key, req.body);
+      res.json(block);
+    } catch (err) {
+      next(err);
+    }
+  });
+
   // Standard API Error Handler (MUST BE LAST)
   app.use(errorMiddleware);
 

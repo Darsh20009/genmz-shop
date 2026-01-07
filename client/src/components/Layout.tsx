@@ -26,7 +26,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
+import { useVisualEditor } from "./VisualEditor";
+
 export function Layout({ children }: { children: React.ReactNode }) {
+  const { isEditing, setIsEditing } = useVisualEditor();
   const { user, logout } = useAuth();
   const { items: cartItems } = useCart();
   const [location] = useLocation();
@@ -166,6 +169,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </h2>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-3">
+              {user?.role === "admin" && (
+                <Button 
+                  variant={isEditing ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setIsEditing(!isEditing)}
+                  className="rounded-full font-bold text-[10px] uppercase tracking-widest h-8"
+                >
+                  {isEditing ? "إيقاف التعديل" : "تعديل الموقع"}
+                </Button>
+              )}
               <Button variant="ghost" size="icon" onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')} className="rounded-full hover:bg-accent h-8 w-8 sm:h-10 sm:w-10">
                 <Globe className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
               </Button>

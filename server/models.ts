@@ -452,6 +452,18 @@ const themeSchema = new Schema<Theme>(
   { timestamps: true }
 );
 
+const contentBlockSchema = new Schema<ContentBlock>(
+  {
+    key: { type: String, required: true, unique: true },
+    type: { type: String, enum: ["text", "image", "html", "setting"], required: true },
+    content: { type: String, required: true },
+    metadata: { type: Schema.Types.Mixed, default: {} },
+    isActive: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
+
+export const ContentBlockModel = mongoose.model<ContentBlock>("ContentBlock", contentBlockSchema);
 export const AbandonedCartModel = mongoose.model<AbandonedCart>("AbandonedCart", abandonedCartSchema);
 export const ReviewModel = mongoose.model<Review>("Review", reviewSchema);
 export const StoreSettingsModel = mongoose.model<StoreSettings>("StoreSettings", storeSettingsSchema);

@@ -1,5 +1,5 @@
-import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, OrderStatus, ActivityLog, InsertActivityLog, Coupon, InsertCoupon, Branch, InsertBranch, Banner, InsertBanner, CashShift, InsertCashShift, ShippingCompany, InsertShippingCompany, AuditLog, InsertAuditLog, Role, InsertRole, StockTransfer, InsertStockTransfer, Invoice, InsertInvoice, BankTransfer, InsertBankTransfer, Shipment, InsertShipment, AbandonedCart, InsertAbandonedCart, Review, InsertReview, StoreSettings, InsertStoreSettings, Page, InsertPage, FAQ, InsertFAQ, CustomerGroup, InsertCustomerGroup, Theme } from "@shared/schema";
-import { UserModel, ProductModel, OrderModel, CategoryModel, WalletTransactionModel, ActivityLogModel, CouponModel, BranchModel, BannerModel, CashShiftModel, ShippingCompanyModel, AuditLogModel, RoleModel, StockTransferModel, InvoiceModel, BankTransferModel, ShipmentModel, CartModel, AbandonedCartModel, ReviewModel, StoreSettingsModel, OptionModel, FilterModel, PageModel, FAQModel, CustomerGroupModel, ThemeModel } from "./models";
+import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, OrderStatus, ActivityLog, InsertActivityLog, Coupon, InsertCoupon, Branch, InsertBranch, Banner, InsertBanner, CashShift, InsertCashShift, ShippingCompany, InsertShippingCompany, AuditLog, InsertAuditLog, Role, InsertRole, StockTransfer, InsertStockTransfer, Invoice, InsertInvoice, BankTransfer, InsertBankTransfer, Shipment, InsertShipment, AbandonedCart, InsertAbandonedCart, Review, InsertReview, StoreSettings, InsertStoreSettings, Page, InsertPage, FAQ, InsertFAQ, CustomerGroup, InsertCustomerGroup, Theme, ContentBlock, InsertContentBlock } from "@shared/schema";
+import { UserModel, ProductModel, OrderModel, CategoryModel, WalletTransactionModel, ActivityLogModel, CouponModel, BranchModel, BannerModel, CashShiftModel, ShippingCompanyModel, AuditLogModel, RoleModel, StockTransferModel, InvoiceModel, BankTransferModel, ShipmentModel, CartModel, AbandonedCartModel, ReviewModel, StoreSettingsModel, OptionModel, FilterModel, PageModel, FAQModel, CustomerGroupModel, ThemeModel, ContentBlockModel } from "./models";
 
 export interface IStorage {
   // Users
@@ -146,11 +146,30 @@ export interface IStorage {
   getThemes(): Promise<Theme[]>;
   activateTheme(id: string): Promise<Theme>;
 
+  // Content Blocks
+  getContentBlocks(): Promise<ContentBlock[]>;
+  getContentBlock(key: string): Promise<ContentBlock | undefined>;
+  updateContentBlock(key: string, data: Partial<InsertContentBlock>): Promise<ContentBlock>;
+
   // Dashboard Summary
   getDashboardSummary(): Promise<any>;
 }
 
 export class MongoStorage implements IStorage {
+  async getContentBlocks(): Promise<ContentBlock[]> {
+    const blocks = await ContentBlockModel.find({ isActive: true }).lean();
+    return blocks.map(b => ({ ...b, id: b._id.toString() } as any));
+  }
+
+  async getContentBlock(key: string): Promise<ContentBlock | undefined> {
+    const block = await ContentBlockModel.findOne({ key }).lean();
+    return block ? { ...block, id: block._id.toString() } as any : undefined;
+  }
+
+  async updateContentBlock(key: string, data: Partial<InsertContentBlock>): Promise<ContentBlock> {
+    const block = await ContentBlockModel.findOneAndUpdate({ key }, data, { upsert: true, new: true }).lean();
+    return { ...block, id: block._id.toString() } as any;
+  }
   async getDashboardSummary(): Promise<any> {
     const orders = await OrderModel.find().lean();
     const customers = await UserModel.countDocuments({ role: "customer" });
