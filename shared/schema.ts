@@ -541,6 +541,18 @@ export const insertInventorySchema = z.object({
 export type InsertInventory = z.infer<typeof insertInventorySchema>;
 export type Inventory = InsertInventory & { _id: string; id: string };
 
+// Content Block Schema for Visual Editing
+export const insertContentBlockSchema = z.object({
+  key: z.string().min(1),
+  type: z.enum(["text", "image", "html", "setting"]),
+  content: z.string().min(1),
+  metadata: z.record(z.any()).default({}),
+  isActive: z.boolean().default(true),
+});
+
+export type InsertContentBlock = z.infer<typeof insertContentBlockSchema>;
+export type ContentBlock = InsertContentBlock & { _id: string; id: string; updatedAt: Date };
+
 // API Types
 export type LoginRequest = { username: string; password: string };
 export type AuthResponse = User;
