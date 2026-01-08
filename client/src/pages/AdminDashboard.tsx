@@ -129,10 +129,7 @@ export default function AdminDashboard() {
             <Button 
               variant={isEditing ? "default" : "outline"}
               className={`w-full sm:w-auto rounded-xl px-5 h-11 gap-2 transition-all font-bold ${isEditing ? 'bg-primary text-primary-foreground shadow-lg' : 'border-slate-200 text-slate-600'}`}
-              onClick={() => {
-                setIsEditing(!isEditing);
-                if (!isEditing) setLocation("/");
-              }}
+              onClick={() => setIsEditing(!isEditing)}
             >
               <Edit3 className={`w-4 h-4 ${isEditing ? 'animate-pulse' : ''}`} />
               {isEditing ? 'إيقاف التعديل المباشر' : 'تفعيل التعديل المباشر'}
