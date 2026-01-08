@@ -127,24 +127,62 @@ export interface IStorage {
   clearCart(userId: string): Promise<void>;
   
   // Pages
-  getPages(): Promise<Page[]>;
-  createPage(data: InsertPage): Promise<Page>;
-  updatePage(id: string, data: Partial<InsertPage>): Promise<Page>;
-  deletePage(id: string): Promise<void>;
+  async getPages(): Promise<Page[]> {
+    const pages = await PageModel.find().lean();
+    return pages.map(p => ({ ...p, id: p._id.toString() } as any));
+  }
+  async createPage(data: InsertPage): Promise<Page> {
+    const page = await PageModel.create(data);
+    return { ...page.toObject(), id: page._id.toString() } as any;
+  }
+  async updatePage(id: string, data: Partial<InsertPage>): Promise<Page> {
+    const updated = await PageModel.findByIdAndUpdate(id, data, { new: true }).lean();
+    if (!updated) throw new Error("Page not found");
+    return { ...updated, id: updated._id.toString() } as any;
+  }
+  async deletePage(id: string): Promise<void> {
+    await PageModel.findByIdAndDelete(id);
+  }
 
   // FAQ
-  getFAQs(): Promise<FAQ[]>;
-  createFAQ(data: InsertFAQ): Promise<FAQ>;
-  updateFAQ(id: string, data: Partial<InsertFAQ>): Promise<FAQ>;
-  deleteFAQ(id: string): Promise<void>;
+  async getFAQs(): Promise<FAQ[]> {
+    const faqs = await FAQModel.find().lean();
+    return faqs.map(f => ({ ...f, id: f._id.toString() } as any));
+  }
+  async createFAQ(data: InsertFAQ): Promise<FAQ> {
+    const faq = await FAQModel.create(data);
+    return { ...faq.toObject(), id: faq._id.toString() } as any;
+  }
+  async updateFAQ(id: string, data: Partial<InsertFAQ>): Promise<FAQ> {
+    const updated = await FAQModel.findByIdAndUpdate(id, data, { new: true }).lean();
+    if (!updated) throw new Error("FAQ not found");
+    return { ...updated, id: updated._id.toString() } as any;
+  }
+  async deleteFAQ(id: string): Promise<void> {
+    await FAQModel.findByIdAndDelete(id);
+  }
 
   // Customer Groups
-  getCustomerGroups(): Promise<CustomerGroup[]>;
-  createCustomerGroup(data: InsertCustomerGroup): Promise<CustomerGroup>;
+  async getCustomerGroups(): Promise<CustomerGroup[]> {
+    const groups = await CustomerGroupModel.find().lean();
+    return groups.map(g => ({ ...g, id: g._id.toString() } as any));
+  }
+  async createCustomerGroup(data: InsertCustomerGroup): Promise<CustomerGroup> {
+    const group = await CustomerGroupModel.create(data);
+    return { ...group.toObject(), id: group._id.toString() } as any;
+  }
 
   // Themes
-  getThemes(): Promise<Theme[]>;
-  activateTheme(id: string): Promise<Theme>;
+  async getThemes(): Promise<Theme[]> {
+    const themes = await ThemeModel.find().lean();
+    return themes.map(t => ({ ...t, id: t._id.toString() } as any));
+  }
+  async activateTheme(id: string): Promise<Theme> {
+    await ThemeModel.updateMany({}, { isActive: false });
+    const theme = await ThemeModel.findByIdAndUpdate(id, { isActive: true }, { new: true }).lean();
+    if (!theme) throw new Error("Theme not found");
+    return { ...theme, id: theme._id.toString() } as any;
+  }
 
   // Content Blocks
   getContentBlocks(): Promise<ContentBlock[]>;
