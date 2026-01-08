@@ -151,11 +151,15 @@ export default function Home() {
               )}
             </Editable>
             <div className={`flex flex-col sm:flex-row gap-3 sm:gap-6 ${language === 'ar' ? 'sm:justify-end' : 'sm:justify-start'}`}>
-              <Link href="/products" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto px-6 sm:px-10 py-6 sm:py-8 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] rounded-none shadow-2xl hover-elevate transition-all bg-black text-white border-none active-elevate-2">
-                  {language === 'ar' ? 'اكتشف المجموعة' : t('discoverCollection')} {language === 'ar' ? <ChevronLeft className="mr-2 sm:mr-3 h-4 sm:h-5 w-4 sm:w-5 rotate-180" /> : <ChevronRight className="ml-2 sm:ml-3 h-4 sm:h-5 w-4 sm:w-5" />}
-                </Button>
-              </Link>
+              <Editable blockKey="home-hero-cta" defaultContent={language === 'ar' ? 'اكتشف المجموعة' : t('discoverCollection')}>
+                {(content) => (
+                  <Link href="/products" className="w-full sm:w-auto">
+                    <Button size="lg" className="w-full sm:w-auto px-6 sm:px-10 py-6 sm:py-8 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] rounded-none shadow-2xl hover-elevate transition-all bg-black text-white border-none active-elevate-2">
+                      {content} {language === 'ar' ? <ChevronLeft className="mr-2 sm:mr-3 h-4 sm:h-5 w-4 sm:w-5 rotate-180" /> : <ChevronRight className="ml-2 sm:ml-3 h-4 sm:h-5 w-4 sm:w-5" />}
+                    </Button>
+                  </Link>
+                )}
+              </Editable>
             </div>
           </motion.div>
           
@@ -165,15 +169,19 @@ export default function Home() {
              transition={{ duration: 1, delay: 0.2 }}
              className="relative order-none lg:order-1"
           >
-            <div className="relative aspect-[4/5] sm:aspect-[3/4] md:aspect-square max-w-sm sm:max-w-md lg:max-w-xl mx-auto group">
+             <div className="relative aspect-[4/5] sm:aspect-[3/4] md:aspect-square max-w-sm sm:max-w-md lg:max-w-xl mx-auto group">
               <div className="absolute inset-0 border-[10px] sm:border-[20px] border-primary/5 -m-4 sm:-m-10 hidden md:block" />
-              <img 
-                src={heroImg} 
-                alt="Gen M & Z Hero" 
-                loading="eager"
-                decoding="async"
-                className="w-full h-full object-cover shadow-2xl transition-all duration-1000"
-              />
+              <Editable blockKey="home-hero-image" defaultContent={heroImg} type="image">
+                {(content) => (
+                  <img 
+                    src={content} 
+                    alt="Gen M & Z Hero" 
+                    loading="eager"
+                    decoding="async"
+                    className="w-full h-full object-cover shadow-2xl transition-all duration-1000"
+                  />
+                )}
+              </Editable>
               <div className={`absolute -bottom-4 sm:-bottom-6 ${language === 'ar' ? '-right-4 sm:-right-6' : '-left-4 sm:-left-6'} bg-black text-white p-4 sm:p-6 hidden sm:block`}>
                 <p className="text-[8px] sm:text-[9px] tracking-widest uppercase font-bold mb-1">{t('featuredItem')}</p>
                 <p className="text-sm sm:text-base md:text-lg font-black leading-none">BURGUNDY HOODIE</p>

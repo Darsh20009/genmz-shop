@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { 
   Loader2, DollarSign, ShoppingCart, TrendingUp, Users, Package, 
-  CheckCircle2, Zap, Eye, Calendar, Wallet
+  CheckCircle2, Zap, Eye, Calendar, Wallet, Edit3
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RePieChart, Pie, Cell } from 'recharts';
 import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
+import { useVisualEditor } from "@/components/VisualEditor";
 
 const COLORS = ['#f39c12', '#00a878', '#ef4444', '#6366f1', '#8b5cf6', '#ec4899'];
 
@@ -38,6 +39,8 @@ export default function AdminDashboard() {
     queryKey: ["/api/admin/stats"],
     retry: 2
   });
+
+  const { isEditing, setIsEditing } = useVisualEditor();
 
   useEffect(() => {
     if (statsError && (statsError as any).onboardingRequired) {
@@ -123,6 +126,17 @@ export default function AdminDashboard() {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+            <Button 
+              variant={isEditing ? "default" : "outline"}
+              className={`w-full sm:w-auto rounded-xl px-5 h-11 gap-2 transition-all font-bold ${isEditing ? 'bg-primary text-primary-foreground shadow-lg' : 'border-slate-200 text-slate-600'}`}
+              onClick={() => {
+                setIsEditing(!isEditing);
+                if (!isEditing) setLocation("/");
+              }}
+            >
+              <Edit3 className={`w-4 h-4 ${isEditing ? 'animate-pulse' : ''}`} />
+              {isEditing ? 'إيقاف التعديل المباشر' : 'تفعيل التعديل المباشر'}
+            </Button>
             <Button 
               variant="outline" 
               className="w-full sm:w-auto rounded-xl px-5 h-11 gap-2 border-slate-200 hover:bg-white hover:shadow-sm transition-all font-bold text-slate-600"

@@ -76,6 +76,30 @@ export async function registerRoutes(
     res.sendStatus(204);
   });
 
+  // Content Blocks
+  app.get("/api/content", async (_req, res, next) => {
+    try {
+      const blocks = await storage.getContentBlocks();
+      res.json(blocks);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.patch("/api/content/:key", protectAdmin, async (req, res, next) => {
+    try {
+      const { key } = req.params;
+      const block = await storage.updateContentBlock(key, {
+        content: req.body.content,
+        type: req.body.type || "text",
+        key
+      });
+      res.json(block);
+    } catch (err) {
+      next(err);
+    }
+  });
+
   // Health check endpoint for Render
   app.get("/api/health", (_req, res) => {
     res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
