@@ -8,9 +8,11 @@ This is a comprehensive e-commerce admin management system with 20+ fully functi
 
 ## 🎯 Latest Updates (January 7, 2026)
 
-### Visual Editing System
-- **Interactive Website Editor**: Admins can now modify home page content directly.
-- **Dynamic Content Blocks**: Backend support for real-time text and image updates.
+### Visual Editing & CMS
+- **Interactive Website Editor**: Admins can modify home page and custom pages directly.
+- **Draft/Publish Workflow**: Separate storage for drafts and published content across `ContentBlocks` and `Pages`.
+- **JSON Block Architecture**: Pages now support a structured tree of blocks for advanced layout management.
+- **Published Timestamps**: Tracking when content goes live for audit and SEO purposes.
 
 ### Enhanced Reporting & Analytics
 - **Modern Sales Reports**: Redesigned `/admin/reports/sales` with colorful metric cards, improved data tables, and hover elevation effects.
