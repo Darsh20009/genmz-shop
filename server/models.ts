@@ -457,8 +457,11 @@ const contentBlockSchema = new Schema<ContentBlock>(
     key: { type: String, required: true, unique: true },
     type: { type: String, enum: ["text", "image", "html", "setting"], required: true },
     content: { type: String, required: true },
+    draftContent: String,
+    status: { type: String, enum: ["draft", "published"], default: "published" },
     metadata: { type: Schema.Types.Mixed, default: {} },
     isActive: { type: Boolean, default: true },
+    publishedAt: Date,
   },
   { timestamps: true }
 );

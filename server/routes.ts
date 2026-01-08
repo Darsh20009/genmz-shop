@@ -89,12 +89,38 @@ export async function registerRoutes(
   app.patch("/api/content/:key", protectAdmin, async (req, res, next) => {
     try {
       const { key } = req.params;
-      const block = await storage.updateContentBlock(key, {
-        content: req.body.content,
-        type: req.body.type || "text",
+      const { content, publish } = req.body;
+      
+      const updateData: any = {
+        draftContent: content,
+        status: publish ? "published" : "draft",
         key
-      });
+      };
+
+      if (publish) {
+        updateData.content = content;
+        updateData.publishedAt = new Date();
+      }
+
+      const block = await storage.updateContentBlock(key, updateData);
       res.json(block);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.post("/api/content/:key/publish", protectAdmin, async (req, res, next) => {
+    try {
+      const { key } = req.params;
+      const block = await storage.getContentBlock(key);
+      if (!block) return res.status(404).send("Block not found");
+
+      const updated = await storage.updateContentBlock(key, {
+        content: block.draftContent || block.content,
+        status: "published",
+        publishedAt: new Date()
+      });
+      res.json(updated);
     } catch (err) {
       next(err);
     }

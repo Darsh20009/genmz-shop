@@ -546,12 +546,14 @@ export const insertContentBlockSchema = z.object({
   key: z.string().min(1),
   type: z.enum(["text", "image", "html", "setting"]),
   content: z.string().min(1),
+  draftContent: z.string().optional(),
+  status: z.enum(["draft", "published"]).default("published"),
   metadata: z.record(z.any()).default({}),
   isActive: z.boolean().default(true),
 });
 
 export type InsertContentBlock = z.infer<typeof insertContentBlockSchema>;
-export type ContentBlock = InsertContentBlock & { _id: string; id: string; updatedAt: Date };
+export type ContentBlock = InsertContentBlock & { _id: string; id: string; updatedAt: Date; publishedAt?: Date };
 
 // API Types
 export type LoginRequest = { username: string; password: string };

@@ -30,14 +30,28 @@ export function VisualEditorProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   const updateMutation = useMutation({
-    mutationFn: async (data: { key: string; content: string }) => {
-      const res = await apiRequest("PATCH", `/api/content/${data.key}`, { content: data.content });
+    mutationFn: async (data: { key: string; content: string; publish?: boolean }) => {
+      const res = await apiRequest("PATCH", `/api/content/${data.key}`, { 
+        content: data.content,
+        publish: data.publish 
+      });
+      return res.json();
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/content"] });
+      setEditingBlock(null);
+      toast({ title: variables.publish ? "تم النشر بنجاح" : "تم حفظ المسودة" });
+    },
+  });
+
+  const publishMutation = useMutation({
+    mutationFn: async (key: string) => {
+      const res = await apiRequest("POST", `/api/content/${key}/publish`);
       return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/content"] });
-      setEditingBlock(null);
-      toast({ title: "تم التحديث بنجاح" });
+      toast({ title: "تم نشر جميع التغييرات" });
     },
   });
 
@@ -88,10 +102,17 @@ export function VisualEditorProvider({ children }: { children: ReactNode }) {
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setEditingBlock(null)}>إلغاء</Button>
             <Button 
-              onClick={() => updateMutation.mutate({ key: editingBlock!.key, content: editingBlock!.content! })}
+              variant="secondary"
+              onClick={() => updateMutation.mutate({ key: editingBlock!.key, content: editingBlock!.content!, publish: false })}
               disabled={updateMutation.isPending}
             >
-              {updateMutation.isPending ? "جاري الحفظ..." : "حفظ التغييرات"}
+              حفظ مسودة
+            </Button>
+            <Button 
+              onClick={() => updateMutation.mutate({ key: editingBlock!.key, content: editingBlock!.content!, publish: true })}
+              disabled={updateMutation.isPending}
+            >
+              {updateMutation.isPending ? "جاري الحفظ..." : "حفظ ونشر"}
             </Button>
           </div>
         </DialogContent>
@@ -121,7 +142,10 @@ export function Editable({ blockKey, defaultContent, type = "text", children, cl
   });
 
   const block = blocks?.find(b => b.key === blockKey);
-  const content = block?.content || defaultContent;
+  // Show draft content if editing, otherwise show published content
+  const content = isEditing 
+    ? (block?.draftContent || block?.content || defaultContent)
+    : (block?.content || defaultContent);
 
   if (!isEditing) {
     return <div className={className}>{children(content)}</div>;
