@@ -99,7 +99,7 @@ export async function registerRoutes(
 
       if (publish) {
         updateData.content = content;
-        updateData.publishedAt = new Date();
+        updateData.metadata = { ...req.body.metadata, publishedAt: new Date() };
       }
 
       const block = await storage.updateContentBlock(key, updateData);
@@ -118,7 +118,7 @@ export async function registerRoutes(
       const updated = await storage.updateContentBlock(key, {
         content: block.draftContent || block.content,
         status: "published",
-        publishedAt: new Date()
+        metadata: { ...block.metadata, publishedAt: new Date() }
       });
       res.json(updated);
     } catch (err) {
@@ -490,7 +490,7 @@ export async function registerRoutes(
       if (publish) {
         updateData.status = "published";
         updateData.content = data.draftContent || data.content;
-        updateData.publishedAt = new Date();
+        updateData.metadata = { ...data.metadata, publishedAt: new Date() };
       } else if (data.status) {
         updateData.status = data.status;
       }
@@ -512,7 +512,7 @@ export async function registerRoutes(
       const updated = await storage.updatePage(id, {
         content: page.draftContent || page.content,
         status: "published",
-        publishedAt: new Date()
+        metadata: { ...(page.metadata as any), publishedAt: new Date() }
       });
       res.json(updated);
     } catch (err) {
@@ -1109,7 +1109,7 @@ export async function registerRoutes(
       const settings = await storage.updateStoreSettings({
         enableStockNotifications: req.body.enabled,
         minStockLevel: req.body.minStockLevel,
-      });
+      } as any);
       res.json(settings);
     } catch (err) {
       res.status(500).json({ message: "فشل تحديث إعدادات التنبيهات" });

@@ -638,7 +638,7 @@ export class MongoStorage implements IStorage {
 
   async updateStoreSettings(settings: Partial<InsertStoreSettings>): Promise<StoreSettings> {
     const current = await this.getStoreSettings();
-    const updated = await StoreSettingsModel.findByIdAndUpdate(current.id, settings, { new: true }).lean();
+    const updated = await StoreSettingsModel.findByIdAndUpdate((current as any).id || (current as any)._id, settings, { new: true }).lean();
     if (!updated) throw new Error("Settings not found");
     return { ...updated, id: updated._id.toString() } as any;
   }
@@ -649,8 +649,7 @@ export class MongoStorage implements IStorage {
   }
   async createFilter(data: any): Promise<any> {
     const filter = await FilterModel.create(data);
-    const obj = filter.toObject();
-    return { ...obj, id: obj._id.toString() } as any;
+    return { ...filter.toObject(), id: filter._id.toString() } as any;
   }
   async updateFilter(id: string, data: any): Promise<any> {
     const filter = await FilterModel.findByIdAndUpdate(id, data, { new: true }).lean();
@@ -667,8 +666,7 @@ export class MongoStorage implements IStorage {
   }
   async createOption(data: any): Promise<any> {
     const option = await OptionModel.create(data);
-    const obj = option.toObject();
-    return { ...obj, id: obj._id.toString() } as any;
+    return { ...option.toObject(), id: option._id.toString() } as any;
   }
   async updateOption(id: string, data: any): Promise<any> {
     const option = await OptionModel.findByIdAndUpdate(id, data, { new: true }).lean();
@@ -677,60 +675,6 @@ export class MongoStorage implements IStorage {
   }
   async deleteOption(id: string): Promise<void> {
     await OptionModel.findByIdAndDelete(id);
-  }
-
-  async getPages(): Promise<Page[]> {
-    const pages = await PageModel.find().lean();
-    return pages.map(p => ({ ...p, id: p._id.toString() } as any));
-  }
-  async createPage(data: InsertPage): Promise<Page> {
-    const page = await PageModel.create(data);
-    return { ...page.toObject(), id: page._id.toString() } as any;
-  }
-  async updatePage(id: string, data: Partial<InsertPage>): Promise<Page> {
-    const updated = await PageModel.findByIdAndUpdate(id, { $set: data }, { new: true }).lean();
-    if (!updated) throw new Error("Page not found");
-    return { ...updated, id: updated._id.toString() } as any;
-  }
-  async deletePage(id: string): Promise<void> {
-    await PageModel.findByIdAndDelete(id);
-  }
-
-  async getFAQs(): Promise<FAQ[]> {
-    const faqs = await FAQModel.find().sort({ order: 1 }).lean();
-    return faqs.map(f => ({ ...f, id: f._id.toString() } as any));
-  }
-  async createFAQ(data: InsertFAQ): Promise<FAQ> {
-    const faq = await FAQModel.create(data);
-    return { ...faq.toObject(), id: faq._id.toString() } as any;
-  }
-  async updateFAQ(id: string, data: Partial<InsertFAQ>): Promise<FAQ> {
-    const updated = await FAQModel.findByIdAndUpdate(id, data, { new: true }).lean();
-    if (!updated) throw new Error("FAQ not found");
-    return { ...updated, id: updated._id.toString() } as any;
-  }
-  async deleteFAQ(id: string): Promise<void> {
-    await FAQModel.findByIdAndDelete(id);
-  }
-
-  async getCustomerGroups(): Promise<CustomerGroup[]> {
-    const groups = await CustomerGroupModel.find().lean();
-    return groups.map(g => ({ ...g, id: g._id.toString() } as any));
-  }
-  async createCustomerGroup(data: InsertCustomerGroup): Promise<CustomerGroup> {
-    const group = await CustomerGroupModel.create(data);
-    return { ...group.toObject(), id: group._id.toString() } as any;
-  }
-
-  async getThemes(): Promise<Theme[]> {
-    const themes = await ThemeModel.find().lean();
-    return themes.map(t => ({ ...t, id: t._id.toString() } as any));
-  }
-  async activateTheme(id: string): Promise<Theme> {
-    await ThemeModel.updateMany({}, { isActive: false });
-    const theme = await ThemeModel.findByIdAndUpdate(id, { isActive: true }, { new: true }).lean();
-    if (!theme) throw new Error("Theme not found");
-    return { ...theme, id: theme._id.toString() } as any;
   }
 
   async updateCoupon(id: string, data: any): Promise<Coupon> {
