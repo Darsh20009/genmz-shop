@@ -1,0 +1,187 @@
+1) أساس الفكرة: لازم تبني “نظام صفحات” مش صفحات كود ثابتة
+
+تحويل صفحات الموقع إلى Blocks/Sections/Components قابلة للتعديل.
+
+كل عنصر في الصفحة لازم يكون له:
+
+id ثابت
+
+type (Text/Image/Button/Hero/Card/List…)
+
+props (البيانات القابلة للتعديل)
+
+style (إعدادات الشكل)
+
+layout (مكانه وترتيبه)
+
+الصفحة نفسها تكون “JSON Schema” (أو DSL) يتخزن في قاعدة البيانات.
+
+بدون ده، هتفضل تعدل في كود فرونت… ومش هتوصل لأودوو.
+
+2) وضعين للعرض: View Mode vs Edit Mode
+
+زر للأدمن: Enable Edit
+
+لما يتفعل:
+
+يظهر Outline على العناصر عند الـ hover
+
+click يحدد العنصر (Selection)
+
+يظهر Popup/Sidebar Editor حسب نوع العنصر
+
+أدوات Drag/Resize/Move/Duplicate/Delete
+
+3) “Editor Engine” في الفرونت (قلب الميزة)
+
+لازم تبني أو تستخدم:
+
+Selection & Hover system
+
+Drag & Drop + Reorder (بدقة)
+
+Grid / Flex Layout controls
+
+Inline Rich Text Editor (للنصوص)
+
+Image picker + Crop/Resize + Alt
+
+Style controls: ألوان، خطوط، padding/margin، borders، shadows، animations…
+
+Global Design Tokens: ثيم عام للموقع (زي أودوو: ألوان، فونت، راديوس…)
+
+Component Registry: كل بلوك له Editor خاص به
+
+4) Backend Content Model قوي (MongoDB مناسب)
+
+لازم جداول/Collections أساسية:
+
+pages: slug، status (draft/published)، contentTree (JSON)
+
+componentsLibrary (اختياري): بلوكات جاهزة Templates
+
+assets: صور/ملفات + metadata
+
+revisions: تاريخ نسخ وتعديلات (Versioning)
+
+publishLogs + auditLogs: مين عدل إيه ووقت إيه
+
+5) Draft / Preview / Publish (أهم جزء احترافي)
+
+الأدمن يعدل على Draft
+
+يعمل Preview (رابط معاينة خاص)
+
+Publish ينقل من draft إلى published
+
+زر Rollback يرجع لإصدار سابق
+
+نظام Locking لو أكتر من أدمن بيعدل (منع تعارض)
+
+6) صلاحيات وأمان (RBAC حقيقي)
+
+لازم مستويات صلاحيات دقيقة:
+
+من يقدر “يدخل وضع التعديل”
+
+من يقدر يغير “الهيكل” (حذف/إضافة sections)
+
+من يقدر يغير “الصور” أو “الألوان العامة”
+
+من يقدر يعمل “Publish”
+
+تسجيل كل شيء في Audit Log
+
+7) إدارة صور وملفات بشكل محترف
+
+Upload API + Storage (S3/Cloudinary/أو سيرفر)
+
+Image variants (thumb/medium/original)
+
+حماية من رفع ملفات ضارة
+
+ربط الصور بعناصر الصفحة (assetId)
+
+أدوات داخل الـ editor:
+
+replace image
+
+crop/resize
+
+focal point
+
+alt text + title
+
+8) تصميم Popup/Sidebar Editor قابل للتوسع “غير محدود”
+
+عشان تبقى “غير محدودة” لازم تبنيها كـ Plugin System
+
+لكل component type:
+
+render() للعرض
+
+editorSchema يحدد الحقول والأدوات
+
+validate() قواعد التحقق
+
+كده تضيف بلوكات جديدة بدون ما تكسر النظام.
+
+9) حماية من كسر الموقع (Validation + Safe Rendering)
+
+ممنوع حفظ قيم تخرب الـ UI (مثلاً width سلبي)
+
+Sanitization للنصوص (خصوصًا لو Rich Text)
+
+منع أي HTML/JS خام من المستخدم (إلا لو عندك Sandbox قوي)
+
+Constraints للـ layout عشان ما “ينهار”
+
+10) أداء وتجربة مستخدم
+
+Lazy load للـ editor فقط عند تفعيله
+
+Debounce للحفظ (Autosave)
+
+Optimistic UI مع rollback عند فشل الحفظ
+
+Diff-based updates بدل حفظ الشجرة كاملة كل مرة (اختياري لكنه ممتاز)
+
+11) SEO و Routing
+
+الصفحات المنشورة لازم تكون قابلة للفهرسة:
+
+slugs
+
+meta title/description
+
+OG tags
+
+sitemap
+
+دعم multi-language لو محتاج: نفس الصفحة بـ content مختلف حسب اللغة.
+
+12) QA / ضمان الجودة
+
+لازم تختبر:
+
+إن أي تعديل ما يأثر على المستخدم العادي
+
+الاسترجاع (Rollback) شغال
+
+publish atomic (ما ينشرش جزء ويخرب جزء)
+
+تعارض التعديلات بين أدمنين
+
+صلاحيات كل زر في الأدوات
+
+الخلاصة التنفيذية (أقصر وصف للـ “Stack” المطلوب)
+
+Frontend: Page Renderer + Editor Mode + Component Registry + Rich Text + DnD
+
+Backend: Pages API + Draft/Publish + Assets + Revisions + RBAC + Audit
+
+Database: Page JSON Tree + Versioning + Logs
+
+Storage: صور وملفات + thumbnails
+
+Dev UX: نظام إضافة بلوكات جديدة بسهولة (Plugin)
