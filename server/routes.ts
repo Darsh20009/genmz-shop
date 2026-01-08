@@ -479,6 +479,26 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/pages/:slug", async (req, res, next) => {
+    try {
+      const page = await storage.getPageBySlug(req.params.slug);
+      if (!page) return res.status(404).json({ success: false, message: "الصفحة غير موجودة" });
+      res.json(page);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.get("/api/admin/pages/:id", protectAdmin, async (req, res, next) => {
+    try {
+      const page = await storage.getPage(req.params.id);
+      if (!page) return res.status(404).json({ success: false, message: "الصفحة غير موجودة" });
+      res.json(page);
+    } catch (err) {
+      next(err);
+    }
+  });
+
   // Pages
   app.get("/api/pages", async (_req, res, next) => {
     try {

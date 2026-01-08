@@ -1,4 +1,4 @@
-import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, OrderStatus, ActivityLog, InsertActivityLog, Coupon, InsertCoupon, Branch, InsertBranch, Banner, InsertBanner, CashShift, InsertCashShift, ShippingCompany, InsertShippingCompany, AuditLog, InsertAuditLog, Role, InsertRole, StockTransfer, InsertStockTransfer, Invoice, InsertInvoice, BankTransfer, InsertBankTransfer, Shipment, InsertShipment, AbandonedCart, InsertAbandonedCart, Review, InsertReview, StoreSettings, InsertStoreSettings, Page, InsertPage, FAQ, InsertFAQ, CustomerGroup, InsertCustomerGroup, Theme, ContentBlock, InsertContentBlock } from "@shared/schema";
+import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, OrderStatus, ActivityLog, InsertActivityLog, Coupon, InsertCoupon, Branch, InsertBranch, Banner, InsertBanner, CashShift, InsertCashShift, ShippingCompany, InsertShippingCompany, AuditLog, InsertAuditLog, Role, InsertRole, StockTransfer, InsertStockTransfer, Invoice, InsertInvoice, BankTransfer, InsertBankTransfer, Shipment, InsertShipment, AbandonedCart, InsertAbandonedCart, Review, InsertReview, StoreSettings, InsertStoreSettings, Page, InsertPage, FAQ, InsertFAQ, CustomerGroup, InsertCustomerGroup, Theme, ContentBlock, InsertContentBlock, Inventory, InsertInventory } from "@shared/schema";
 import { UserModel, ProductModel, OrderModel, CategoryModel, WalletTransactionModel, ActivityLogModel, CouponModel, BranchModel, BannerModel, CashShiftModel, ShippingCompanyModel, AuditLogModel, RoleModel, StockTransferModel, InvoiceModel, BankTransferModel, ShipmentModel, CartModel, AbandonedCartModel, ReviewModel, StoreSettingsModel, OptionModel, FilterModel, PageModel, FAQModel, CustomerGroupModel, ThemeModel, ContentBlockModel } from "./models";
 
 export interface IStorage {
@@ -140,13 +140,21 @@ export interface IStorage {
 
 export class MongoStorage implements IStorage {
   async getPage(id: string): Promise<Page | undefined> {
-    const page = await PageModel.findById(id).lean();
-    return page ? { ...page, id: page._id.toString() } as any : undefined;
+    try {
+      const page = await PageModel.findById(id).lean();
+      return page ? { ...page, id: page._id.toString() } as any : undefined;
+    } catch (e) {
+      return undefined;
+    }
   }
 
   async getPageBySlug(slug: string): Promise<Page | undefined> {
-    const page = await PageModel.findOne({ slug }).lean();
-    return page ? { ...page, id: page._id.toString() } as any : undefined;
+    try {
+      const page = await PageModel.findOne({ slug }).lean();
+      return page ? { ...page, id: page._id.toString() } as any : undefined;
+    } catch (e) {
+      return undefined;
+    }
   }
 
   async getPages(): Promise<Page[]> {
