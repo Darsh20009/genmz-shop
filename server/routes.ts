@@ -133,7 +133,8 @@ export async function registerRoutes(
 
   app.get("/api/admin/shifts/active", protectAdmin, async (req, res, next) => {
     try {
-      const shift = await storage.getActiveShift(req.user!.id);
+      const user = req.user as any;
+      const shift = await storage.getActiveShift(user.id || user._id);
       res.json(shift || null);
     } catch (err) {
       next(err);
@@ -142,10 +143,10 @@ export async function registerRoutes(
 
   app.post("/api/admin/shifts/open", protectAdmin, async (req, res, next) => {
     try {
-      const { openingBalance, branchId } = req.user!;
+      const user = req.user as any;
       const shift = await storage.createCashShift({
-        branchId: branchId || "main",
-        cashierId: req.user!.id,
+        branchId: user.branchId || "main",
+        cashierId: user.id || user._id,
         openingBalance: parseFloat(req.body.openingBalance),
         status: "open",
         openedAt: new Date()
@@ -158,7 +159,8 @@ export async function registerRoutes(
 
   app.post("/api/admin/shifts/close", protectAdmin, async (req, res, next) => {
     try {
-      const activeShift = await storage.getActiveShift(req.user!.id);
+      const user = req.user as any;
+      const activeShift = await storage.getActiveShift(user.id || user._id);
       if (!activeShift) return res.status(400).json({ message: "No active shift" });
       
       const shift = await storage.closeCashShift(activeShift.id, {
@@ -176,7 +178,7 @@ export async function registerRoutes(
       const products = await storage.getProducts();
       const stats = {
         totalItems: products.reduce((acc, p) => acc + (p.variants?.reduce((sum, v) => sum + (v.stock || 0), 0) || 0), 0),
-        lowStockItems: products.filter(p => p.variants?.some(v => (v.stock || 0) <= (p.minStockLevel || 10))).length,
+        lowStockItems: products.filter(p => p.variants?.some(v => (v.stock || 0) <= 10)).length,
         outOfStockItems: products.filter(p => p.variants?.every(v => (v.stock || 0) <= 0)).length
       };
       res.json(stats);
