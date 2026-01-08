@@ -413,7 +413,17 @@ const pageSchema = new Schema<Page>(
     title: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
     content: { type: String, required: true },
+    draftContent: String,
+    status: { type: String, enum: ["draft", "published"], default: "published" },
+    blocks: [{
+      id: String,
+      type: String,
+      props: Schema.Types.Mixed,
+      layout: Schema.Types.Mixed,
+    }],
+    metadata: { type: Schema.Types.Mixed, default: {} },
     isActive: { type: Boolean, default: true },
+    publishedAt: Date,
   },
   { timestamps: true }
 );

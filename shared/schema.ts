@@ -415,12 +415,21 @@ export type ShippingCompany = InsertShippingCompany & { _id: string; id: string 
 export const insertPageSchema = z.object({
   title: z.string().min(1),
   slug: z.string().min(1),
-  content: z.string().min(1),
+  content: z.string().min(1), // Rich text or HTML content
+  draftContent: z.string().optional(),
+  status: z.enum(["draft", "published"]).default("published"),
+  blocks: z.array(z.object({
+    id: z.string(),
+    type: z.string(),
+    props: z.record(z.any()),
+    layout: z.record(z.any()).optional()
+  })).default([]), // JSON content tree/blocks
+  metadata: z.record(z.any()).default({}), // SEO, OG tags, etc.
   isActive: z.boolean().default(true),
 });
 
 export type InsertPage = z.infer<typeof insertPageSchema>;
-export type Page = InsertPage & { _id: string; id: string };
+export type Page = InsertPage & { _id: string; id: string; createdAt: Date; updatedAt: Date; publishedAt?: Date };
 
 // Stock Transfer Schema
 export const insertStockTransferSchema = z.object({

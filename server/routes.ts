@@ -480,8 +480,39 @@ export async function registerRoutes(
 
   app.patch("/api/pages/:id", protectAdmin, async (req, res, next) => {
     try {
-      const page = await storage.updatePage(req.params.id, req.body);
+      const { id } = req.params;
+      const { publish, ...data } = req.body;
+      
+      const updateData: any = {
+        ...data,
+        status: publish ? "published" : "draft",
+      };
+
+      if (publish) {
+        updateData.content = data.draftContent || data.content;
+        updateData.publishedAt = new Date();
+      }
+
+      const page = await storage.updatePage(id, updateData);
       res.json(page);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.post("/api/pages/:id/publish", protectAdmin, async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const pages = await storage.getPages();
+      const page = pages.find(p => p.id === id);
+      if (!page) return res.status(404).send("Page not found");
+
+      const updated = await storage.updatePage(id, {
+        content: page.draftContent || page.content,
+        status: "published",
+        publishedAt: new Date()
+      });
+      res.json(updated);
     } catch (err) {
       next(err);
     }
@@ -489,8 +520,39 @@ export async function registerRoutes(
 
   app.patch("/api/pages/:id", protectAdmin, async (req, res, next) => {
     try {
-      const page = await storage.updatePage(req.params.id, req.body);
+      const { id } = req.params;
+      const { publish, ...data } = req.body;
+      
+      const updateData: any = {
+        ...data,
+        status: publish ? "published" : "draft",
+      };
+
+      if (publish) {
+        updateData.content = data.draftContent || data.content;
+        updateData.publishedAt = new Date();
+      }
+
+      const page = await storage.updatePage(id, updateData);
       res.json(page);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.post("/api/pages/:id/publish", protectAdmin, async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const pages = await storage.getPages();
+      const page = pages.find(p => p.id === id);
+      if (!page) return res.status(404).send("Page not found");
+
+      const updated = await storage.updatePage(id, {
+        content: page.draftContent || page.content,
+        status: "published",
+        publishedAt: new Date()
+      });
+      res.json(updated);
     } catch (err) {
       next(err);
     }
