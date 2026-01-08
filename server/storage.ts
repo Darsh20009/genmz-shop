@@ -647,7 +647,7 @@ export class MongoStorage implements IStorage {
     return { ...page.toObject(), id: page._id.toString() } as any;
   }
   async updatePage(id: string, data: Partial<InsertPage>): Promise<Page> {
-    const updated = await PageModel.findByIdAndUpdate(id, data, { new: true }).lean();
+    const updated = await PageModel.findByIdAndUpdate(id, { $set: data }, { new: true }).lean();
     if (!updated) throw new Error("Page not found");
     return { ...updated, id: updated._id.toString() } as any;
   }

@@ -485,12 +485,14 @@ export async function registerRoutes(
       
       const updateData: any = {
         ...data,
-        status: publish ? "published" : "draft",
       };
 
       if (publish) {
+        updateData.status = "published";
         updateData.content = data.draftContent || data.content;
         updateData.publishedAt = new Date();
+      } else if (data.status) {
+        updateData.status = data.status;
       }
 
       const page = await storage.updatePage(id, updateData);

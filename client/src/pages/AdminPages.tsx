@@ -64,11 +64,29 @@ export default function AdminPages() {
     },
   });
 
+  const publishPageMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiRequest("POST", `/api/pages/${id}/publish`);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/pages"] });
+      toast({ title: "تم نشر الصفحة بنجاح" });
+    },
+  });
+
   const filteredPages = (pages as any[]).filter((p: any) =>
     p.title?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const predefinedPages = ["الأسئلة الشائعة", "من نحن", "اتصل بنا", "سياسة الخصوصية", "شروط الاستخدام"];
+
+  const getStatusBadge = (page: any) => {
+    if (page.status === "draft") {
+      return <Badge variant="secondary">مسودة</Badge>;
+    }
+    return <Badge variant="default">منشورة</Badge>;
+  };
 
   return (
     <Layout>
@@ -95,12 +113,31 @@ export default function AdminPages() {
                   <Label>المحتوى</Label>
                   <Textarea value={pageContent} onChange={(e) => setPageContent(e.target.value)} placeholder="محتوى الصفحة" rows={6} />
                 </div>
-                <Button
-                  className="w-full"
-                  onClick={() => createPageMutation.mutate({ title: pageName, content: pageContent })}
-                >
-                  إضافة الصفحة
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="secondary"
+                    className="flex-1"
+                    onClick={() => createPageMutation.mutate({ 
+                      title: pageName, 
+                      content: pageContent, 
+                      slug: pageName.toLowerCase().replace(/ /g, '-'),
+                      status: "draft" 
+                    })}
+                  >
+                    إضافة كمسودة
+                  </Button>
+                  <Button
+                    className="flex-1"
+                    onClick={() => createPageMutation.mutate({ 
+                      title: pageName, 
+                      content: pageContent, 
+                      slug: pageName.toLowerCase().replace(/ /g, '-'),
+                      status: "published" 
+                    })}
+                  >
+                    إضافة ونشر
+                  </Button>
+                </div>
               </div>
             </DialogContent>
           </Dialog>
@@ -137,6 +174,7 @@ export default function AdminPages() {
                     <TableHead>اسم الصفحة</TableHead>
                     <TableHead>المحتوى</TableHead>
                     <TableHead>الحالة</TableHead>
+                    <TableHead>تاريخ النشر</TableHead>
                     <TableHead>الإجراءات</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -146,10 +184,25 @@ export default function AdminPages() {
                       <TableCell className="font-medium">{page.title}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{page.content?.substring(0, 50)}</TableCell>
                       <TableCell>
-                        <Badge variant="default">منشورة</Badge>
+                        {getStatusBadge(page)}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {page.publishedAt ? new Date(page.publishedAt).toLocaleDateString("ar-SA") : "-"}
                       </TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="sm"><Eye className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="sm" onClick={() => window.open(`/pages/${page.slug}`, "_blank")}>
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        {page.status === "draft" && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => publishPageMutation.mutate(page.id)}
+                            title="نشر الآن"
+                          >
+                            <Plus className="w-4 h-4 text-primary" />
+                          </Button>
+                        )}
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button variant="ghost" size="sm"><Edit className="w-4 h-4" /></Button>
@@ -164,19 +217,32 @@ export default function AdminPages() {
                                 <Input defaultValue={page.title} id={`edit-title-${page.id}`} />
                               </div>
                               <div>
-                                <Label>المحتوى</Label>
-                                <Textarea defaultValue={page.content} id={`edit-content-${page.id}`} rows={6} />
+                                <Label>المحتوى (المسودة)</Label>
+                                <Textarea defaultValue={page.draftContent || page.content} id={`edit-content-${page.id}`} rows={6} />
                               </div>
-                              <Button
-                                className="w-full"
-                                onClick={() => {
-                                  const title = (document.getElementById(`edit-title-${page.id}`) as HTMLInputElement).value;
-                                  const content = (document.getElementById(`edit-content-${page.id}`) as HTMLTextAreaElement).value;
-                                  updatePageMutation.mutate({ id: page.id, data: { title, content } });
-                                }}
-                              >
-                                حفظ التغييرات
-                              </Button>
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="secondary"
+                                  className="flex-1"
+                                  onClick={() => {
+                                    const title = (document.getElementById(`edit-title-${page.id}`) as HTMLInputElement).value;
+                                    const content = (document.getElementById(`edit-content-${page.id}`) as HTMLTextAreaElement).value;
+                                    updatePageMutation.mutate({ id: page.id, data: { title, draftContent: content, publish: false } });
+                                  }}
+                                >
+                                  حفظ كمسودة
+                                </Button>
+                                <Button
+                                  className="flex-1"
+                                  onClick={() => {
+                                    const title = (document.getElementById(`edit-title-${page.id}`) as HTMLInputElement).value;
+                                    const content = (document.getElementById(`edit-content-${page.id}`) as HTMLTextAreaElement).value;
+                                    updatePageMutation.mutate({ id: page.id, data: { title, draftContent: content, publish: true } });
+                                  }}
+                                >
+                                  حفظ ونشر
+                                </Button>
+                              </div>
                             </div>
                           </DialogContent>
                         </Dialog>

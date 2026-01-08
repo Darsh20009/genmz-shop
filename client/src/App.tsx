@@ -87,6 +87,7 @@ import AdminInventory from "@/pages/AdminInventory";
 import AdminReviews from "@/pages/AdminReviews";
 import AdminBranding from "@/pages/AdminBranding";
 import AdminPages from "@/pages/AdminPages";
+import PageDetail from "@/pages/PageDetail";
 import AdminTransferRequests from "@/pages/AdminTransferRequests";
 import AdminFilterCriteria from "@/pages/AdminFilterCriteria";
 import AdminOptionsLibrary from "@/pages/AdminOptionsLibrary";
@@ -133,6 +134,7 @@ function Router() {
       <Route path="/checkout" component={Checkout} />
       <Route path="/checkout/success" component={CheckoutSuccess} />
       <Route path="/checkout/failure" component={CheckoutFailure} />
+      <Route path="/pages/:slug" component={PageDetail} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/forgot-password" component={ForgotPassword} />
