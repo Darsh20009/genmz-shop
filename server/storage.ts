@@ -128,9 +128,27 @@ export interface IStorage {
   
   // Dashboard Summary
   getDashboardSummary(): Promise<any>;
+
+  // Pages
+  getPages(): Promise<Page[]>;
+  getPage(id: string): Promise<Page | undefined>;
+  getPageBySlug(slug: string): Promise<Page | undefined>;
+  createPage(page: InsertPage): Promise<Page>;
+  updatePage(id: string, page: Partial<InsertPage>): Promise<Page>;
+  deletePage(id: string): Promise<void>;
 }
 
 export class MongoStorage implements IStorage {
+  async getPage(id: string): Promise<Page | undefined> {
+    const page = await PageModel.findById(id).lean();
+    return page ? { ...page, id: page._id.toString() } as any : undefined;
+  }
+
+  async getPageBySlug(slug: string): Promise<Page | undefined> {
+    const page = await PageModel.findOne({ slug }).lean();
+    return page ? { ...page, id: page._id.toString() } as any : undefined;
+  }
+
   async getPages(): Promise<Page[]> {
     const pages = await PageModel.find().lean();
     return pages.map((p: any) => ({ ...p, id: p._id.toString() }));
