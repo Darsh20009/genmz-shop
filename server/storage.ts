@@ -126,20 +126,27 @@ export interface IStorage {
   saveCart(userId: string, items: any[]): Promise<any>;
   clearCart(userId: string): Promise<void>;
   
-  // Pages
+  // Dashboard Summary
+  getDashboardSummary(): Promise<any>;
+}
+
+export class MongoStorage implements IStorage {
   async getPages(): Promise<Page[]> {
     const pages = await PageModel.find().lean();
-    return pages.map(p => ({ ...p, id: p._id.toString() } as any));
+    return pages.map((p: any) => ({ ...p, id: p._id.toString() }));
   }
+
   async createPage(data: InsertPage): Promise<Page> {
     const page = await PageModel.create(data);
     return { ...page.toObject(), id: page._id.toString() } as any;
   }
+
   async updatePage(id: string, data: Partial<InsertPage>): Promise<Page> {
     const updated = await PageModel.findByIdAndUpdate(id, data, { new: true }).lean();
     if (!updated) throw new Error("Page not found");
     return { ...updated, id: updated._id.toString() } as any;
   }
+
   async deletePage(id: string): Promise<void> {
     await PageModel.findByIdAndDelete(id);
   }
@@ -147,17 +154,20 @@ export interface IStorage {
   // FAQ
   async getFAQs(): Promise<FAQ[]> {
     const faqs = await FAQModel.find().lean();
-    return faqs.map(f => ({ ...f, id: f._id.toString() } as any));
+    return faqs.map((f: any) => ({ ...f, id: f._id.toString() }));
   }
+
   async createFAQ(data: InsertFAQ): Promise<FAQ> {
     const faq = await FAQModel.create(data);
     return { ...faq.toObject(), id: faq._id.toString() } as any;
   }
+
   async updateFAQ(id: string, data: Partial<InsertFAQ>): Promise<FAQ> {
     const updated = await FAQModel.findByIdAndUpdate(id, data, { new: true }).lean();
     if (!updated) throw new Error("FAQ not found");
     return { ...updated, id: updated._id.toString() } as any;
   }
+
   async deleteFAQ(id: string): Promise<void> {
     await FAQModel.findByIdAndDelete(id);
   }
@@ -165,8 +175,9 @@ export interface IStorage {
   // Customer Groups
   async getCustomerGroups(): Promise<CustomerGroup[]> {
     const groups = await CustomerGroupModel.find().lean();
-    return groups.map(g => ({ ...g, id: g._id.toString() } as any));
+    return groups.map((g: any) => ({ ...g, id: g._id.toString() }));
   }
+
   async createCustomerGroup(data: InsertCustomerGroup): Promise<CustomerGroup> {
     const group = await CustomerGroupModel.create(data);
     return { ...group.toObject(), id: group._id.toString() } as any;
@@ -175,8 +186,9 @@ export interface IStorage {
   // Themes
   async getThemes(): Promise<Theme[]> {
     const themes = await ThemeModel.find().lean();
-    return themes.map(t => ({ ...t, id: t._id.toString() } as any));
+    return themes.map((t: any) => ({ ...t, id: t._id.toString() }));
   }
+
   async activateTheme(id: string): Promise<Theme> {
     await ThemeModel.updateMany({}, { isActive: false });
     const theme = await ThemeModel.findByIdAndUpdate(id, { isActive: true }, { new: true }).lean();
@@ -185,18 +197,9 @@ export interface IStorage {
   }
 
   // Content Blocks
-  getContentBlocks(): Promise<ContentBlock[]>;
-  getContentBlock(key: string): Promise<ContentBlock | undefined>;
-  updateContentBlock(key: string, data: Partial<InsertContentBlock>): Promise<ContentBlock>;
-
-  // Dashboard Summary
-  getDashboardSummary(): Promise<any>;
-}
-
-export class MongoStorage implements IStorage {
   async getContentBlocks(): Promise<ContentBlock[]> {
     const blocks = await ContentBlockModel.find({ isActive: true }).lean();
-    return blocks.map(b => ({ ...b, id: b._id.toString() } as any));
+    return blocks.map((b: any) => ({ ...b, id: b._id.toString() }));
   }
 
   async getContentBlock(key: string): Promise<ContentBlock | undefined> {

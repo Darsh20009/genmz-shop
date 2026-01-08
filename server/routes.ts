@@ -264,7 +264,7 @@ export async function registerRoutes(
       
       if (orderNumber && status === "shipped") {
         const orders = await storage.getOrders();
-        const order = orders.find(o => o.orderNumber === orderNumber || o.id === orderNumber);
+        const order = orders.find((o: any) => o.orderNumber === orderNumber || o.id === orderNumber);
         
         if (order) {
           await storage.updateOrderStatus(order.id, "completed", {
@@ -506,7 +506,7 @@ export async function registerRoutes(
     try {
       const { id } = req.params;
       const pages = await storage.getPages();
-      const page = pages.find(p => p.id === id);
+      const page = pages.find((p: any) => p.id === id);
       if (!page) return res.status(404).send("Page not found");
 
       const updated = await storage.updatePage(id, {
@@ -550,7 +550,7 @@ export async function registerRoutes(
 
   app.patch("/api/admin/coupons/:id", protectAdmin, async (req, res, next) => {
     try {
-      const coupon = await storage.updateCoupon(req.params.id, req.body);
+      const coupon = await (storage as any).updateCoupon(req.params.id, req.body);
       res.json(coupon);
     } catch (err) {
       next(err);
@@ -559,7 +559,7 @@ export async function registerRoutes(
 
   app.delete("/api/admin/coupons/:id", protectAdmin, async (req, res, next) => {
     try {
-      await storage.deleteCoupon(req.params.id);
+      await (storage as any).deleteCoupon(req.params.id);
       res.json({ success: true });
     } catch (err) {
       next(err);
@@ -698,7 +698,7 @@ export async function registerRoutes(
 
       const baseUrl = `${req.protocol}://${req.get("host")}`;
       
-      const session = await paymentGateway.createTamaraSession({
+      const session = await (paymentGateway as any).createTamaraSession({
         orderId: order.id,
         amount: Number(order.total),
         items: order.items || [],
