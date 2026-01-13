@@ -415,21 +415,33 @@ export type ShippingCompany = InsertShippingCompany & { _id: string; id: string 
 export const insertPageSchema = z.object({
   title: z.string().min(1),
   slug: z.string().min(1),
-  content: z.string().min(1), // Rich text or HTML content
-  draftContent: z.string().optional(),
-  status: z.enum(["draft", "published"]).default("published"),
+  content: z.string().optional(), // Published HTML
+  draftContent: z.string().optional(), // Working HTML
+  status: z.enum(["draft", "published"]).default("draft"),
   blocks: z.array(z.object({
     id: z.string(),
     type: z.string(),
     props: z.record(z.any()),
     layout: z.record(z.any()).optional()
-  })).default([]), // JSON content tree/blocks
-  metadata: z.record(z.any()).default({}), // SEO, OG tags, etc.
+  })).default([]),
+  metadata: z.record(z.any()).default({}),
   isActive: z.boolean().default(true),
 });
 
 export type InsertPage = z.infer<typeof insertPageSchema>;
 export type Page = InsertPage & { _id: string; id: string; createdAt: Date; updatedAt: Date; publishedAt?: Date };
+
+// CMS Revision Schema
+export const insertRevisionSchema = z.object({
+  pageId: z.string(),
+  blocks: z.array(z.any()),
+  metadata: z.record(z.any()).optional(),
+  authorId: z.string(),
+  note: z.string().optional(),
+});
+
+export type InsertRevision = z.infer<typeof insertRevisionSchema>;
+export type Revision = InsertRevision & { _id: string; id: string; createdAt: Date };
 
 // Stock Transfer Schema
 export const insertStockTransferSchema = z.object({
