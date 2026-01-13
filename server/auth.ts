@@ -389,8 +389,46 @@ export function setupAuth(app: Express) {
     });
   });
 
-  app.get("/api/user", (req, res) => {
+  app.post("/api/user", (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     res.json(req.user);
+  });
+
+  app.post("/api/user/change-password", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "غير مصرح" });
+    
+    try {
+      const { currentPassword, newPassword } = req.body;
+      const user = req.user as any;
+      const dbUser = await storage.getUser(user.id || user._id);
+      
+      if (!dbUser) return res.status(404).json({ message: "المستخدم غير موجود" });
+
+      // Verify current password
+      if (dbUser.password && dbUser.password.includes(".")) {
+        const [hashedPassword, salt] = dbUser.password.split(".");
+        const buffer = (await scryptAsync(currentPassword, salt, 64)) as Buffer;
+        if (!timingSafeEqual(Buffer.from(hashedPassword, "hex"), buffer)) {
+          return res.status(400).json({ message: "كلمة المرور الحالية غير صحيحة" });
+        }
+      } else if (dbUser.password !== currentPassword) {
+        return res.status(400).json({ message: "كلمة المرور الحالية غير صحيحة" });
+      }
+
+      // Hash new password
+      const salt = randomBytes(16).toString("hex");
+      const buffer = (await scryptAsync(newPassword, salt, 64)) as Buffer;
+      const hashedNewPassword = `${buffer.toString("hex")}.${salt}`;
+
+      await storage.updateUser(dbUser.id || (dbUser as any)._id.toString(), { 
+        password: hashedNewPassword,
+        mustChangePassword: false 
+      });
+
+      res.json({ success: true, message: "تم تغيير كلمة المرور بنجاح" });
+    } catch (err) {
+      console.error("[AUTH] Change password error:", err);
+      res.status(500).json({ message: "حدث خطأ أثناء تغيير كلمة المرور" });
+    }
   });
 }
