@@ -6,16 +6,18 @@ import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 import { Page } from "@shared/schema";
 
+import { PageSection } from "@/components/BlockRenderer";
+import { SEO } from "@/components/SEO";
+
 export default function PageDetail() {
   const [, params] = useRoute("/pages/:slug");
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
 
-  const { data: pages, isLoading } = useQuery<Page[]>({
-    queryKey: ["/api/pages"],
+  const { data: page, isLoading } = useQuery<Page>({
+    queryKey: [`/api/pages/${params?.slug}`],
+    enabled: !!params?.slug,
   });
-
-  const page = pages?.find(p => p.slug === params?.slug);
 
   if (isLoading) {
     return (
@@ -40,42 +42,27 @@ export default function PageDetail() {
 
   return (
     <Layout>
+      <SEO title={page.title} description={page.metadata?.description} />
       <div className="p-8 max-w-4xl mx-auto" dir="rtl">
-        <Card className="rounded-[2rem] overflow-hidden">
-          <CardHeader className="bg-primary/5">
-            <CardTitle className="text-3xl font-black">{page.title}</CardTitle>
-            {page.status === "draft" && isAdmin && (
-              <p className="text-sm text-amber-600 font-bold mt-2">وضع المعاينة: هذه الصفحة لا تزال مسودة</p>
-            )}
-          </CardHeader>
-          <CardContent className="p-8 prose prose-slate dark:prose-invert max-w-none">
-            {page.blocks && page.blocks.length > 0 ? (
-              <div className="space-y-8">
-                {page.blocks.map((block: any) => (
-                  <div key={block.id} className="page-block">
-                    {block.type === 'text' && (
-                      <div dangerouslySetInnerHTML={{ __html: block.props.content || '' }} />
-                    )}
-                    {block.type === 'image' && (
-                      <div className="flex justify-center my-8">
-                        <img 
-                          src={block.props.url} 
-                          alt={block.props.alt || ''} 
-                          className="rounded-3xl shadow-2xl max-w-full h-auto border-4 border-white dark:border-slate-800"
-                        />
-                      </div>
-                    )}
-                    {block.type === 'heading' && (
-                      <h2 className="text-3xl font-bold mb-4">{block.props.text}</h2>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div dangerouslySetInnerHTML={ { __html: isAdmin ? (page.draftContent || page.content) : page.content } } />
-            )}
-          </CardContent>
-        </Card>
+        <header className="mb-12 text-center">
+          <h1 className="text-5xl font-black mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            {page.title}
+          </h1>
+          <div className="h-1.5 w-24 bg-primary mx-auto rounded-full opacity-20" />
+          {page.status === "draft" && isAdmin && (
+            <p className="text-sm text-amber-600 font-bold mt-4 px-4 py-1 bg-amber-50 rounded-full inline-block">
+              وضع المعاينة: مسودة
+            </p>
+          )}
+        </header>
+
+        <div className="prose prose-slate dark:prose-invert max-w-none">
+          {page.blocks && page.blocks.length > 0 ? (
+            <PageSection blocks={page.blocks} />
+          ) : (
+            <div dangerouslySetInnerHTML={ { __html: isAdmin ? (page.draftContent || page.content || "") : (page.content || "") } } />
+          )}
+        </div>
       </div>
     </Layout>
   );
