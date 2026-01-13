@@ -51,6 +51,7 @@ const storeSettingsSchema = new Schema<StoreSettings>(
     enableReviews: { type: Boolean, default: true },
     enableQuestions: { type: Boolean, default: true },
     enableStockNotifications: { type: Boolean, default: true },
+    enableBankTransfer: { type: Boolean, default: true },
     seoTitle: String,
     seoDescription: String,
     communication: {

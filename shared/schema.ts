@@ -269,6 +269,7 @@ export const insertStoreSettingsSchema = z.object({
   enableReviews: z.boolean().default(true),
   enableQuestions: z.boolean().default(true),
   enableStockNotifications: z.boolean().default(true),
+  enableBankTransfer: z.boolean().default(true),
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
   shippingIntegrations: z.array(z.object({

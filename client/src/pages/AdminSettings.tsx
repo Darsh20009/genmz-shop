@@ -69,6 +69,7 @@ export default function AdminSettings() {
     mutation.mutate({
       enableReviews: formData.get("enableReviews") === "on",
       enableQuestions: formData.get("enableQuestions") === "on",
+      enableBankTransfer: formData.get("enableBankTransfer") === "on",
     });
   };
 
@@ -260,10 +261,10 @@ export default function AdminSettings() {
                   </div>
                   <div className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl">
                     <div className="space-y-1">
-                      <Label className="font-bold">تنبيهات المخزون</Label>
-                      <p className="text-xs text-muted-foreground">تفعيل تنبيهات انخفاض المخزون</p>
+                      <Label className="font-bold">تفعيل التحويل البنكي</Label>
+                      <p className="text-xs text-muted-foreground">السماح بالدفع عبر التحويل البنكي اليدوي</p>
                     </div>
-                    <Switch name="enableStockNotifications" defaultChecked={settings?.enableStockNotifications} />
+                    <Switch name="enableBankTransfer" defaultChecked={settings?.enableBankTransfer} />
                   </div>
                   <Button type="submit" className="h-12 px-8 rounded-xl font-bold" disabled={mutation.isPending}>
                     {mutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "حفظ إعدادات الشراء"}

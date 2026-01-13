@@ -28,6 +28,7 @@ export default function Checkout() {
   const { toast } = useToast();
   
   const [paymentMethod, setPaymentMethod] = useState<"wallet" | "bank_transfer" | "tabby" | "tamara" | "moyasar">("moyasar");
+  const { data: settings } = useQuery<any>({ queryKey: ["/api/settings"] });
   const [isAppleDevice, setIsAppleDevice] = useState(false);
 
   useEffect(() => {
