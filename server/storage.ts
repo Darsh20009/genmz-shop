@@ -136,9 +136,23 @@ export interface IStorage {
   createPage(page: InsertPage): Promise<Page>;
   updatePage(id: string, page: Partial<InsertPage>): Promise<Page>;
   deletePage(id: string): Promise<void>;
+
+  // Revisions
+  getRevisions(pageId: string): Promise<Revision[]>;
+  createRevision(revision: InsertRevision): Promise<Revision>;
 }
 
 export class MongoStorage implements IStorage {
+  // ... existing methods ...
+  async getRevisions(pageId: string): Promise<Revision[]> {
+    const revisions = await RevisionModel.find({ pageId }).sort({ createdAt: -1 }).lean();
+    return revisions.map((r: any) => ({ ...r, id: r._id.toString() }));
+  }
+
+  async createRevision(data: InsertRevision): Promise<Revision> {
+    const revision = await RevisionModel.create(data);
+    return { ...revision.toObject(), id: revision._id.toString() } as any;
+  }
   async getPage(id: string): Promise<Page | undefined> {
     try {
       const page = await PageModel.findById(id).lean();

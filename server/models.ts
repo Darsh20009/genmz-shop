@@ -412,9 +412,9 @@ const pageSchema = new Schema<Page>(
   {
     title: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
-    content: { type: String, required: true },
+    content: String,
     draftContent: String,
-    status: { type: String, enum: ["draft", "published"], default: "published" },
+    status: { type: String, enum: ["draft", "published"], default: "draft" },
     blocks: [{
       id: String,
       type: String,
@@ -428,7 +428,26 @@ const pageSchema = new Schema<Page>(
   { timestamps: true }
 );
 
-const faqSchema = new Schema<FAQ>(
+const revisionSchema = new Schema<Revision>(
+  {
+    pageId: { type: String, required: true },
+    blocks: { type: [Schema.Types.Mixed], required: true },
+    metadata: { type: Schema.Types.Mixed, default: {} },
+    authorId: { type: String, required: true },
+    note: String,
+  },
+  { timestamps: true }
+);
+
+export const ContentBlockModel = mongoose.model<ContentBlock>("ContentBlock", contentBlockSchema);
+export const AbandonedCartModel = mongoose.model<AbandonedCart>("AbandonedCart", abandonedCartSchema);
+export const ReviewModel = mongoose.model<Review>("Review", reviewSchema);
+export const StoreSettingsModel = mongoose.model<StoreSettings>("StoreSettings", storeSettingsSchema);
+export const OptionModel = mongoose.model("Option", optionSchema);
+export const FilterModel = mongoose.model("Filter", filterSchema);
+export const PageModel = mongoose.model<Page>("Page", pageSchema);
+export const RevisionModel = mongoose.model<Revision>("Revision", revisionSchema);
+export const FAQModel = mongoose.model<FAQ>("FAQ", faqSchema);
   {
     question: { type: String, required: true },
     answer: { type: String, required: true },

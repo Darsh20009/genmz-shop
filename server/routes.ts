@@ -562,10 +562,26 @@ export async function registerRoutes(
     }
   });
 
-  app.delete("/api/pages/:id", protectAdmin, async (req, res, next) => {
+  app.get("/api/admin/pages/:id/revisions", protectAdmin, async (req, res, next) => {
     try {
-      await storage.deletePage(req.params.id);
-      res.json({ success: true });
+      const revisions = await storage.getRevisions(req.params.id);
+      res.json(revisions);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.post("/api/admin/pages/:id/revisions", protectAdmin, async (req, res, next) => {
+    try {
+      const user = req.user as any;
+      const revision = await storage.createRevision({
+        pageId: req.params.id,
+        blocks: req.body.blocks,
+        authorId: user.id || user._id,
+        note: req.body.note,
+        metadata: req.body.metadata
+      });
+      res.status(201).json(revision);
     } catch (err) {
       next(err);
     }
