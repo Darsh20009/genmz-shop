@@ -1,22 +1,21 @@
 import mongoose, { Schema } from "mongoose";
-import type { User, Product, Order, Category, WalletTransaction, ActivityLog, Coupon, Branch, Banner, CashShift, ShippingCompany, AuditLog, Role, StockTransfer, Invoice, BankTransfer, Shipment, LoyaltyTransaction, AbandonedCart, Review, StoreSettings, Page, FAQ, CustomerGroup, Theme } from "@shared/schema";
+import type { User, Product, Order, Category, WalletTransaction, ActivityLog, Coupon, Branch, Banner, CashShift, ShippingCompany, AuditLog, Role, StockTransfer, Invoice, BankTransfer, Shipment, AbandonedCart, Review, StoreSettings, Page, FAQ, CustomerGroup, Theme, Revision, ContentBlock } from "@shared/schema";
 
 const abandonedCartSchema = new Schema<AbandonedCart>(
   {
-    userId: String,
-    email: String,
-    phone: String,
+    customerId: String,
+    customerEmail: String,
+    customerPhone: String,
     items: [{
       productId: String,
-      variantSku: String,
-      quantity: Number,
+      productName: String,
       price: Number,
-      title: String,
+      quantity: Number,
     }],
-    total: String,
+    total: Number,
     lastActivity: { type: Date, default: Date.now },
-    recoveryStatus: { type: String, enum: ["pending", "sent", "recovered"], default: "pending" },
-    recoveryEmailSent: { type: Boolean, default: false },
+    recoveryStatus: { type: String, enum: ["pending", "sent", "recovered", "expired"], default: "pending" },
+    emailsSent: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
@@ -25,13 +24,10 @@ const reviewSchema = new Schema<Review>(
   {
     productId: { type: String, required: true },
     userId: { type: String, required: true },
-    userName: { type: String },
     customerName: { type: String },
-    productName: { type: String },
     rating: { type: Number, required: true, min: 1, max: 5 },
     comment: String,
     images: [String],
-    status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
     approved: { type: Boolean, default: false },
   },
   { timestamps: true }
@@ -55,21 +51,31 @@ const storeSettingsSchema = new Schema<StoreSettings>(
     enableReviews: { type: Boolean, default: true },
     enableQuestions: { type: Boolean, default: true },
     enableStockNotifications: { type: Boolean, default: true },
-    minStockLevel: { type: Number, default: 10 },
     seoTitle: String,
     seoDescription: String,
     communication: {
       orderMessages: { type: Boolean, default: true },
       abandonedCartAlerts: { type: Boolean, default: true },
       reviewRequests: { type: Boolean, default: true }
-    }
+    },
+    onboardingCompleted: { type: Boolean, default: false },
+    onboardingStep: { type: Number, default: 1 },
+    shippingIntegrations: [{
+      id: String,
+      name: String,
+      config: Schema.Types.Mixed,
+      isActive: Boolean
+    }],
+    workingHours: [Schema.Types.Mixed],
+    legalPages: [Schema.Types.Mixed],
+    navigationLinks: [Schema.Types.Mixed]
   },
   { timestamps: true }
 );
 
 const userSchema = new Schema<User>(
   {
-    username: { type: String, required: true, unique: true },
+    username: { type: String, unique: true },
     password: { type: String, default: "" },
     role: { type: String, enum: ["admin", "employee", "customer", "support", "cashier", "accountant"], default: "customer" },
     permissions: [String],
@@ -78,7 +84,7 @@ const userSchema = new Schema<User>(
     isActive: { type: Boolean, default: true },
     mustChangePassword: { type: Boolean, default: false },
     name: { type: String, required: true },
-    email: { type: String, required: true },
+    email: { type: String },
     phone: { type: String },
     walletBalance: { type: String, default: "0" },
     addresses: [{
@@ -88,6 +94,15 @@ const userSchema = new Schema<User>(
       street: String,
       isDefault: { type: Boolean, default: false },
     }],
+    loyaltyPoints: { type: Number, default: 0 },
+    loyaltyTier: { type: String, enum: ["bronze", "silver", "gold", "platinum"], default: "bronze" },
+    totalSpent: { type: Number, default: 0 },
+    phoneDiscountEligible: { type: Boolean, default: false },
+    phoneDiscountUsedCount: { type: Number, default: 0 },
+    lastPhoneDiscountDate: Date,
+    referralCode: String,
+    referredBy: String,
+    birthdayMonth: Number
   },
   { timestamps: true }
 );
@@ -114,8 +129,9 @@ const productSchema = new Schema<Product>(
     price: { type: String, required: true },
     cost: { type: String, required: true },
     images: [String],
-    category: String,
-    minStockLevel: { type: Number, default: 10 },
+    categoryId: String,
+    colors: [String],
+    customizations: [Schema.Types.Mixed],
     variants: [{
       color: String,
       size: String,
@@ -128,17 +144,27 @@ const productSchema = new Schema<Product>(
     }],
     isFeatured: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
+    isNew: { type: Boolean, default: false },
+    isComingSoon: { type: Boolean, default: false },
+    outOfStock: { type: Boolean, default: false },
+    barcode: String,
+    printBarcode: { type: Boolean, default: true },
+    reviews: [Schema.Types.Mixed],
+    questions: [Schema.Types.Mixed]
   },
   { timestamps: true }
 );
 
 const orderSchema = new Schema<Order>(
   {
-    userId: { type: String, required: true },
+    userId: { type: String },
+    customerName: String,
+    customerPhone: String,
+    customerEmail: String,
     type: { type: String, enum: ["online", "pos"], default: "online" },
     branchId: String,
     cashierId: String,
-    status: { type: String, enum: ["new", "processing", "shipped", "completed", "cancelled"], default: "new" },
+    status: { type: String, enum: ["new", "processing", "shipped", "completed", "cancelled", "returned"], default: "new" },
     total: { type: String, required: true },
     subtotal: { type: String, required: true },
     vatAmount: { type: String, required: true },
@@ -157,26 +183,28 @@ const orderSchema = new Schema<Order>(
       price: Number,
       cost: Number,
       title: String,
+      variantColor: String,
+      variantSize: String
     }],
-    shippingMethod: { type: String, enum: ["pickup", "delivery"], required: true },
+    shippingMethod: { type: String, enum: ["pickup", "delivery"], default: "delivery" },
     shippingAddress: {
-      name: String,
       city: String,
       street: String,
       country: String,
     },
-    pickupBranch: String,
-    paymentMethod: { type: String, enum: ["cod", "bank_transfer", "apple_pay", "card", "cash", "wallet", "tabby", "tamara", "moyasar"], required: true },
+    paymentMethod: { type: String, enum: ["cod", "bank_transfer", "apple_pay", "card", "cash", "wallet", "tabby", "tamara", "moyasar"] },
     bankTransferReceipt: String,
     paymentStatus: { type: String, default: "pending" },
-    shippingProvider: { type: String },
     trackingNumber: { type: String },
-    returnRequest: {
-      status: { type: String, enum: ["none", "pending", "approved", "rejected"], default: "none" },
-      reason: String,
-      type: { type: String, enum: ["return", "exchange"] },
-      createdAt: Date,
-    },
+    adminNotes: String,
+    notes: String,
+    pointsUsed: { type: Number, default: 0 },
+    pointsEarned: { type: Number, default: 0 },
+    walletAmountUsed: { type: Number, default: 0 },
+    orderNumber: String,
+    moyasarPaymentId: String,
+    moyasarStatus: String,
+    moyasarPaymentUrl: String
   },
   { timestamps: true }
 );
@@ -185,15 +213,18 @@ const categorySchema = new Schema<Category>(
   {
     name: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
+    description: String,
+    image: String,
+    isActive: { type: Boolean, default: true }
   },
-  { timestamps: false }
+  { timestamps: true }
 );
 
 const walletTransactionSchema = new Schema<WalletTransaction>(
   {
     userId: { type: String, required: true },
     amount: { type: Number, required: true },
-    type: { type: String, enum: ["deposit", "withdrawal", "payment", "refund"], required: true },
+    type: { type: String, enum: ["deposit", "withdrawal", "payment", "refund", "cashback"], required: true },
     description: { type: String, required: true },
   },
   { timestamps: true }
@@ -368,46 +399,6 @@ const shipmentSchema = new Schema<Shipment>(
   { timestamps: true }
 );
 
-const loyaltyTransactionSchema = new Schema<LoyaltyTransaction>(
-  {
-    userId: { type: String, required: true },
-    points: { type: Number, required: true },
-    type: { type: String, enum: ["earned", "redeemed", "expired", "bonus", "referral"], required: true },
-    description: { type: String, required: true },
-    orderId: String,
-    expiresAt: Date,
-  },
-  { timestamps: true }
-);
-
-const cartSchema = new Schema(
-  {
-    userId: { type: String, required: true, unique: true },
-    items: [{
-      productId: String,
-      variantSku: String,
-      quantity: Number,
-      price: Number,
-      title: String,
-      image: String,
-      color: String,
-      size: String,
-    }],
-  },
-  { timestamps: true }
-);
-
-const optionSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  values: [{ type: String }],
-  valuesCount: { type: Number, default: 0 },
-});
-
-const filterSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  options: [{ type: String }],
-});
-
 const pageSchema = new Schema<Page>(
   {
     title: { type: String, required: true },
@@ -439,15 +430,7 @@ const revisionSchema = new Schema<Revision>(
   { timestamps: true }
 );
 
-export const ContentBlockModel = mongoose.model<ContentBlock>("ContentBlock", contentBlockSchema);
-export const AbandonedCartModel = mongoose.model<AbandonedCart>("AbandonedCart", abandonedCartSchema);
-export const ReviewModel = mongoose.model<Review>("Review", reviewSchema);
-export const StoreSettingsModel = mongoose.model<StoreSettings>("StoreSettings", storeSettingsSchema);
-export const OptionModel = mongoose.model("Option", optionSchema);
-export const FilterModel = mongoose.model("Filter", filterSchema);
-export const PageModel = mongoose.model<Page>("Page", pageSchema);
-export const RevisionModel = mongoose.model<Revision>("Revision", revisionSchema);
-export const FAQModel = mongoose.model<FAQ>("FAQ", faqSchema);
+const faqSchema = new Schema<FAQ>(
   {
     question: { type: String, required: true },
     answer: { type: String, required: true },
@@ -495,6 +478,34 @@ const contentBlockSchema = new Schema<ContentBlock>(
   { timestamps: true }
 );
 
+const cartSchema = new Schema(
+  {
+    userId: { type: String, required: true, unique: true },
+    items: [{
+      productId: String,
+      variantSku: String,
+      quantity: Number,
+      price: Number,
+      title: String,
+      image: String,
+      color: String,
+      size: String,
+    }],
+  },
+  { timestamps: true }
+);
+
+const optionSchema = new Schema({
+  name: { type: String, required: true },
+  values: [{ type: String }],
+  valuesCount: { type: Number, default: 0 },
+});
+
+const filterSchema = new Schema({
+  name: { type: String, required: true },
+  options: [{ type: String }],
+});
+
 export const ContentBlockModel = mongoose.model<ContentBlock>("ContentBlock", contentBlockSchema);
 export const AbandonedCartModel = mongoose.model<AbandonedCart>("AbandonedCart", abandonedCartSchema);
 export const ReviewModel = mongoose.model<Review>("Review", reviewSchema);
@@ -502,6 +513,7 @@ export const StoreSettingsModel = mongoose.model<StoreSettings>("StoreSettings",
 export const OptionModel = mongoose.model("Option", optionSchema);
 export const FilterModel = mongoose.model("Filter", filterSchema);
 export const PageModel = mongoose.model<Page>("Page", pageSchema);
+export const RevisionModel = mongoose.model<Revision>("Revision", revisionSchema);
 export const FAQModel = mongoose.model<FAQ>("FAQ", faqSchema);
 export const CustomerGroupModel = mongoose.model<CustomerGroup>("CustomerGroup", customerGroupSchema);
 export const ThemeModel = mongoose.model<Theme>("Theme", themeSchema);
@@ -522,5 +534,4 @@ export const StockTransferModel = mongoose.model<StockTransfer>("StockTransfer",
 export const InvoiceModel = mongoose.model<Invoice>("Invoice", invoiceSchema);
 export const BankTransferModel = mongoose.model<BankTransfer>("BankTransfer", bankTransferSchema);
 export const ShipmentModel = mongoose.model<Shipment>("Shipment", shipmentSchema);
-export const LoyaltyTransactionModel = mongoose.model<LoyaltyTransaction>("LoyaltyTransaction", loyaltyTransactionSchema);
 export const CartModel = mongoose.model("Cart", cartSchema);

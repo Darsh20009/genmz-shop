@@ -1,5 +1,5 @@
-import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, OrderStatus, ActivityLog, InsertActivityLog, Coupon, InsertCoupon, Branch, InsertBranch, Banner, InsertBanner, CashShift, InsertCashShift, ShippingCompany, InsertShippingCompany, AuditLog, InsertAuditLog, Role, InsertRole, StockTransfer, InsertStockTransfer, Invoice, InsertInvoice, BankTransfer, InsertBankTransfer, Shipment, InsertShipment, AbandonedCart, InsertAbandonedCart, Review, InsertReview, StoreSettings, InsertStoreSettings, Page, InsertPage, FAQ, InsertFAQ, CustomerGroup, InsertCustomerGroup, Theme, ContentBlock, InsertContentBlock, Inventory, InsertInventory } from "@shared/schema";
-import { UserModel, ProductModel, OrderModel, CategoryModel, WalletTransactionModel, ActivityLogModel, CouponModel, BranchModel, BannerModel, CashShiftModel, ShippingCompanyModel, AuditLogModel, RoleModel, StockTransferModel, InvoiceModel, BankTransferModel, ShipmentModel, CartModel, AbandonedCartModel, ReviewModel, StoreSettingsModel, OptionModel, FilterModel, PageModel, FAQModel, CustomerGroupModel, ThemeModel, ContentBlockModel } from "./models";
+import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, ActivityLog, InsertActivityLog, Coupon, InsertCoupon, Branch, InsertBranch, Banner, InsertBanner, CashShift, InsertCashShift, ShippingCompany, InsertShippingCompany, AuditLog, InsertAuditLog, Role, InsertRole, StockTransfer, InsertStockTransfer, Invoice, InsertInvoice, BankTransfer, InsertBankTransfer, Shipment, InsertShipment, AbandonedCart, InsertAbandonedCart, Review, InsertReview, StoreSettings, InsertStoreSettings, Page, InsertPage, FAQ, InsertFAQ, CustomerGroup, InsertCustomerGroup, Theme, ContentBlock, InsertContentBlock, Revision, InsertRevision } from "@shared/schema";
+import { UserModel, ProductModel, OrderModel, CategoryModel, WalletTransactionModel, ActivityLogModel, CouponModel, BranchModel, BannerModel, CashShiftModel, ShippingCompanyModel, AuditLogModel, RoleModel, StockTransferModel, InvoiceModel, BankTransferModel, ShipmentModel, CartModel, AbandonedCartModel, ReviewModel, StoreSettingsModel, PageModel, RevisionModel, FAQModel, CustomerGroupModel, ThemeModel, ContentBlockModel } from "./models";
 
 export interface IStorage {
   // Users
@@ -67,7 +67,7 @@ export interface IStorage {
 
   // Audit Logs
   getAuditLogs(): Promise<AuditLog[]>;
-  createAuditLog(log: InsertActivityLog): Promise<ActivityLog>;
+  createAuditLog(log: InsertAuditLog): Promise<AuditLog>;
 
   // Roles
   getRoles(): Promise<Role[]>;
@@ -109,26 +109,6 @@ export interface IStorage {
   getStoreSettings(): Promise<StoreSettings>;
   updateStoreSettings(settings: Partial<InsertStoreSettings>): Promise<StoreSettings>;
 
-  // Filters
-  getFilters(): Promise<any[]>;
-  createFilter(data: any): Promise<any>;
-  updateFilter(id: string, data: any): Promise<any>;
-  deleteFilter(id: string): Promise<void>;
-
-  // Options Library
-  getOptionsLibrary(): Promise<any[]>;
-  createOption(data: any): Promise<any>;
-  updateOption(id: string, data: any): Promise<any>;
-  deleteOption(id: string): Promise<void>;
-
-  // Cart
-  getCart(userId: string): Promise<any>;
-  saveCart(userId: string, items: any[]): Promise<any>;
-  clearCart(userId: string): Promise<void>;
-  
-  // Dashboard Summary
-  getDashboardSummary(): Promise<any>;
-
   // Pages
   getPages(): Promise<Page[]>;
   getPage(id: string): Promise<Page | undefined>;
@@ -140,180 +120,39 @@ export interface IStorage {
   // Revisions
   getRevisions(pageId: string): Promise<Revision[]>;
   createRevision(revision: InsertRevision): Promise<Revision>;
+
+  // Content Blocks
+  getContentBlocks(): Promise<ContentBlock[]>;
+  getContentBlock(key: string): Promise<ContentBlock | undefined>;
+  updateContentBlock(key: string, data: Partial<InsertContentBlock>): Promise<ContentBlock>;
+
+  // Cart
+  getCart(userId: string): Promise<any>;
+  saveCart(userId: string, items: any[]): Promise<any>;
+  clearCart(userId: string): Promise<void>;
+  
+  // Dashboard Summary
+  getDashboardSummary(): Promise<any>;
+  
+  // FAQs
+  getFAQs(): Promise<FAQ[]>;
+  createFAQ(faq: InsertFAQ): Promise<FAQ>;
+  updateFAQ(id: string, data: Partial<InsertFAQ>): Promise<FAQ>;
+  deleteFAQ(id: string): Promise<void>;
+
+  // Customer Groups
+  getCustomerGroups(): Promise<CustomerGroup[]>;
+  createCustomerGroup(group: InsertCustomerGroup): Promise<CustomerGroup>;
+
+  // Themes
+  getThemes(): Promise<Theme[]>;
+  activateTheme(id: string): Promise<Theme>;
+
+  // Orders by user
+  getOrdersByUser(userId: string): Promise<Order[]>;
 }
 
 export class MongoStorage implements IStorage {
-  // ... existing methods ...
-  async getRevisions(pageId: string): Promise<Revision[]> {
-    const revisions = await RevisionModel.find({ pageId }).sort({ createdAt: -1 }).lean();
-    return revisions.map((r: any) => ({ ...r, id: r._id.toString() }));
-  }
-
-  async createRevision(data: InsertRevision): Promise<Revision> {
-    const revision = await RevisionModel.create(data);
-    return { ...revision.toObject(), id: revision._id.toString() } as any;
-  }
-  async getPage(id: string): Promise<Page | undefined> {
-    try {
-      const page = await PageModel.findById(id).lean();
-      return page ? { ...page, id: page._id.toString() } as any : undefined;
-    } catch (e) {
-      return undefined;
-    }
-  }
-
-  async getPageBySlug(slug: string): Promise<Page | undefined> {
-    try {
-      const page = await PageModel.findOne({ slug }).lean();
-      return page ? { ...page, id: page._id.toString() } as any : undefined;
-    } catch (e) {
-      return undefined;
-    }
-  }
-
-  async getPages(): Promise<Page[]> {
-    const pages = await PageModel.find().lean();
-    return pages.map((p: any) => ({ ...p, id: p._id.toString() }));
-  }
-
-  async createPage(data: InsertPage): Promise<Page> {
-    const page = await PageModel.create(data);
-    return { ...page.toObject(), id: page._id.toString() } as any;
-  }
-
-  async updatePage(id: string, data: Partial<InsertPage>): Promise<Page> {
-    const updated = await PageModel.findByIdAndUpdate(id, data, { new: true }).lean();
-    if (!updated) throw new Error("Page not found");
-    return { ...updated, id: updated._id.toString() } as any;
-  }
-
-  async deletePage(id: string): Promise<void> {
-    await PageModel.findByIdAndDelete(id);
-  }
-
-  // FAQ
-  async getFAQs(): Promise<FAQ[]> {
-    const faqs = await FAQModel.find().lean();
-    return faqs.map((f: any) => ({ ...f, id: f._id.toString() }));
-  }
-
-  async createFAQ(data: InsertFAQ): Promise<FAQ> {
-    const faq = await FAQModel.create(data);
-    return { ...faq.toObject(), id: faq._id.toString() } as any;
-  }
-
-  async updateFAQ(id: string, data: Partial<InsertFAQ>): Promise<FAQ> {
-    const updated = await FAQModel.findByIdAndUpdate(id, data, { new: true }).lean();
-    if (!updated) throw new Error("FAQ not found");
-    return { ...updated, id: updated._id.toString() } as any;
-  }
-
-  async deleteFAQ(id: string): Promise<void> {
-    await FAQModel.findByIdAndDelete(id);
-  }
-
-  // Customer Groups
-  async getCustomerGroups(): Promise<CustomerGroup[]> {
-    const groups = await CustomerGroupModel.find().lean();
-    return groups.map((g: any) => ({ ...g, id: g._id.toString() }));
-  }
-
-  async createCustomerGroup(data: InsertCustomerGroup): Promise<CustomerGroup> {
-    const group = await CustomerGroupModel.create(data);
-    return { ...group.toObject(), id: group._id.toString() } as any;
-  }
-
-  // Themes
-  async getThemes(): Promise<Theme[]> {
-    const themes = await ThemeModel.find().lean();
-    return themes.map((t: any) => ({ ...t, id: t._id.toString() }));
-  }
-
-  async activateTheme(id: string): Promise<Theme> {
-    await ThemeModel.updateMany({}, { isActive: false });
-    const theme = await ThemeModel.findByIdAndUpdate(id, { isActive: true }, { new: true }).lean();
-    if (!theme) throw new Error("Theme not found");
-    return { ...theme, id: theme._id.toString() } as any;
-  }
-
-  // Content Blocks
-  async getContentBlocks(): Promise<ContentBlock[]> {
-    const blocks = await ContentBlockModel.find({ isActive: true }).lean();
-    return blocks.map((b: any) => ({ ...b, id: b._id.toString() }));
-  }
-
-  async getContentBlock(key: string): Promise<ContentBlock | undefined> {
-    const block = await ContentBlockModel.findOne({ key }).lean();
-    return block ? { ...block, id: block._id.toString() } as any : undefined;
-  }
-
-  async updateContentBlock(key: string, data: Partial<InsertContentBlock>): Promise<ContentBlock> {
-    const block = await ContentBlockModel.findOneAndUpdate({ key }, data, { upsert: true, new: true }).lean();
-    return { ...block, id: block._id.toString() } as any;
-  }
-  async getDashboardSummary(): Promise<any> {
-    const orders = await OrderModel.find().lean();
-    const customers = await UserModel.countDocuments({ role: "customer" });
-    const products = await ProductModel.find().lean();
-    
-    const totalRevenue = orders
-      .filter(o => o.status !== "cancelled" && (o.paymentStatus === "paid" || o.paymentMethod === "cod"))
-      .reduce((sum, order) => sum + parseFloat(order.total || "0"), 0);
-    
-    const completedOrders = orders.filter(o => o.status === "completed").length;
-    
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayOrders = orders.filter(o => new Date(o.createdAt) >= today);
-    const todayRevenue = todayOrders
-      .filter(o => o.status !== "cancelled" && (o.paymentStatus === "paid" || o.paymentMethod === "cod"))
-      .reduce((sum, order) => sum + parseFloat(order.total || "0"), 0);
-
-    const netProfit = orders
-      .filter(o => o.status !== "cancelled" && (o.paymentStatus === "paid" || o.paymentMethod === "cod"))
-      .reduce((sum, order) => sum + parseFloat(order.netProfit || "0"), 0);
-
-    return {
-      allTime: { totalRevenue },
-      today: { totalRevenue: todayRevenue },
-      thisMonth: { totalRevenue: totalRevenue },
-      totalOrders: orders.length,
-      dailyOrders: todayOrders.length,
-      netProfit: netProfit,
-      totalSales: totalRevenue,
-      totalCustomers: customers,
-      completedOrders,
-      processingOrders: orders.filter(o => o.status === "processing").length,
-      cancelledOrders: orders.filter(o => o.status === "cancelled").length,
-      recentOrders: orders.slice(0, 5).map(o => ({ ...o, id: o._id.toString() })),
-      topProducts: products.slice(0, 5).map(p => ({
-        name: p.name,
-        quantity: 0,
-        revenue: 0,
-        image: p.images?.[0]
-      }))
-    };
-  }
-
-  async getCart(userId: string): Promise<any> {
-    const cart = await CartModel.findOne({ userId }).lean();
-    return cart ? { ...cart, id: cart._id.toString() } : null;
-  }
-
-  async saveCart(userId: string, items: any[]): Promise<any> {
-    const cart = await CartModel.findOneAndUpdate({ userId }, { items }, { upsert: true, new: true }).lean();
-    return { ...cart, id: cart._id.toString() };
-  }
-
-  async clearCart(userId: string): Promise<void> {
-    await CartModel.deleteOne({ userId });
-  }
-
-  async getOrdersByUser(userId: string): Promise<Order[]> {
-    const orders = await OrderModel.find({ userId }).sort({ createdAt: -1 }).lean();
-    return orders.map(o => ({ ...o, id: o._id.toString() } as any));
-  }
-
   async getUser(id: string): Promise<User | undefined> {
     const user = await UserModel.findById(id).lean();
     return user ? { ...user, id: user._id.toString() } as any : undefined;
@@ -378,35 +217,15 @@ export class MongoStorage implements IStorage {
       if (details.tracking) update.trackingNumber = details.tracking;
       if (details.adminNotes) update.adminNotes = details.adminNotes;
     }
-    const oldOrder = await OrderModel.findById(id).lean();
-    if (!oldOrder) throw new Error("Order not found");
     const order = await OrderModel.findByIdAndUpdate(id, update, { new: true }).lean();
     if (!order) throw new Error("Order not found");
-    if (status === "cancelled" && (oldOrder.status as string) !== "cancelled") {
-      if (order.items && Array.isArray(order.items)) {
-        for (const item of order.items) {
-          await ProductModel.updateOne({ _id: item.productId, "variants.sku": item.variantSku }, { $inc: { "variants.$.stock": item.quantity } });
-        }
-      }
-      await OrderModel.findByIdAndUpdate(id, { netProfit: "0" });
-    }
     return { ...order, id: order._id.toString() } as any;
   }
   async updateOrderPaymentStatus(id: string, status: string, provider?: string): Promise<Order> {
     const update: any = { paymentStatus: status };
     if (provider) update.paymentMethod = provider;
-    if (status === "paid") update.status = "processing";
     const order = await OrderModel.findByIdAndUpdate(id, update, { new: true }).lean();
     if (!order) throw new Error("Order not found");
-    if (status === "refunded") {
-      const orderTotal = parseFloat(order.total);
-      const user = await UserModel.findById(order.userId);
-      if (user) {
-        const currentBalance = parseFloat(user.walletBalance || "0");
-        await UserModel.findByIdAndUpdate(order.userId, { walletBalance: (currentBalance + orderTotal).toString() });
-        await WalletTransactionModel.create({ userId: order.userId, amount: orderTotal, type: "refund", description: `إرجاع قيمة الطلب #${order.orderNumber || order._id.toString().slice(-8).toUpperCase()}` });
-      }
-    }
     return { ...order, id: order._id.toString() } as any;
   }
   async updateOrderReceipt(id: string, receiptUrl: string): Promise<Order> {
@@ -544,7 +363,7 @@ export class MongoStorage implements IStorage {
   }
 
   async getStockTransfers(): Promise<StockTransfer[]> {
-    const transfers = await StockTransferModel.find().sort({ createdAt: -1 }).lean();
+    const transfers = await StockTransferModel.find().lean();
     return transfers.map(t => ({ ...t, id: t._id.toString() } as any));
   }
   async createStockTransfer(insertTransfer: InsertStockTransfer): Promise<StockTransfer> {
@@ -553,7 +372,7 @@ export class MongoStorage implements IStorage {
   }
 
   async getInvoices(): Promise<Invoice[]> {
-    const invoices = await InvoiceModel.find().sort({ createdAt: -1 }).lean();
+    const invoices = await InvoiceModel.find().lean();
     return invoices.map(i => ({ ...i, id: i._id.toString() } as any));
   }
   async createInvoice(insertInvoice: InsertInvoice): Promise<Invoice> {
@@ -566,7 +385,7 @@ export class MongoStorage implements IStorage {
   }
 
   async getBankTransfers(): Promise<BankTransfer[]> {
-    const transfers = await BankTransferModel.find().sort({ createdAt: -1 }).lean();
+    const transfers = await BankTransferModel.find().lean();
     return transfers.map(t => ({ ...t, id: t._id.toString() } as any));
   }
   async createBankTransfer(insertTransfer: InsertBankTransfer): Promise<BankTransfer> {
@@ -575,12 +394,12 @@ export class MongoStorage implements IStorage {
   }
   async updateBankTransfer(id: string, data: Partial<BankTransfer>): Promise<BankTransfer> {
     const updated = await BankTransferModel.findByIdAndUpdate(id, data, { new: true }).lean();
-    if (!updated) throw new Error("Bank transfer not found");
+    if (!updated) throw new Error("Transfer not found");
     return { ...updated, id: updated._id.toString() } as any;
   }
 
   async getShipments(): Promise<Shipment[]> {
-    const shipments = await ShipmentModel.find().sort({ createdAt: -1 }).lean();
+    const shipments = await ShipmentModel.find().lean();
     return shipments.map(s => ({ ...s, id: s._id.toString() } as any));
   }
   async createShipment(insertShipment: InsertShipment): Promise<Shipment> {
@@ -602,7 +421,7 @@ export class MongoStorage implements IStorage {
   }
 
   async getAbandonedCarts(): Promise<AbandonedCart[]> {
-    const carts = await AbandonedCartModel.find().sort({ createdAt: -1 }).lean();
+    const carts = await AbandonedCartModel.find().lean();
     return carts.map(c => ({ ...c, id: c._id.toString() } as any));
   }
   async createAbandonedCart(insertCart: InsertAbandonedCart): Promise<AbandonedCart> {
@@ -611,37 +430,23 @@ export class MongoStorage implements IStorage {
   }
   async updateAbandonedCart(id: string, data: Partial<AbandonedCart>): Promise<AbandonedCart> {
     const updated = await AbandonedCartModel.findByIdAndUpdate(id, data, { new: true }).lean();
-    if (!updated) throw new Error("Abandoned cart not found");
+    if (!updated) throw new Error("Cart not found");
     return { ...updated, id: updated._id.toString() } as any;
   }
 
   async getReviews(productId?: string): Promise<Review[]> {
     const query = productId ? { productId } : {};
-    const reviews = await ReviewModel.find(query).sort({ createdAt: -1 }).lean();
-    const enriched = await Promise.all(reviews.map(async (r: any) => {
-      let customerName = r.customerName || r.userName || "عميل مجهول";
-      let productName = r.productName;
-      if (!productName && r.productId) {
-        const p = await ProductModel.findById(r.productId).lean();
-        productName = p ? p.name : "منتج غير موجود";
-      }
-      if (!r.userName && r.userId) {
-        const u = await UserModel.findById(r.userId).lean();
-        customerName = u ? u.name : customerName;
-      }
-      return { ...r, id: r._id.toString(), customerName, productName: productName || "منتج مجهول", approved: r.status === "approved" || r.approved === true };
-    }));
-    return enriched as any;
+    const reviews = await ReviewModel.find(query).lean();
+    return reviews.map(r => ({ ...r, id: r._id.toString() } as any));
   }
   async createReview(insertReview: InsertReview): Promise<Review> {
     const review = await ReviewModel.create(insertReview);
     return { ...review.toObject(), id: review._id.toString() } as any;
   }
   async updateReviewStatus(id: string, approved: boolean): Promise<Review> {
-    const status = approved ? "approved" : "rejected";
-    const review = await ReviewModel.findByIdAndUpdate(id, { status, approved }, { new: true }).lean();
-    if (!review) throw new Error("Review not found");
-    return { ...review, id: review._id.toString() } as any;
+    const updated = await ReviewModel.findByIdAndUpdate(id, { approved }, { new: true }).lean();
+    if (!updated) throw new Error("Review not found");
+    return { ...updated, id: updated._id.toString() } as any;
   }
   async deleteReview(id: string): Promise<void> {
     await ReviewModel.findByIdAndDelete(id);
@@ -650,80 +455,127 @@ export class MongoStorage implements IStorage {
   async getStoreSettings(): Promise<StoreSettings> {
     const settings = await StoreSettingsModel.findOne().lean();
     if (!settings) {
-      const defaultSettings = { 
-        name: "جين إم زد", 
-        primaryColor: "#000000", 
-        secondaryColor: "#ffffff", 
-        languages: ["ar"], 
-        defaultLanguage: "ar", 
-        currency: "SAR", 
-        taxPercentage: 15, 
-        enableReviews: true, 
-        enableQuestions: true, 
-        enableStockNotifications: true, 
-        minStockLevel: 10, 
-        navigationLinks: [],
-        communication: {
-          orderMessages: true,
-          abandonedCartAlerts: true,
-          reviewRequests: true
-        }
-      };
-      const created = await StoreSettingsModel.create(defaultSettings);
-      const obj = created.toObject();
-      return { ...obj, id: obj._id.toString() } as any;
+      return await StoreSettingsModel.create({ name: "My Store" }) as any;
     }
     return { ...settings, id: settings._id.toString() } as any;
   }
-
   async updateStoreSettings(settings: Partial<InsertStoreSettings>): Promise<StoreSettings> {
     const current = await this.getStoreSettings();
-    const updated = await StoreSettingsModel.findByIdAndUpdate((current as any).id || (current as any)._id, settings, { new: true }).lean();
+    const updated = await StoreSettingsModel.findByIdAndUpdate(current.id, settings, { new: true }).lean();
     if (!updated) throw new Error("Settings not found");
     return { ...updated, id: updated._id.toString() } as any;
   }
 
-  async getFilters(): Promise<any[]> {
-    const filters = await FilterModel.find().lean();
-    return filters.map(f => ({ ...f, id: f._id.toString() }));
+  async getPages(): Promise<Page[]> {
+    const pages = await PageModel.find().lean();
+    return pages.map(p => ({ ...p, id: p._id.toString() } as any));
   }
-  async createFilter(data: any): Promise<any> {
-    const filter = await FilterModel.create(data);
-    return { ...filter.toObject(), id: filter._id.toString() } as any;
+  async getPage(id: string): Promise<Page | undefined> {
+    const page = await PageModel.findById(id).lean();
+    return page ? { ...page, id: page._id.toString() } as any : undefined;
   }
-  async updateFilter(id: string, data: any): Promise<any> {
-    const filter = await FilterModel.findByIdAndUpdate(id, data, { new: true }).lean();
-    if (!filter) throw new Error("Filter not found");
-    return { ...filter, id: filter._id.toString() } as any;
+  async getPageBySlug(slug: string): Promise<Page | undefined> {
+    const page = await PageModel.findOne({ slug }).lean();
+    return page ? { ...page, id: page._id.toString() } as any : undefined;
   }
-  async deleteFilter(id: string): Promise<void> {
-    await FilterModel.findByIdAndDelete(id);
+  async createPage(insertPage: InsertPage): Promise<Page> {
+    const page = await PageModel.create(insertPage);
+    return { ...page.toObject(), id: page._id.toString() } as any;
   }
-
-  async getOptionsLibrary(): Promise<any[]> {
-    const options = await OptionModel.find().lean();
-    return options.map(o => ({ ...o, id: o._id.toString() }));
-  }
-  async createOption(data: any): Promise<any> {
-    const option = await OptionModel.create(data);
-    return { ...option.toObject(), id: option._id.toString() } as any;
-  }
-  async updateOption(id: string, data: any): Promise<any> {
-    const option = await OptionModel.findByIdAndUpdate(id, data, { new: true }).lean();
-    if (!option) throw new Error("Option not found");
-    return { ...option, id: option._id.toString() } as any;
-  }
-  async deleteOption(id: string): Promise<void> {
-    await OptionModel.findByIdAndDelete(id);
-  }
-
-  async updateCoupon(id: string, data: any): Promise<Coupon> {
-    const updated = await CouponModel.findByIdAndUpdate(id, data, { new: true }).lean();
-    if (!updated) throw new Error("Coupon not found");
+  async updatePage(id: string, page: Partial<InsertPage>): Promise<Page> {
+    const updated = await PageModel.findByIdAndUpdate(id, page, { new: true }).lean();
+    if (!updated) throw new Error("Page not found");
     return { ...updated, id: updated._id.toString() } as any;
   }
-  async deleteCoupon(id: string): Promise<void> {
-    await CouponModel.findByIdAndDelete(id);
+  async deletePage(id: string): Promise<void> {
+    await PageModel.findByIdAndDelete(id);
+  }
+
+  async getRevisions(pageId: string): Promise<Revision[]> {
+    const revisions = await RevisionModel.find({ pageId }).sort({ createdAt: -1 }).lean();
+    return revisions.map(r => ({ ...r, id: r._id.toString() } as any));
+  }
+  async createRevision(insertRevision: InsertRevision): Promise<Revision> {
+    const revision = await RevisionModel.create(insertRevision);
+    return { ...revision.toObject(), id: revision._id.toString() } as any;
+  }
+
+  async getContentBlocks(): Promise<ContentBlock[]> {
+    const blocks = await ContentBlockModel.find().lean();
+    return blocks.map(b => ({ ...b, id: b._id.toString() } as any));
+  }
+  async getContentBlock(key: string): Promise<ContentBlock | undefined> {
+    const block = await ContentBlockModel.findOne({ key }).lean();
+    return block ? { ...block, id: block._id.toString() } as any : undefined;
+  }
+  async updateContentBlock(key: string, data: Partial<InsertContentBlock>): Promise<ContentBlock> {
+    const updated = await ContentBlockModel.findOneAndUpdate({ key }, data, { upsert: true, new: true }).lean();
+    return { ...updated, id: updated._id.toString() } as any;
+  }
+
+  async getCart(userId: string): Promise<any> {
+    const cart = await CartModel.findOne({ userId }).lean();
+    return cart ? { ...cart, id: cart._id.toString() } : null;
+  }
+  async saveCart(userId: string, items: any[]): Promise<any> {
+    const updated = await CartModel.findOneAndUpdate({ userId }, { items }, { upsert: true, new: true }).lean();
+    return { ...updated, id: updated._id.toString() };
+  }
+  async clearCart(userId: string): Promise<void> {
+    await CartModel.deleteOne({ userId });
+  }
+
+  async getDashboardSummary(): Promise<any> {
+    const orders = await OrderModel.find().lean();
+    const customers = await UserModel.countDocuments({ role: "customer" });
+    return {
+      totalRevenue: orders.reduce((sum, o) => sum + parseFloat(o.total || "0"), 0),
+      totalOrders: orders.length,
+      totalCustomers: customers,
+      recentOrders: orders.slice(-5)
+    };
+  }
+
+  async getFAQs(): Promise<FAQ[]> {
+    const faqs = await FAQModel.find().sort({ order: 1 }).lean();
+    return faqs.map(f => ({ ...f, id: f._id.toString() } as any));
+  }
+  async createFAQ(insertFAQ: InsertFAQ): Promise<FAQ> {
+    const faq = await FAQModel.create(insertFAQ);
+    return { ...faq.toObject(), id: faq._id.toString() } as any;
+  }
+  async updateFAQ(id: string, data: Partial<InsertFAQ>): Promise<FAQ> {
+    const updated = await FAQModel.findByIdAndUpdate(id, data, { new: true }).lean();
+    if (!updated) throw new Error("FAQ not found");
+    return { ...updated, id: updated._id.toString() } as any;
+  }
+  async deleteFAQ(id: string): Promise<void> {
+    await FAQModel.findByIdAndDelete(id);
+  }
+
+  async getCustomerGroups(): Promise<CustomerGroup[]> {
+    const groups = await CustomerGroupModel.find().lean();
+    return groups.map(g => ({ ...g, id: g._id.toString() } as any));
+  }
+  async createCustomerGroup(insertGroup: InsertCustomerGroup): Promise<CustomerGroup> {
+    const group = await CustomerGroupModel.create(insertGroup);
+    return { ...group.toObject(), id: group._id.toString() } as any;
+  }
+
+  async getThemes(): Promise<Theme[]> {
+    const themes = await ThemeModel.find().lean();
+    return themes.map(t => ({ ...t, id: t._id.toString() } as any));
+  }
+  async activateTheme(id: string): Promise<Theme> {
+    await ThemeModel.updateMany({}, { isActive: false });
+    const updated = await ThemeModel.findByIdAndUpdate(id, { isActive: true }, { new: true }).lean();
+    if (!updated) throw new Error("Theme not found");
+    return { ...updated, id: updated._id.toString() } as any;
+  }
+
+  async getOrdersByUser(userId: string): Promise<Order[]> {
+    const orders = await OrderModel.find({ userId }).sort({ createdAt: -1 }).lean();
+    return orders.map(o => ({ ...o, id: o._id.toString() } as any));
   }
 }
 
