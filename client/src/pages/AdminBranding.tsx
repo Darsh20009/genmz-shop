@@ -78,9 +78,9 @@ export default function AdminBranding() {
               <Button
                 className="w-full"
                 onClick={handleUpdate}
-                disabled={updateBrandingMutation.isPending}
+                disabled={mutation.isPending}
               >
-                {updateBrandingMutation.isPending ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <Save className="w-4 h-4 ml-2" />}
+                {mutation.isPending ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <Save className="w-4 h-4 ml-2" />}
                 حفظ الألوان
               </Button>
             </CardContent>
