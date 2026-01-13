@@ -751,61 +751,63 @@ export default function Checkout() {
                   </div>
 
                   {/* Bank Transfer - Professional */}
-                  <div 
-                    className={`group relative border-2 rounded-xl cursor-pointer transition-all duration-300 ${paymentMethod === "bank_transfer" ? "border-[#006A4E] bg-[#006A4E]/[0.02] shadow-md" : "border-gray-100 hover:border-gray-200"}`}
-                    onClick={() => setPaymentMethod("bank_transfer")}
-                  >
-                    <div className="flex items-center justify-between p-5">
-                      <div className="flex items-center gap-4 w-full">
-                        <div className={`flex items-center justify-center w-6 h-6 rounded-full border-2 transition-colors ${paymentMethod === "bank_transfer" ? "border-[#006A4E] bg-[#006A4E]" : "border-gray-300"}`}>
-                          {paymentMethod === "bank_transfer" && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
-                        </div>
-                        <div className="flex flex-col flex-1">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <Landmark className="h-5 w-5 text-[#006A4E]" />
-                              <span className="font-bold text-gray-900">تحويل بنكي مباشر</span>
-                            </div>
-                            <img 
-                              src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Al_Rajhi_Bank_Logo.svg" 
-                              alt="Al Rajhi" 
-                              className="h-6 w-auto grayscale group-hover:grayscale-0 transition-all" 
-                            />
+                  {settings?.enableBankTransfer !== false && (
+                    <div 
+                      className={`group relative border-2 rounded-xl cursor-pointer transition-all duration-300 ${paymentMethod === "bank_transfer" ? "border-[#006A4E] bg-[#006A4E]/[0.02] shadow-md" : "border-gray-100 hover:border-gray-200"}`}
+                      onClick={() => setPaymentMethod("bank_transfer")}
+                    >
+                      <div className="flex items-center justify-between p-5">
+                        <div className="flex items-center gap-4 w-full">
+                          <div className={`flex items-center justify-center w-6 h-6 rounded-full border-2 transition-colors ${paymentMethod === "bank_transfer" ? "border-[#006A4E] bg-[#006A4E]" : "border-gray-300"}`}>
+                            {paymentMethod === "bank_transfer" && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
                           </div>
-                          <p className="text-xs text-gray-500 mt-1 font-medium">مصرف الراجحي - تأكيد يدوي للإيصال</p>
+                          <div className="flex flex-col flex-1">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Landmark className="h-5 w-5 text-[#006A4E]" />
+                                <span className="font-bold text-gray-900">تحويل بنكي مباشر</span>
+                              </div>
+                              <img 
+                                src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Al_Rajhi_Bank_Logo.svg" 
+                                alt="Al Rajhi" 
+                                className="h-6 w-auto grayscale group-hover:grayscale-0 transition-all" 
+                              />
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1 font-medium">مصرف الراجحي - تأكيد يدوي للإيصال</p>
+                          </div>
                         </div>
                       </div>
+                      
+                      {paymentMethod === "bank_transfer" && (
+                        <div className="p-5 border-t border-[#006A4E]/10 bg-white/50 space-y-4 rounded-b-xl">
+                          <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-inner">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-xs font-bold text-gray-400">اسم المستفيد</span>
+                              <span className="text-sm font-black">Gen M Z</span>
+                            </div>
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-xs font-bold text-gray-400">رقم الآيبان (IBAN)</span>
+                              <span className="text-sm font-mono font-black select-all">SA6280000501608016226411</span>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs font-black uppercase tracking-widest text-gray-400">رفع إيصال التحويل</Label>
+                            <div className="relative">
+                              <Input 
+                                type="file" 
+                                onChange={handleReceiptUpload} 
+                                accept="image/*" 
+                                className="h-12 border-2 border-dashed border-gray-200 bg-gray-50 hover:bg-white transition-colors cursor-pointer" 
+                              />
+                              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                                <Check className={`h-5 w-5 ${receiptFile ? "text-green-500" : "text-gray-300"}`} />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    
-                    {paymentMethod === "bank_transfer" && (
-                      <div className="p-5 border-t border-[#006A4E]/10 bg-white/50 space-y-4 rounded-b-xl">
-                        <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-inner">
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-xs font-bold text-gray-400">اسم المستفيد</span>
-                            <span className="text-sm font-black">Gen M Z</span>
-                          </div>
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-xs font-bold text-gray-400">رقم الآيبان (IBAN)</span>
-                            <span className="text-sm font-mono font-black select-all">SA6280000501608016226411</span>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-xs font-black uppercase tracking-widest text-gray-400">رفع إيصال التحويل</Label>
-                          <div className="relative">
-                            <Input 
-                              type="file" 
-                              onChange={handleReceiptUpload} 
-                              accept="image/*" 
-                              className="h-12 border-2 border-dashed border-gray-200 bg-gray-50 hover:bg-white transition-colors cursor-pointer" 
-                            />
-                            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                              <Check className={`h-5 w-5 ${receiptFile ? "text-green-500" : "text-gray-300"}`} />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
                 {/* Tamara & Tabby Widgets */}
                 <div className="mt-6 pt-6 border-t space-y-4">

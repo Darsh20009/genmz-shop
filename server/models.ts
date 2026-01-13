@@ -196,7 +196,7 @@ const orderSchema = new Schema<Order>(
     paymentMethod: { type: String, enum: ["cod", "bank_transfer", "apple_pay", "card", "cash", "wallet", "tabby", "tamara", "moyasar"] },
     bankTransferReceipt: String,
     paymentStatus: { type: String, default: "pending" },
-    trackingNumber: { type: String },
+    trackingNumber: String,
     adminNotes: String,
     notes: String,
     pointsUsed: { type: Number, default: 0 },
@@ -423,7 +423,7 @@ const pageSchema = new Schema<Page>(
 const revisionSchema = new Schema<Revision>(
   {
     pageId: { type: String, required: true },
-    blocks: { type: [Schema.Types.Mixed], required: true },
+    blocks: { type: Schema.Types.Mixed, required: true },
     metadata: { type: Schema.Types.Mixed, default: {} },
     authorId: { type: String, required: true },
     note: String,
