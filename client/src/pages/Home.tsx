@@ -139,7 +139,7 @@ export default function Home() {
             </Editable>
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black leading-[0.9] mb-4 sm:mb-8 text-black tracking-tighter text-balance">
               <img src={logoImg} alt="Gen M & Z Logo" className="h-12 sm:h-20 md:h-24 lg:h-32 mb-4" />
-              <Editable blockKey="home-hero-subtitle" defaultContent={t('heroTitle')}>
+              <Editable blockKey="home-hero-subtitle" defaultContent={language === 'ar' ? 'مجموعة جديدة ٢٠٢٦' : 'New Collection 2026'}>
                 {(content) => <span className="block text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl mt-2 sm:mt-4 font-light text-muted-foreground italic font-serif">{content}</span>}
               </Editable>
             </h1>
@@ -182,10 +182,6 @@ export default function Home() {
                   />
                 )}
               </Editable>
-              <div className={`absolute -bottom-4 sm:-bottom-6 ${language === 'ar' ? '-right-4 sm:-right-6' : '-left-4 sm:-left-6'} bg-black text-white p-4 sm:p-6 hidden sm:block`}>
-                <p className="text-[8px] sm:text-[9px] tracking-widest uppercase font-bold mb-1">{t('featuredItem')}</p>
-                <p className="text-sm sm:text-base md:text-lg font-black leading-none">BURGUNDY HOODIE</p>
-              </div>
             </div>
           </motion.div>
         </div>
@@ -298,7 +294,7 @@ export default function Home() {
         <div className="container px-4">
           <div className={`text-center max-w-3xl mx-auto mb-12 sm:mb-24 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
             <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.2em] text-primary mb-2 sm:mb-4 uppercase">{t('newCollection')}</span>
-            <h2 className="text-3xl sm:text-5xl md:text-7xl font-black uppercase tracking-tighter mb-4 sm:mb-6">{language === 'ar' ? 'تشكيلتنا الحصرية' : 'Our Exclusive Collection'}</h2>
+            <h2 className="text-3xl sm:text-5xl md:text-7xl font-black uppercase tracking-tighter mb-4 sm:mb-6">{language === 'ar' ? 'تشكيلة الهوديز الجديدة' : 'New Hoodies Collection'}</h2>
             <p className="text-base sm:text-xl text-muted-foreground font-light italic">{language === 'ar' ? 'اكتشف التنوع والإبداع في كل قطعة' : 'Discover diversity and creativity in every piece'}</p>
           </div>
           
