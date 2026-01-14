@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { ContentBlock } from "@shared/schema";
@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { X, Plus, Layout, Trash2, EyeOff } from "lucide-react";
+import { useLocation } from "wouter";
 
 interface VisualEditorContextType {
   isEditing: boolean;
@@ -29,6 +30,7 @@ export function VisualEditorProvider({ children }: { children: ReactNode }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editingBlock, setEditingBlock] = useState<(Partial<ContentBlock> & { key: string }) | null>(null);
   const { toast } = useToast();
+  const [location, setLocation] = useLocation();
 
   const updateMutation = useMutation({
     mutationFn: async (data: { key: string; content: string; publish?: boolean }) => {
@@ -56,12 +58,26 @@ export function VisualEditorProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  const handleToggleEdit = (value: boolean) => {
+    setIsEditing(value);
+    if (value) {
+      if (location.startsWith('/admin')) {
+        setLocation('/');
+      }
+      toast({ 
+        title: "وضع التعديل نشط", 
+        description: "يمكنك الآن تعديل الموقع مباشرة. اضغط على أي عنصر للتعديل.",
+        variant: "default"
+      });
+    }
+  };
+
   const isAdmin = user?.role === "admin";
 
   return (
     <VisualEditorContext.Provider value={{ 
       isEditing: isEditing && isAdmin, 
-      setIsEditing, 
+      setIsEditing: handleToggleEdit, 
       editBlock: setEditingBlock 
     }}>
       {children}
@@ -72,7 +88,7 @@ export function VisualEditorProvider({ children }: { children: ReactNode }) {
             <Button 
               size="icon" 
               variant="ghost" 
-              onClick={() => setIsEditing(false)}
+              onClick={() => handleToggleEdit(false)}
               className="hover:bg-primary-foreground/10"
             >
               <X className="h-5 w-5" />
@@ -107,7 +123,7 @@ export function VisualEditorProvider({ children }: { children: ReactNode }) {
               className="w-full h-14 sm:h-12 rounded-xl font-black uppercase tracking-widest shadow-lg hover-elevate transition-all"
               onClick={() => {
                 publishMutation.mutate("all");
-                setIsEditing(false);
+                handleToggleEdit(false);
               }}
             >
               حفظ ونشر التغييرات
@@ -200,7 +216,6 @@ export function Editable({ blockKey, defaultContent, type = "text", children, cl
   });
 
   const block = blocks?.find(b => b.key === blockKey);
-  // Show draft content if editing, otherwise show published content
   const content = isEditing 
     ? (block?.draftContent || block?.content || defaultContent)
     : (block?.content || defaultContent);
@@ -211,17 +226,20 @@ export function Editable({ blockKey, defaultContent, type = "text", children, cl
 
   return (
     <div 
-      className={`relative group cursor-pointer border-2 border-dashed border-transparent hover:border-primary transition-all duration-300 rounded-lg hover:bg-primary/5 p-1 ${className}`}
+      className={`relative group cursor-pointer border-2 border-dashed border-transparent hover:border-primary transition-all duration-300 rounded-lg hover:bg-primary/10 p-1 z-[20] ${className}`}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
+        console.log(`[EDITOR] Editing block: ${blockKey}`);
         editBlock({ key: blockKey, content, type });
       }}
     >
-      <div className="absolute -top-3 -right-3 bg-primary text-primary-foreground text-[10px] font-black uppercase px-2 py-1 rounded-full shadow-lg opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all z-50">
+      <div className="absolute -top-3 -right-3 bg-primary text-primary-foreground text-[10px] font-black uppercase px-2 py-1 rounded-full shadow-lg opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all z-[30] pointer-events-none">
         تعديل
       </div>
-      {children(content)}
+      <div className="pointer-events-none select-none">
+        {children(content)}
+      </div>
     </div>
   );
 }
