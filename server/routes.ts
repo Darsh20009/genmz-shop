@@ -940,12 +940,27 @@ export async function registerRoutes(
 
       if (payment.status === "paid") {
         await storage.updateOrderPaymentStatus(orderId, "paid", "moyasar");
+        
+        // Trigger Shipping Integration (ShipHero) after payment
+        try {
+          const order = await storage.getOrder(orderId);
+          if (order) {
+            console.log(`[SHIPPING] Triggering ShipHero for order ${order.orderNumber || orderId}`);
+            await shipHeroService.createOrder(order);
+          }
+        } catch (shipError) {
+          console.error("[SHIPPING] Failed to sync with ShipHero:", shipError);
+        }
+
+        await sendConfirmation(orderId);
+
         // Store Moyasar Payment ID
+        const OrderModel = (await import("./models")).OrderModel;
         await OrderModel.findByIdAndUpdate(orderId, { 
           moyasarPaymentId: payment.id,
           moyasarStatus: "paid"
         });
-        console.log(`[MOYASAR Webhook] Order ${orderId} marked as paid`);
+        console.log(`[MOYASAR Webhook] Order ${orderId} marked as paid and triggered ShipHero`);
       } else if (payment.status === "failed") {
         await storage.updateOrderPaymentStatus(orderId, "failed", "moyasar");
         await OrderModel.findByIdAndUpdate(orderId, { 
