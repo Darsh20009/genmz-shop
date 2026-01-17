@@ -170,7 +170,9 @@ export function setupAuth(app: Express) {
     // Relative path is most reliable for passport-google-oauth20 behind proxies
     const googleCallbackURL = "/api/auth/google/callback";
 
-    console.log(`[AUTH] Initializing Google Strategy with relative callback: ${googleCallbackURL}`);
+    console.log(`[AUTH] Initializing Google Strategy with:
+      ClientID: ${process.env.GOOGLE_CLIENT_ID.trim().substring(0, 10)}...
+      Callback: ${googleCallbackURL}`);
 
     passport.use(
       new GoogleStrategy(
@@ -179,11 +181,14 @@ export function setupAuth(app: Express) {
           clientSecret: process.env.GOOGLE_CLIENT_SECRET.trim(),
           callbackURL: googleCallbackURL,
           proxy: true,
-          passReqToCallback: true
+          passReqToCallback: true,
+          authorizationURL: 'https://accounts.google.com/o/oauth2/v2/auth',
+          tokenURL: 'https://oauth2.googleapis.com/token',
+          userProfileURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
         },
         async (req, _accessToken, _refreshToken, profile, done) => {
           try {
-            console.log(`[AUTH] Google strategy callback received profile:`, profile);
+            console.log(`[AUTH] Google strategy callback received profile ID: ${profile.id}`);
             const googleId = profile.id;
             const email = profile.emails?.[0]?.value;
             const name = profile.displayName;
@@ -481,7 +486,9 @@ export function setupAuth(app: Express) {
     // Relative path is most reliable for passport-google-oauth20 behind proxies
     const googleCallbackURL = "/api/auth/google/callback";
 
-    console.log(`[AUTH] Initializing Google Strategy with relative callback: ${googleCallbackURL}`);
+    console.log(`[AUTH] Initializing Google Strategy with:
+      ClientID: ${process.env.GOOGLE_CLIENT_ID.trim().substring(0, 10)}...
+      Callback: ${googleCallbackURL}`);
 
     passport.use(
       new GoogleStrategy(
@@ -490,11 +497,14 @@ export function setupAuth(app: Express) {
           clientSecret: process.env.GOOGLE_CLIENT_SECRET.trim(),
           callbackURL: googleCallbackURL,
           proxy: true,
-          passReqToCallback: true
+          passReqToCallback: true,
+          authorizationURL: 'https://accounts.google.com/o/oauth2/v2/auth',
+          tokenURL: 'https://oauth2.googleapis.com/token',
+          userProfileURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
         },
         async (req, _accessToken, _refreshToken, profile, done) => {
           try {
-            console.log(`[AUTH] Google strategy callback received profile:`, profile);
+            console.log(`[AUTH] Google strategy callback received profile ID: ${profile.id}`);
             const googleId = profile.id;
             const email = profile.emails?.[0]?.value;
             const name = profile.displayName;
