@@ -178,10 +178,15 @@ export function setupAuth(app: Express) {
         },
         async (req, _accessToken, _refreshToken, profile, done) => {
           try {
-            console.log(`[AUTH] Google strategy callback for: ${profile.displayName}`);
+            console.log(`[AUTH] Google strategy callback received profile:`, profile);
             const googleId = profile.id;
             const email = profile.emails?.[0]?.value;
             const name = profile.displayName;
+
+            if (!googleId) {
+              console.error("[AUTH] Google profile is missing ID");
+              return done(new Error("Google login failed: Missing ID"));
+            }
 
             let userResult = await UserModel.findOne({ googleId }).lean();
             if (!userResult && email) {
@@ -197,12 +202,15 @@ export function setupAuth(app: Express) {
             }
 
             if (userResult) {
-              const user = { ...userResult, id: (userResult as any)._id.toString() };
-              console.log(`[AUTH] Google user found: ${user.email}`);
+              const user = { 
+                ...userResult, 
+                id: (userResult as any)._id?.toString() || (userResult as any).id 
+              };
+              console.log(`[AUTH] Google user found and logged in: ${user.email}`);
               return done(null, user);
             }
 
-            console.log(`[AUTH] Creating new Google user: ${email}`);
+            console.log(`[AUTH] Creating new Google user: ${email || name}`);
             const newUser = await storage.createUser({
               name,
               email: email || "",
@@ -476,10 +484,15 @@ export function setupAuth(app: Express) {
         },
         async (req, _accessToken, _refreshToken, profile, done) => {
           try {
-            console.log(`[AUTH] Google strategy callback for: ${profile.displayName}`);
+            console.log(`[AUTH] Google strategy callback received profile:`, profile);
             const googleId = profile.id;
             const email = profile.emails?.[0]?.value;
             const name = profile.displayName;
+
+            if (!googleId) {
+              console.error("[AUTH] Google profile is missing ID");
+              return done(new Error("Google login failed: Missing ID"));
+            }
 
             let userResult = await UserModel.findOne({ googleId }).lean();
             if (!userResult && email) {
@@ -495,12 +508,15 @@ export function setupAuth(app: Express) {
             }
 
             if (userResult) {
-              const user = { ...userResult, id: (userResult as any)._id.toString() };
-              console.log(`[AUTH] Google user found: ${user.email}`);
+              const user = { 
+                ...userResult, 
+                id: (userResult as any)._id?.toString() || (userResult as any).id 
+              };
+              console.log(`[AUTH] Google user found and logged in: ${user.email}`);
               return done(null, user);
             }
 
-            console.log(`[AUTH] Creating new Google user: ${email}`);
+            console.log(`[AUTH] Creating new Google user: ${email || name}`);
             const newUser = await storage.createUser({
               name,
               email: email || "",
