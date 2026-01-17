@@ -167,12 +167,16 @@ export function setupAuth(app: Express) {
   );
 
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    const googleCallbackURL = `https://${process.env.REPLIT_DEV_DOMAIN}/api/auth/google/callback`;
+
+    console.log(`[AUTH] Initializing Google Strategy with callback: ${googleCallbackURL}`);
+
     passport.use(
       new GoogleStrategy(
         {
-          clientID: process.env.GOOGLE_CLIENT_ID,
-          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-          callbackURL: "/api/auth/google/callback",
+          clientID: process.env.GOOGLE_CLIENT_ID.trim(),
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET.trim(),
+          callbackURL: googleCallbackURL,
           proxy: true,
           passReqToCallback: true
         },
@@ -473,12 +477,16 @@ export function setupAuth(app: Express) {
   });
 
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    const googleCallbackURL = `https://${process.env.REPLIT_DEV_DOMAIN}/api/auth/google/callback`;
+
+    console.log(`[AUTH] Initializing Google Strategy with callback: ${googleCallbackURL}`);
+
     passport.use(
       new GoogleStrategy(
         {
-          clientID: process.env.GOOGLE_CLIENT_ID,
-          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-          callbackURL: "/api/auth/google/callback",
+          clientID: process.env.GOOGLE_CLIENT_ID.trim(),
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET.trim(),
+          callbackURL: googleCallbackURL,
           proxy: true,
           passReqToCallback: true
         },
