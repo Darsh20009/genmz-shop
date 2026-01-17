@@ -167,10 +167,10 @@ export function setupAuth(app: Express) {
   );
 
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-    // Reverting to the most robust way for Replit environment
-    const googleCallbackURL = `https://${process.env.REPLIT_DEV_DOMAIN}/api/auth/google/callback`;
+    // Relative path is most reliable for passport-google-oauth20 behind proxies
+    const googleCallbackURL = "/api/auth/google/callback";
 
-    console.log(`[AUTH] Final attempt - Google callback URL: ${googleCallbackURL}`);
+    console.log(`[AUTH] Initializing Google Strategy with relative callback: ${googleCallbackURL}`);
 
     passport.use(
       new GoogleStrategy(
@@ -478,10 +478,10 @@ export function setupAuth(app: Express) {
   });
 
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-    // Reverting to the most robust way for Replit environment
-    const googleCallbackURL = `https://${process.env.REPLIT_DEV_DOMAIN}/api/auth/google/callback`;
+    // Relative path is most reliable for passport-google-oauth20 behind proxies
+    const googleCallbackURL = "/api/auth/google/callback";
 
-    console.log(`[AUTH] Final attempt - Google callback URL: ${googleCallbackURL}`);
+    console.log(`[AUTH] Initializing Google Strategy with relative callback: ${googleCallbackURL}`);
 
     passport.use(
       new GoogleStrategy(
