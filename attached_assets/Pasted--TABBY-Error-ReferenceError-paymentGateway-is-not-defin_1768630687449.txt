@@ -1,0 +1,12 @@
+[TABBY] Error: ReferenceError: paymentGateway is not defined
+at <anonymous> (/home/runner/workspace/server/routes.ts:801:23)
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:58:38 AM [express] POST /api/payments/tabby/checkout 500 in 131ms :: {"success":false,"message":"paymentGateway is not defined"} 5:58:38 AM [express] POST /api/payments/tabby/checkout 500 in 131ms :: {"success":false,"message":"paymentGateway is not defined"}
+[ShipHero] Syncing order ORD-ZY5AEL to ShipHero...
+[ShipHero] Order Creation Error Details: { message: 'Authorization header is expected' }
+[ShipHero] Failed to sync order ORD-ZY5AEL: { message: 'Authorization header is expected' }
+5:59:12 AM [express] POST /api/orders 201 in 566ms :: {"success":true,"data":{"userId":"694e50c5a7893075782d9d00","type":"online","branchId":"main","status":"new","total":"248.85","subtotal":"199.00","vatAmount":"29.85","shippingCost":"20.00","shippingCompany":"Storage Station","nationalAddress":"","tapCommission":"0","netProfit":"0","couponCode":"","discountAmount":"0.00","cashbackAmount":"0.00","items":[{"productId":"695cfe7abd86f8333a448b58","variantSku":"GMZ-H-2-BRG-M","quantity":1,"price":199,"cost":0,"title":"هودي جيل زد | سنقل كاب","_id":"696b252f57e938f74b239c01"}],"shippingMethod":"delivery","shippingAddress":{"city":"الرياض","street":"الإحداثيات: 24.6019, 46.6514","country":"SA"},"paymentMethod":"tamara","paymentStatus":"pending","pointsUsed":0,"pointsEarned":0,"walletAmountUsed":0,"orderNumber":"ORD-ZY5AEL","_id":"696b252f57e938f74b239c00","createdAt":"2026-01-17T05:59:11.813Z","updatedAt":"2026-01-17T05:59:11.813Z","__v":0,"id":"696b252f57e938f74b239c00"}}
+[TAMARA] Error: ReferenceError: paymentGateway is not defined
+at <anonymous> (/home/runner/workspace/server/routes.ts:768:23)
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:59:12 AM [express] POST /api/payments/tamara/checkout 500 in 131ms :: {"success":false,"message":"paymentGateway is not defined"}

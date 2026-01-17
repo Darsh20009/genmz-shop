@@ -11,6 +11,7 @@ import path from "path";
 import fs from "fs";
 import { shipHeroService } from "./services/shipHeroService";
 import { moyasarService } from "./services/moyasarService";
+import { paymentGateway } from "./payments";
 import { ProductModel, UserModel } from "./models";
 import { errorMiddleware } from "./middleware/error";
 
