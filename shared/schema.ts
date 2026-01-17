@@ -359,6 +359,7 @@ export const insertOrderSchema = z.object({
   cashbackAmount: z.string().default("0"),
   nationalAddress: z.string().optional(),
   moyasarPaymentId: z.string().optional(),
+  trackingNumber: z.string().optional(),
   moyasarStatus: z.enum(["initiated", "paid", "failed", "authorized", "captured", "refunded", "voided"]).optional(),
   moyasarPaymentUrl: z.string().optional(),
   bankTransferReceipt: z.string().optional(),
