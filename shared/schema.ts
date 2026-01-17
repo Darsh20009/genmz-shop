@@ -33,6 +33,7 @@ export const insertUserSchema = z.object({
   phone: z.string().regex(/^0?5\d{8}$/, "رقم الهاتف يجب أن يبدأ بـ 5 أو 05 ويتكون من 9 أو 10 أرقام"),
   email: z.string().email("البريد الإلكتروني غير صحيح").optional().or(z.literal("")),
   password: z.string().optional().default(""),
+  googleId: z.string().optional(),
   role: z.enum(userRoles).default("customer"),
   permissions: z.array(z.string()).default([]),
   branchId: z.string().optional(),

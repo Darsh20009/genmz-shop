@@ -87,6 +87,7 @@ const userSchema = new Schema<User>(
     name: { type: String, required: true },
     email: { type: String },
     phone: { type: String },
+    googleId: { type: String, sparse: true },
     walletBalance: { type: String, default: "0" },
     addresses: [{
       id: String,
