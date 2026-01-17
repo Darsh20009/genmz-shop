@@ -1,5 +1,6 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { type Express } from "express";
 import session from "express-session";
 import MemoryStoreFactory from "memorystore";
@@ -164,6 +165,83 @@ export function setupAuth(app: Express) {
       }
     }),
   );
+
+  if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    passport.use(
+      new GoogleStrategy(
+        {
+          clientID: process.env.GOOGLE_CLIENT_ID,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          callbackURL: "/api/auth/google/callback",
+        },
+        async (_accessToken, _refreshToken, profile, done) => {
+          try {
+            const googleId = profile.id;
+            const email = profile.emails?.[0]?.value;
+            const name = profile.displayName;
+
+            let userResult = await UserModel.findOne({ googleId }).lean();
+            if (!userResult && email) {
+              userResult = await UserModel.findOne({ email }).lean();
+              if (userResult) {
+                // Link account
+                userResult = await UserModel.findByIdAndUpdate(
+                  userResult._id,
+                  { googleId },
+                  { new: true }
+                ).lean();
+              }
+            }
+
+            if (userResult) {
+              const user = { ...userResult, id: (userResult as any)._id.toString() };
+              return done(null, user);
+            }
+
+            // Create new user - will need phone number after first login
+            // We'll redirect to a complete-profile page if phone is missing
+            const newUser = await storage.createUser({
+              name,
+              email: email || "",
+              googleId,
+              phone: "TEMP_" + googleId, // Placeholder, must be updated
+              password: "",
+              username: googleId,
+              role: "customer",
+              walletBalance: "0",
+              addresses: [],
+              permissions: [],
+              loginType: "dashboard",
+              isActive: true,
+              mustChangePassword: false,
+              loyaltyPoints: 0,
+              loyaltyTier: "bronze",
+              totalSpent: 0,
+              phoneDiscountEligible: false,
+              phoneDiscountUsedCount: 0
+            });
+            return done(null, newUser);
+          } catch (err) {
+            return done(err);
+          }
+        }
+      )
+    );
+
+    app.get("/api/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+    app.get(
+      "/api/auth/google/callback",
+      passport.authenticate("google", { failureRedirect: "/login" }),
+      (req, res) => {
+        const user = req.user as any;
+        if (user.phone.startsWith("TEMP_")) {
+          res.redirect("/profile?complete=true");
+        } else {
+          res.redirect("/");
+        }
+      }
+    );
+  }
 
   // Remove the emergency intercept route that was forcing admin login
   // The standard passport.authenticate route in routes.ts will now use the strategy above
