@@ -303,8 +303,8 @@ export class PaymentGateway {
       console.log("[Tamara] API Response:", JSON.stringify(data, null, 2));
 
       if (!response.ok) {
-        console.error("[Tamara] API Error:", data);
-        throw new Error(data.message || "Failed to create Tamara session");
+        console.error("[Tamara] API Error:", JSON.stringify(data, null, 2));
+        throw new Error(data.message || `Tamara API error: ${response.status} ${response.statusText}`);
       }
 
       const session: PaymentSession = {
