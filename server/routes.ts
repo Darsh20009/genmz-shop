@@ -1901,6 +1901,59 @@ export async function registerRoutes(
     res.sendStatus(200);
   });
 
+  // =====================================
+  // PAYMENT GATEWAY INTEGRATIONS
+  // =====================================
+
+  app.post("/api/payments/tabby/checkout", async (req, res, next) => {
+    try {
+      const { orderId } = req.body;
+      const order = await storage.getOrder(orderId);
+      if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+      const { paymentService } = await import("./payments");
+      const checkoutSession = await paymentService.createTabbyCheckoutSession(order);
+      res.json(checkoutSession);
+    } catch (err: any) {
+      console.error("[TABBY] Checkout error:", err);
+      res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  app.post("/api/payments/tamara/checkout", async (req, res, next) => {
+    try {
+      const { orderId } = req.body;
+      const order = await storage.getOrder(orderId);
+      if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+      const { paymentService } = await import("./payments");
+      const checkoutSession = await paymentService.createTamaraCheckoutSession(order);
+      res.json(checkoutSession);
+    } catch (err: any) {
+      console.error("[TAMARA] Checkout error:", err);
+      res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  app.get("/api/payments/tabby/callback", async (req, res) => {
+    const { payment_id, status } = req.query;
+    console.log(`[TABBY] Callback received for payment ${payment_id}: ${status}`);
+    
+    if (status === "authorized" || status === "success") {
+      // Find order by payment reference if needed, or redirect user
+      // Note: Real implementation would verify payment with Tabby API
+    }
+    
+    res.redirect("/order-confirmation?gateway=tabby&status=" + status);
+  });
+
+  app.get("/api/payments/tamara/callback", async (req, res) => {
+    const { orderId, paymentStatus } = req.query;
+    console.log(`[TAMARA] Callback received for order ${orderId}: ${paymentStatus}`);
+    
+    res.redirect("/order-confirmation?gateway=tamara&status=" + paymentStatus);
+  });
+
   app.post("/api/abandoned-carts/track", async (req, res, next) => {
     try {
       const { items } = req.body;
