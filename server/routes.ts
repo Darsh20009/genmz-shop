@@ -765,6 +765,7 @@ export async function registerRoutes(
       
       if (result.success && result.orderId) {
         await storage.updateOrderPaymentStatus(result.orderId, "paid", "tamara");
+        await storage.updateOrderStatus(result.orderId, "processing");
         
         // Trigger Shipping Integration (ShipHero) after payment
         try {
@@ -793,6 +794,7 @@ export async function registerRoutes(
       
       if (result.success && result.orderId) {
         await storage.updateOrderPaymentStatus(result.orderId, "paid", "tabby");
+        await storage.updateOrderStatus(result.orderId, "processing");
         
         // Trigger Shipping Integration (ShipHero) after payment
         try {
