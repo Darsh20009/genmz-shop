@@ -51,6 +51,7 @@ import { Loader2, MapPin, CheckCircle2, FileText, Menu } from "lucide-react";
 import { useLocation, Redirect } from "wouter";
 import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
+import { SplashScreen } from "@/components/SplashScreen";
 
 // Protected Route Component
 function ProtectedRoute({ component: Component, permission }: { component: React.ComponentType, permission?: string }) {
@@ -286,10 +287,15 @@ function Router() {
 
 function AppContent() {
   const { language } = useLanguage();
+  const [showSplash, setShowSplash] = useState(true);
   
   return (
     <div dir={language === 'ar' ? 'rtl' : 'ltr'} lang={language}>
-      <Router />
+      {showSplash ? (
+        <SplashScreen onFinish={() => setShowSplash(false)} />
+      ) : (
+        <Router />
+      )}
     </div>
   );
 }
