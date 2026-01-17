@@ -105,11 +105,44 @@ const ReviewDialog = ({ productId, productName }: { productId: string, productNa
 
 const OrderCard = ({ order }: { order: any }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { toast } = useToast();
   const status = statusConfig[order.status] || statusConfig.pending;
   const StatusIcon = status.icon;
   const canReview = order.status === "completed" || order.status === "delivered";
+  const canCancel = order.status === "new" || order.status === "pending";
+  const canReturn = order.status === "completed" || order.status === "delivered";
 
-    const handlePrintInvoice = () => {
+  const cancelMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", `/api/orders/${order.id}/cancel`);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [api.orders.my.path] });
+      toast({ title: "تم إلغاء الطلب", description: "تم إلغاء طلبك بنجاح" });
+    },
+    onError: (error: any) => {
+      toast({ title: "خطأ", description: error.message || "فشل إلغاء الطلب", variant: "destructive" });
+    }
+  });
+
+  const returnMutation = useMutation({
+    mutationFn: async (reason: string) => {
+      const res = await apiRequest("POST", `/api/orders/${order.id}/return`, { reason });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [api.orders.my.path] });
+      toast({ title: "تم إرسال الطلب", description: "تم إرسال طلب الاسترجاع بنجاح" });
+    },
+    onError: (error: any) => {
+      toast({ title: "خطأ", description: error.message || "فشل إرسال الطلب", variant: "destructive" });
+    }
+  });
+
+  const [returnReason, setReturnReason] = useState("");
+
+  const handlePrintInvoice = () => {
       const printWindow = window.open('', '', 'height=800,width=600');
       if (!printWindow) return;
       
@@ -298,6 +331,99 @@ const OrderCard = ({ order }: { order: any }) => {
                     <ChevronRight className={`mr-2 h-4 w-4 transition-transform duration-500 ${isExpanded ? 'rotate-90' : 'group-hover:translate-x-1'}`} />
                   </Button>
                 </div>
+              </div>
+
+              {/* Progressive Tracking Timeline */}
+              <div className="relative pt-12 pb-8">
+                <div className="absolute top-[3.25rem] left-0 right-0 h-[2px] bg-black/5" />
+                <div className="relative flex justify-between items-start gap-2">
+                  {[
+                    { id: 'new', label: 'طلب جديد', icon: Clock },
+                    { id: 'processing', label: 'تجهيز', icon: Package },
+                    { id: 'shipped', label: 'شحن', icon: Truck },
+                    { id: 'completed', label: 'استلام', icon: CheckCircle }
+                  ].map((step, idx) => {
+                    const stepOrder = ['new', 'pending', 'processing', 'shipped', 'completed', 'delivered', 'returned', 'cancelled'];
+                    const currentIdx = stepOrder.indexOf(order.status);
+                    const stepIdx = stepOrder.indexOf(step.id);
+                    const isActive = currentIdx >= stepIdx && order.status !== 'cancelled' && order.status !== 'returned';
+                    
+                    return (
+                      <div key={step.id} className="flex flex-col items-center gap-4 relative z-10 flex-1">
+                        <motion.div 
+                          initial={false}
+                          animate={{ 
+                            scale: isActive ? 1.1 : 1,
+                            backgroundColor: isActive ? 'var(--primary)' : 'white'
+                          }}
+                          className={`w-12 h-12 rounded-2xl shadow-lg flex items-center justify-center border-2 transition-colors ${isActive ? 'border-primary text-white' : 'border-black/5 text-black/20'}`}
+                        >
+                          <step.icon className="w-5 h-5" />
+                        </motion.div>
+                        <span className={`text-[10px] font-black uppercase tracking-widest text-center ${isActive ? 'text-black' : 'text-black/20'}`}>
+                          {step.label}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Action Buttons: Cancel/Return */}
+              <div className="flex flex-wrap gap-4 pt-4">
+                {canCancel && (
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="destructive" className="rounded-full px-8 font-black text-xs uppercase tracking-widest">
+                        إلغاء الطلب
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent dir="rtl">
+                      <DialogHeader>
+                        <DialogTitle>تأكيد الإلغاء</DialogTitle>
+                      </DialogHeader>
+                      <p className="py-4 font-bold text-black/60">هل أنت متأكد من رغبتك في إلغاء الطلب؟ لا يمكن التراجع عن هذا الإجراء.</p>
+                      <Button 
+                        variant="destructive" 
+                        onClick={() => cancelMutation.mutate()} 
+                        disabled={cancelMutation.isPending}
+                        className="w-full rounded-2xl font-black"
+                      >
+                        {cancelMutation.isPending ? <Loader2 className="animate-spin" /> : "نعم، إلغاء الطلب"}
+                      </Button>
+                    </DialogContent>
+                  </Dialog>
+                )}
+                {canReturn && (
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="secondary" className="rounded-full px-8 font-black text-xs uppercase tracking-widest bg-black text-white hover:bg-black/80">
+                        طلب استرجاع
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent dir="rtl">
+                      <DialogHeader>
+                        <DialogTitle>طلب استرجاع المنتج</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4 text-right">
+                        <Label className="font-black text-xs uppercase tracking-widest">سبب الاسترجاع</Label>
+                        <Textarea 
+                          value={returnReason}
+                          onChange={(e) => setReturnReason(e.target.value)}
+                          placeholder="يرجى ذكر سبب الاسترجاع..."
+                          className="rounded-2xl h-32 resize-none"
+                        />
+                      </div>
+                      <Button 
+                        onClick={() => returnMutation.mutate(returnReason)} 
+                        disabled={returnMutation.isPending || !returnReason.trim()}
+                        className="w-full h-14 rounded-2xl font-black text-lg"
+                      >
+                        {returnMutation.isPending ? <Loader2 className="animate-spin" /> : "إرسال طلب الاسترجاع"}
+                      </Button>
+                    </DialogContent>
+                  </Dialog>
+                )}
               </div>
 
               <AnimatePresence>
