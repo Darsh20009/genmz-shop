@@ -469,15 +469,22 @@ export function setupAuth(app: Express) {
   });
 
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    const googleCallbackURL = process.env.NODE_ENV === "production" 
+      ? `https://${process.env.REPLIT_DEV_DOMAIN}/api/auth/google/callback`
+      : "/api/auth/google/callback";
+
     passport.use(
       new GoogleStrategy(
         {
           clientID: process.env.GOOGLE_CLIENT_ID,
           clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-          callbackURL: "/api/auth/google/callback",
+          callbackURL: googleCallbackURL,
+          proxy: true,
+          passReqToCallback: true
         },
-        async (_accessToken, _refreshToken, profile, done) => {
+        async (req, _accessToken, _refreshToken, profile, done) => {
           try {
+            console.log(`[AUTH] Google strategy callback for: ${profile.displayName}`);
             const googleId = profile.id;
             const email = profile.emails?.[0]?.value;
             const name = profile.displayName;
@@ -486,6 +493,7 @@ export function setupAuth(app: Express) {
             if (!userResult && email) {
               userResult = await UserModel.findOne({ email }).lean();
               if (userResult) {
+                console.log(`[AUTH] Linking existing user ${email} to Google ID ${googleId}`);
                 userResult = await UserModel.findByIdAndUpdate(
                   userResult._id,
                   { googleId },
@@ -496,9 +504,11 @@ export function setupAuth(app: Express) {
 
             if (userResult) {
               const user = { ...userResult, id: (userResult as any)._id.toString() };
+              console.log(`[AUTH] Google user found: ${user.email}`);
               return done(null, user);
             }
 
+            console.log(`[AUTH] Creating new Google user: ${email}`);
             const newUser = await storage.createUser({
               name,
               email: email || "",
@@ -521,6 +531,7 @@ export function setupAuth(app: Express) {
             });
             return done(null, newUser);
           } catch (err) {
+            console.error(`[AUTH] Google strategy error:`, err);
             return done(err);
           }
         }
