@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useMutation } from "@tanstack/react-query";
 import { MapPin, User as UserIcon, Plus, Trash2, X, ChevronRight, Navigation, AlertCircle, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
 import { useLocation } from "wouter";
 import L from "leaflet";
@@ -85,6 +85,15 @@ export default function Profile() {
   const queryParams = new URLSearchParams(window.location.search);
   const mustChange = queryParams.get("mustChangePassword") === "true";
   const needsCompletion = queryParams.get("complete") === "true";
+
+  useEffect(() => {
+    if (needsCompletion) {
+      toast({
+        title: "اكتمل تسجيل الدخول",
+        description: "يرجى إكمال بيانات ملفك الشخصي بإضافة رقم جوال سعودي صحيح (مثال: 5xxxxxxxx)",
+      });
+    }
+  }, [needsCompletion, toast]);
 
   const form = useForm({
     resolver: zodResolver(profileSchema),
