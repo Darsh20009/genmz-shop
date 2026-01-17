@@ -167,10 +167,10 @@ export function setupAuth(app: Express) {
   );
 
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-    // Explicitly use the current Replit domain from the request or environment
-    const googleCallbackURL = "/api/auth/google/callback";
+    // Reverting to the most robust way for Replit environment
+    const googleCallbackURL = `https://${process.env.REPLIT_DEV_DOMAIN}/api/auth/google/callback`;
 
-    console.log(`[AUTH] Initializing Google Strategy with relative callback: ${googleCallbackURL}`);
+    console.log(`[AUTH] Final attempt - Google callback URL: ${googleCallbackURL}`);
 
     passport.use(
       new GoogleStrategy(
@@ -478,10 +478,10 @@ export function setupAuth(app: Express) {
   });
 
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-    // Explicitly use the current Replit domain from the request or environment
-    const googleCallbackURL = "/api/auth/google/callback";
+    // Reverting to the most robust way for Replit environment
+    const googleCallbackURL = `https://${process.env.REPLIT_DEV_DOMAIN}/api/auth/google/callback`;
 
-    console.log(`[AUTH] Initializing Google Strategy with relative callback: ${googleCallbackURL}`);
+    console.log(`[AUTH] Final attempt - Google callback URL: ${googleCallbackURL}`);
 
     passport.use(
       new GoogleStrategy(
