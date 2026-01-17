@@ -757,6 +757,62 @@ export async function registerRoutes(
     }
   });
 
+  // Tamara Webhook
+  app.post("/api/payments/tamara/webhook", async (req, res) => {
+    try {
+      console.log("[TAMARA Webhook] Received payload:", JSON.stringify(req.body, null, 2));
+      const result = paymentGateway.handleTamaraWebhook(req.body);
+      
+      if (result.success && result.orderId) {
+        await storage.updateOrderPaymentStatus(result.orderId, "paid", "tamara");
+        
+        // Trigger Shipping Integration (ShipHero) after payment
+        try {
+          const order = await storage.getOrder(result.orderId);
+          if (order) {
+            console.log(`[SHIPPING] Triggering ShipHero for order ${order.orderNumber || result.orderId}`);
+            await shipHeroService.createOrder(order);
+          }
+        } catch (shipError) {
+          console.error("[SHIPPING] Failed to sync with ShipHero:", shipError);
+        }
+      }
+      
+      res.json({ success: true });
+    } catch (err) {
+      console.error("[TAMARA Webhook] Error:", err);
+      res.status(500).json({ success: false });
+    }
+  });
+
+  // Tabby Webhook
+  app.post("/api/payments/tabby/webhook", async (req, res) => {
+    try {
+      console.log("[TABBY Webhook] Received payload:", JSON.stringify(req.body, null, 2));
+      const result = paymentGateway.handleTabbyWebhook(req.body);
+      
+      if (result.success && result.orderId) {
+        await storage.updateOrderPaymentStatus(result.orderId, "paid", "tabby");
+        
+        // Trigger Shipping Integration (ShipHero) after payment
+        try {
+          const order = await storage.getOrder(result.orderId);
+          if (order) {
+            console.log(`[SHIPPING] Triggering ShipHero for order ${order.orderNumber || result.orderId}`);
+            await shipHeroService.createOrder(order);
+          }
+        } catch (shipError) {
+          console.error("[SHIPPING] Failed to sync with ShipHero:", shipError);
+        }
+      }
+      
+      res.json({ success: true });
+    } catch (err) {
+      console.error("[TABBY Webhook] Error:", err);
+      res.status(500).json({ success: false });
+    }
+  });
+
   // Tamara Checkout
   app.post("/api/payments/tamara/checkout", async (req, res, next) => {
     try {

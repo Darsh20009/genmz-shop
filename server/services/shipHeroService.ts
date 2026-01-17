@@ -22,6 +22,10 @@ export class ShipHeroService {
       return { success: false, message: "API Key missing" };
     }
 
+    // ShipHero GraphQL API usually requires a specific structure. 
+    // "Bad token" often means the Bearer token is invalid or the header is wrong.
+    // Some versions of ShipHero API use 'x-api-key' instead of Authorization.
+    
     const query = `
       mutation {
         order_create(data: {
@@ -58,6 +62,7 @@ export class ShipHeroService {
     `;
 
     try {
+      console.log("[ShipHero] Sending order to ShipHero:", order.orderNumber || order.id);
       const response = await axios.post(
         SHIPHERO_API_URL,
         { query },
@@ -65,6 +70,7 @@ export class ShipHeroService {
           headers: {
             "Authorization": `Bearer ${this.apiKey}`,
             "Content-Type": "application/json",
+            "x-api-key": this.apiKey // Adding both common variants
           },
         }
       );
