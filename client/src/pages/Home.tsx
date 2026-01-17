@@ -173,13 +173,15 @@ export default function Home() {
               <div className="absolute inset-0 border-[10px] sm:border-[20px] border-primary/5 -m-4 sm:-m-10 hidden md:block" />
               <Editable blockKey="home-hero-image" defaultContent={heroImg} type="image">
                 {(content) => (
-                  <img 
-                    src={content} 
-                    alt="Gen M & Z Hero" 
-                    loading="eager"
-                    decoding="async"
-                    className="w-full h-full object-cover shadow-2xl transition-all duration-1000"
-                  />
+                  <div className="w-full h-full overflow-hidden shadow-2xl transition-all duration-1000">
+                    <img 
+                      src={content} 
+                      alt="Gen M & Z Hero" 
+                      loading="eager"
+                      decoding="async"
+                      className="w-full h-full object-cover max-w-[1200px] mx-auto"
+                    />
+                  </div>
                 )}
               </Editable>
             </div>

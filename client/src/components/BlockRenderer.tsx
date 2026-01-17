@@ -17,7 +17,7 @@ export function ContentBlockRenderer({ type, content, metadata }: ContentBlockPr
     
     case "image":
       return (
-        <div className="my-6 overflow-hidden rounded-2xl border-2 border-primary/10 shadow-lg transition-all hover:shadow-xl">
+        <div className="my-6 overflow-hidden rounded-2xl border-2 border-primary/10 shadow-lg transition-all hover:shadow-xl mx-auto max-w-[1200px]">
           <img 
             src={content} 
             alt={metadata?.alt || "Content Image"} 
