@@ -22,25 +22,7 @@ export function SplashScreen({ onFinish }: { onFinish: () => void }) {
           transition={{ duration: 0.8, ease: "easeInOut" }}
           className="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-white"
         >
-          {/* Decorative background elements */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 0.1, scale: 1 }}
-            transition={{ duration: 2, ease: "easeOut" }}
-            className="absolute inset-0 flex items-center justify-center pointer-events-none"
-          >
-            <span className="text-[20vw] font-black tracking-tighter text-gray-200 select-none">GEN M&Z</span>
-          </motion.div>
-
           <div className="relative flex flex-col items-center">
-            {/* Animated Ring */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1, ease: "easeOut" }}
-              className="w-48 h-48 rounded-full border border-black/5 absolute -top-4"
-            />
-
             {/* Logo Animation */}
             <motion.div
               initial={{ y: 20, opacity: 0, filter: "blur(10px)" }}
