@@ -18,13 +18,15 @@ export function SEO({
 }: SEOProps) {
   const { language } = useLanguage();
   const siteName = "Gen M&Z";
-  const defaultTitle = language === 'ar' ? "جين إم زد - أزياء فخمة عصرية" : "Gen M&Z - Modern Luxury Fashion";
+  const logoUrl = "/logo.png";
+  const defaultTitle = language === 'ar' ? "متجر Gen M & Z | وجهتك الأولى للتسوق الإلكتروني" : "Gen M&Z Store | Your Premier Shopping Destination";
   const defaultDescription = language === 'ar' 
-    ? "اكتشف أحدث صيحات الموضة والأزياء السعودية الراقية في جين إم زد. جودة استثنائية وتصاميم مبتكرة." 
-    : "Discover the latest in premium Saudi fashion at Gen M&Z. Exceptional quality and innovative designs.";
+    ? "اكتشف أحدث المنتجات والعروض الحصرية في متجر Gen M & Z. تسوق الآن واحصل على أفضل تجربة شراء إلكترونية في المملكة العربية السعودية." 
+    : "Discover the latest products and exclusive offers at Gen M&Z Store. Shop now for the best e-commerce experience in Saudi Arabia.";
 
   const seoTitle = title ? `${title} | ${siteName}` : defaultTitle;
   const seoDescription = description || defaultDescription;
+  const seoImage = image || logoUrl;
 
   return (
     <Helmet>
