@@ -243,7 +243,7 @@ export class PaymentGateway {
       order_reference_id: orderData.orderId,
       order_number: orderData.orderId,
       total_amount: {
-        amount: orderData.amount,
+        amount: parseFloat(orderData.amount.toFixed(2)),
         currency,
       },
       description: `Order ${orderData.orderId}`,
@@ -253,14 +253,16 @@ export class PaymentGateway {
       locale: "ar_SA",
       items: items.map((item: any) => {
         const itemName = item?.title || item?.name || item?.productName || "Product";
+        const itemPrice = parseFloat(item?.price || 0);
+        const itemQty = parseInt(item?.quantity || 1);
         return {
           reference_id: item?.variantSku || item?.productId || item?.sku || "item",
           type: "physical",
           name: itemName,
           sku: item?.variantSku || item?.productId || item?.sku || "SKU",
-          quantity: item?.quantity || 1,
+          quantity: itemQty,
           total_amount: {
-            amount: (item?.price || 0) * (item?.quantity || 1),
+            amount: parseFloat((itemPrice * itemQty).toFixed(2)),
             currency,
           },
         };
@@ -268,7 +270,7 @@ export class PaymentGateway {
       consumer: {
         first_name: firstName || "Customer",
         last_name: lastName || "Customer",
-        phone_number: customer?.phone || "+966500000000",
+        phone_number: (customer?.phone || "0500000000").replace(/\s+/g, ""),
         email: customer?.email || "customer@example.com",
       },
       shipping_address: {
