@@ -116,7 +116,7 @@ export default function Register() {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <Link href="/">
-             <h1 className="font-display text-4xl font-bold text-primary mb-2 cursor-pointer">Gen M & Z</h1>
+             <h1 className="text-4xl font-black uppercase tracking-[0.2em] mb-6 cursor-pointer">Gen M & Z</h1>
           </Link>
           <p className="text-muted-foreground">
             {isPrePopulated ? "تأكيد بيانات الموظف" : "أنشئ حسابك الجديد"}
