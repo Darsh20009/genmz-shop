@@ -81,13 +81,32 @@ export default function Profile() {
   const [showMap, setShowMap] = useState(false);
   const [markerPosition, setMarkerPosition] = useState<L.LatLng | null>(null);
   const [addressName, setAddressName] = useState("");
-  const mustChange = new URLSearchParams(window.location.search).get("mustChangePassword") === "true";
+  
+  const queryParams = new URLSearchParams(window.location.search);
+  const mustChange = queryParams.get("mustChangePassword") === "true";
+  const needsCompletion = queryParams.get("complete") === "true";
 
   const form = useForm({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name: user?.name || "",
       email: user?.email || "",
+    },
+  });
+
+  const [phoneToComplete, setPhoneToComplete] = useState("");
+  const completeProfileMutation = useMutation({
+    mutationFn: async (phone: string) => {
+      const res = await apiRequest("PATCH", "/api/user", { phone });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      toast({ title: "تم التحديث", description: "تم تحديث رقم الهاتف بنجاح" });
+      setLocation("/profile");
+    },
+    onError: (error: Error) => {
+      toast({ variant: "destructive", title: "خطأ", description: error.message });
     },
   });
 
@@ -188,6 +207,33 @@ export default function Profile() {
         </Button>
         <h1 className="text-3xl font-black uppercase tracking-widest">حسابي</h1>
       </div>
+
+      {needsCompletion && (
+        <Alert className="mb-6 border-black bg-black text-white rounded-none">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle className="font-black uppercase tracking-widest text-xs">إكمال الملف الشخصي</AlertTitle>
+          <AlertDescription>
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest opacity-70">يرجى تزويدنا برقم هاتفك لإكمال عملية التسجيل.</p>
+            <div className="flex gap-2" dir="ltr">
+              <div className="h-12 flex items-center px-4 bg-white/10 border border-white/20 text-sm font-bold">+966</div>
+              <Input
+                placeholder="5x xxx xxxx"
+                value={phoneToComplete}
+                onChange={(e) => setPhoneToComplete(e.target.value.replace(/\D/g, "").slice(0, 9))}
+                className="h-12 bg-white text-black rounded-none border-none focus-visible:ring-0 flex-1 font-bold tracking-widest"
+              />
+              <Button
+                variant="outline"
+                className="h-12 bg-white text-black hover:bg-white/90 border-none rounded-none font-bold uppercase tracking-widest text-[10px]"
+                onClick={() => completeProfileMutation.mutate(phoneToComplete)}
+                disabled={completeProfileMutation.isPending || phoneToComplete.length < 9}
+              >
+                {completeProfileMutation.isPending ? <Loader2 className="animate-spin" /> : "حفظ"}
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {mustChange && (
         <Alert variant="destructive" className="mb-6">
