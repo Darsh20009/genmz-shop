@@ -1912,8 +1912,17 @@ export async function registerRoutes(
       if (!order) return res.status(404).json({ success: false, message: "Order not found" });
 
       const { paymentService } = await import("./payments");
-      const checkoutSession = await paymentService.createTabbyCheckoutSession(order);
-      res.json(checkoutSession);
+      const session = await paymentService.createTabbySession({
+        orderId: order.id,
+        amount: order.total,
+        currency: "SAR",
+        customer: {
+          name: "Customer",
+          email: "customer@example.com",
+          phone: "0500000000"
+        }
+      });
+      res.json(session);
     } catch (err: any) {
       console.error("[TABBY] Checkout error:", err);
       res.status(500).json({ success: false, message: err.message });
@@ -1927,8 +1936,17 @@ export async function registerRoutes(
       if (!order) return res.status(404).json({ success: false, message: "Order not found" });
 
       const { paymentService } = await import("./payments");
-      const checkoutSession = await paymentService.createTamaraCheckoutSession(order);
-      res.json(checkoutSession);
+      const session = await (paymentService as any).createTamaraSession({
+        orderId: order.id,
+        amount: order.total,
+        currency: "SAR",
+        customer: {
+          name: "Customer",
+          email: "customer@example.com",
+          phone: "0500000000"
+        }
+      });
+      res.json(session);
     } catch (err: any) {
       console.error("[TAMARA] Checkout error:", err);
       res.status(500).json({ success: false, message: err.message });

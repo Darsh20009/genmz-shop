@@ -63,7 +63,7 @@ export class ShipHeroService {
         { query },
         {
           headers: {
-            "x-api-key": this.apiKey,
+            "Authorization": `Bearer ${this.apiKey}`,
             "Content-Type": "application/json",
           },
         }
@@ -107,7 +107,7 @@ export class ShipHeroService {
         { query },
         {
           headers: {
-            "x-api-key": this.apiKey,
+            "Authorization": `Bearer ${this.apiKey}`,
             "Content-Type": "application/json",
           },
         }
