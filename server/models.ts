@@ -35,15 +35,19 @@ const reviewSchema = new Schema<Review>(
 
 const storeSettingsSchema = new Schema<StoreSettings>(
   {
-    name: { type: String, required: true },
+    nameAr: { type: String, required: true },
+    nameEn: { type: String, required: true },
+    name: String,
     logo: String,
     logoEn: String,
     favicon: String,
     coverImage: String,
     primaryColor: { type: String, default: "#000000" },
     secondaryColor: { type: String, default: "#ffffff" },
+    copyrightTextAr: String,
+    copyrightTextEn: String,
     copyrightText: String,
-    languages: { type: [String], default: ["ar"] },
+    languages: { type: [String], default: ["ar", "en"] },
     defaultLanguage: { type: String, default: "ar" },
     currency: { type: String, default: "SAR" },
     taxNumber: String,
@@ -52,7 +56,11 @@ const storeSettingsSchema = new Schema<StoreSettings>(
     enableQuestions: { type: Boolean, default: true },
     enableStockNotifications: { type: Boolean, default: true },
     enableBankTransfer: { type: Boolean, default: true },
+    seoTitleAr: String,
+    seoTitleEn: String,
     seoTitle: String,
+    seoDescriptionAr: String,
+    seoDescriptionEn: String,
     seoDescription: String,
     communication: {
       orderMessages: { type: Boolean, default: true },
@@ -285,7 +293,9 @@ const branchSchema = new Schema<Branch>(
 
 const bannerSchema = new Schema<Banner>(
   {
-    title: { type: String, required: true },
+    titleAr: { type: String, required: true },
+    titleEn: { type: String, required: true },
+    title: String,
     image: { type: String, required: true },
     link: String,
     type: { type: String, enum: ["banner", "popup"], default: "banner" },
@@ -414,9 +424,15 @@ const shipmentSchema = new Schema<Shipment>(
 
 const pageSchema = new Schema<Page>(
   {
-    title: { type: String, required: true },
+    titleAr: { type: String, required: true },
+    titleEn: { type: String, required: true },
+    title: String,
     slug: { type: String, required: true, unique: true },
+    contentAr: String,
+    contentEn: String,
     content: String,
+    draftContentAr: String,
+    draftContentEn: String,
     draftContent: String,
     status: { type: String, enum: ["draft", "published"], default: "draft" },
     blocks: [{
@@ -445,8 +461,12 @@ const revisionSchema = new Schema<Revision>(
 
 const faqSchema = new Schema<FAQ>(
   {
-    question: { type: String, required: true },
-    answer: { type: String, required: true },
+    questionAr: { type: String, required: true },
+    questionEn: { type: String, required: true },
+    question: String,
+    answerAr: { type: String, required: true },
+    answerEn: { type: String, required: true },
+    answer: String,
     category: String,
     isActive: { type: Boolean, default: true },
     order: { type: Number, default: 0 },

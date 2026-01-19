@@ -230,11 +230,15 @@ export type Category = InsertCategory & { _id: string; id: string };
 
 // FAQ Schema
 export const insertFAQSchema = z.object({
-  question: z.string().min(1),
-  answer: z.string().min(1),
+  questionAr: z.string().min(1, "السؤال مطلوب"),
+  questionEn: z.string().min(1, "Question is required"),
+  answerAr: z.string().min(1, "الإجابة مطلوبة"),
+  answerEn: z.string().min(1, "Answer is required"),
   category: z.string().optional(),
   isActive: z.boolean().default(true),
   order: z.number().default(0),
+  question: z.string().optional(),
+  answer: z.string().optional(),
 });
 
 export type InsertFAQ = z.infer<typeof insertFAQSchema>;
@@ -267,15 +271,17 @@ export type Theme = InsertTheme & { _id: string; id: string; createdAt: Date };
 
 // Store Settings Schema
 export const insertStoreSettingsSchema = z.object({
-  name: z.string(),
+  nameAr: z.string().min(1, "اسم المتجر مطلوب"),
+  nameEn: z.string().min(1, "Store name is required"),
   logo: z.string().optional(),
   logoEn: z.string().optional(),
   favicon: z.string().optional(),
   coverImage: z.string().optional(),
   primaryColor: z.string().default("#000000"),
   secondaryColor: z.string().default("#ffffff"),
-  copyrightText: z.string().optional(),
-  languages: z.array(z.string()).default(["ar"]),
+  copyrightTextAr: z.string().optional(),
+  copyrightTextEn: z.string().optional(),
+  languages: z.array(z.string()).default(["ar", "en"]),
   defaultLanguage: z.string().default("ar"),
   currency: z.string().default("SAR"),
   taxNumber: z.string().optional(),
@@ -284,8 +290,10 @@ export const insertStoreSettingsSchema = z.object({
   enableQuestions: z.boolean().default(true),
   enableStockNotifications: z.boolean().default(true),
   enableBankTransfer: z.boolean().default(true),
-  seoTitle: z.string().optional(),
-  seoDescription: z.string().optional(),
+  seoTitleAr: z.string().optional(),
+  seoTitleEn: z.string().optional(),
+  seoDescriptionAr: z.string().optional(),
+  seoDescriptionEn: z.string().optional(),
   shippingIntegrations: z.array(z.object({
     id: z.string(),
     name: z.string(),
@@ -293,15 +301,18 @@ export const insertStoreSettingsSchema = z.object({
     isActive: z.boolean().default(false),
   })).default([]),
   workingHours: z.array(z.object({
-    day: z.string(),
+    dayAr: z.string(),
+    dayEn: z.string(),
     open: z.string(),
     close: z.string(),
     isClosed: z.boolean().default(false),
   })).optional(),
   legalPages: z.array(z.object({
-    title: z.string(),
+    titleAr: z.string(),
+    titleEn: z.string(),
     slug: z.string(),
-    content: z.string(),
+    contentAr: z.string(),
+    contentEn: z.string(),
     isActive: z.boolean().default(true),
   })).optional(),
   navigationLinks: z.array(z.object({
@@ -319,6 +330,10 @@ export const insertStoreSettingsSchema = z.object({
   }).default({}),
   onboardingCompleted: z.boolean().default(false),
   onboardingStep: z.number().default(1),
+  name: z.string().optional(),
+  copyrightText: z.string().optional(),
+  seoTitle: z.string().optional(),
+  seoDescription: z.string().optional(),
 });
 
 export type InsertStoreSettings = z.infer<typeof insertStoreSettingsSchema>;
@@ -405,11 +420,13 @@ export type Branch = InsertBranch & { _id: string; id: string };
 
 // Banner Schema
 export const insertBannerSchema = z.object({
-  title: z.string().min(1),
-  image: z.string().min(1),
+  titleAr: z.string().min(1, "العنوان مطلوب"),
+  titleEn: z.string().min(1, "Title is required"),
+  image: z.string().min(1, "الصورة مطلوبة"),
   link: z.string().optional(),
   type: z.enum(["banner", "popup"]).default("banner"),
   isActive: z.boolean().default(true),
+  title: z.string().optional(),
 });
 
 export type InsertBanner = z.infer<typeof insertBannerSchema>;
@@ -429,10 +446,13 @@ export type ShippingCompany = InsertShippingCompany & { _id: string; id: string 
 
 // Page Schema
 export const insertPageSchema = z.object({
-  title: z.string().min(1),
+  titleAr: z.string().min(1, "العنوان مطلوب"),
+  titleEn: z.string().min(1, "Title is required"),
   slug: z.string().min(1),
-  content: z.string().optional(), // Published HTML
-  draftContent: z.string().optional(), // Working HTML
+  contentAr: z.string().optional(),
+  contentEn: z.string().optional(),
+  draftContentAr: z.string().optional(),
+  draftContentEn: z.string().optional(),
   status: z.enum(["draft", "published"]).default("draft"),
   blocks: z.array(z.object({
     id: z.string(),
@@ -442,6 +462,8 @@ export const insertPageSchema = z.object({
   })).default([]),
   metadata: z.record(z.any()).default({}),
   isActive: z.boolean().default(true),
+  title: z.string().optional(),
+  content: z.string().optional(),
 });
 
 export type InsertPage = z.infer<typeof insertPageSchema>;
