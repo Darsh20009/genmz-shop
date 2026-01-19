@@ -20,7 +20,7 @@ export function SplashScreen({ onFinish }: { onFinish: () => void }) {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, scale: 1.1 }}
           transition={{ duration: 0.8, ease: "easeInOut" }}
-          className="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-white"
+          className="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-background"
         >
           <div className="relative flex flex-col items-center">
             {/* Animated Ring */}
@@ -28,7 +28,7 @@ export function SplashScreen({ onFinish }: { onFinish: () => void }) {
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, ease: "easeOut" }}
-              className="w-48 h-48 rounded-full border border-black/5 absolute -top-4"
+              className="w-48 h-48 rounded-full border border-primary/10 absolute -top-4"
             />
 
             {/* Logo Animation */}
@@ -41,7 +41,7 @@ export function SplashScreen({ onFinish }: { onFinish: () => void }) {
               <img 
                 src={logoImg} 
                 alt="Gen M & Z Logo" 
-                className="h-24 w-auto object-contain"
+                className="h-24 w-auto object-contain dark:invert"
               />
             </motion.div>
 
@@ -51,7 +51,7 @@ export function SplashScreen({ onFinish }: { onFinish: () => void }) {
                 initial={{ y: 40, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.8, ease: "easeOut", delay: 0.8 }}
-                className="text-[10px] font-black uppercase tracking-[0.5em] text-black/40"
+                className="text-[10px] font-black uppercase tracking-[0.5em] text-foreground/40"
               >
                 Modern Luxury Experience
               </motion.p>
@@ -62,7 +62,7 @@ export function SplashScreen({ onFinish }: { onFinish: () => void }) {
               initial={{ width: 0 }}
               animate={{ width: "100px" }}
               transition={{ duration: 2, ease: "easeInOut", delay: 1 }}
-              className="h-[1px] bg-black mt-12 opacity-20"
+              className="h-[1px] bg-primary mt-12 opacity-40"
             />
           </div>
 
@@ -73,7 +73,7 @@ export function SplashScreen({ onFinish }: { onFinish: () => void }) {
             transition={{ duration: 1, delay: 1.5 }}
             className="absolute bottom-12"
           >
-            <p className="text-[8px] font-bold uppercase tracking-widest text-black/20">
+            <p className="text-[8px] font-bold uppercase tracking-widest text-foreground/20">
               © 2026 Gen M & Z Fashion
             </p>
           </motion.div>
