@@ -84,40 +84,40 @@
 }
 
 .dark {
-  --background: 224 71% 4%;
-  --foreground: 215 20% 65%; /* Grayish foreground */
+  --background: 222 14% 10%; /* Elegant Dark Gray */
+  --foreground: 210 20% 90%;
  
-  --card: 224 71% 4%;
-  --card-foreground: 215 20% 65%;
-  --card-border: 217.2 32.6% 17.5%;
+  --card: 222 14% 12%; /* Slightly lighter gray for cards */
+  --card-foreground: 210 20% 90%;
+  --card-border: 217.2 32.6% 15%;
  
-  --popover: 224 71% 4%;
-  --popover-foreground: 215 20% 65%;
-  --popover-border: 217.2 32.6% 17.5%;
+  --popover: 222 14% 11%;
+  --popover-foreground: 210 20% 90%;
+  --popover-border: 217.2 32.6% 15%;
  
-  --primary: 161 94% 45%;
-  --primary-foreground: 224 71% 4%;
+  --primary: 161 94% 45%; /* Emerald Accent */
+  --primary-foreground: 222 14% 5%;
  
-  --secondary: 217.2 32.6% 15%;
-  --secondary-foreground: 215 20% 65%;
+  --secondary: 222 14% 18%;
+  --secondary-foreground: 210 20% 90%;
  
-  --muted: 217.2 32.6% 15%;
-  --muted-foreground: 215 20% 55%;
+  --muted: 222 14% 15%;
+  --muted-foreground: 210 20% 60%;
  
-  --accent: 217.2 32.6% 20%;
-  --accent-foreground: 215 20% 65%;
+  --accent: 222 14% 20%;
+  --accent-foreground: 210 20% 90%;
  
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
  
-  --border: 217.2 32.6% 20%;
-  --input: 217.2 32.6% 20%;
+  --border: 222 14% 18%;
+  --input: 222 14% 18%;
   --ring: 161 94% 45%;
 
   --primary-border: 161 94% 35%;
-  --secondary-border: 217.2 32.6% 12%;
+  --secondary-border: 222 14% 15%;
   --destructive-border: 0 84.2% 45%;
-  --button-outline: 217.2 32.6% 25%;
+  --button-outline: 222 14% 25%;
 }
 
 .dark .badge {
@@ -143,12 +143,23 @@
   
   /* Luxury Dark Mode Enhancements */
   .dark body {
-    background-image: radial-gradient(circle at top right, hsl(var(--primary) / 0.05), transparent 400px),
-                      radial-gradient(circle at bottom left, hsl(var(--primary) / 0.03), transparent 400px);
+    background-color: hsl(var(--background));
+    background-image: 
+      radial-gradient(circle at top right, hsl(var(--primary) / 0.08), transparent 600px),
+      radial-gradient(circle at bottom left, hsl(var(--primary) / 0.05), transparent 600px),
+      linear-gradient(to bottom, transparent, hsl(var(--background) / 0.8));
+    background-attachment: fixed;
   }
 
-  .dark .card {
-    @apply bg-card/50 backdrop-blur-sm border-white/5;
+  .dark .card, .dark [role="dialog"], .dark .popover {
+    background: linear-gradient(145deg, hsl(var(--card) / 0.9), hsl(var(--card) / 0.7));
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.5);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+
+  .dark .luxury-glass {
+    @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-2xl;
   }
   
   /* Fluid Typography System */
