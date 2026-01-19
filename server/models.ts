@@ -126,8 +126,12 @@ const cashShiftSchema = new Schema<CashShift>(
 
 const productSchema = new Schema<Product>(
   {
-    name: { type: String, required: true },
-    description: { type: String, required: true },
+    nameAr: { type: String, required: true },
+    nameEn: { type: String, required: true },
+    descriptionAr: { type: String, required: true },
+    descriptionEn: { type: String, required: true },
+    name: String,
+    description: String,
     price: { type: String, required: true },
     cost: { type: String, required: true },
     images: [String],
@@ -135,6 +139,10 @@ const productSchema = new Schema<Product>(
     colors: [String],
     customizations: [Schema.Types.Mixed],
     variants: [{
+      colorAr: String,
+      colorEn: String,
+      sizeAr: String,
+      sizeEn: String,
       color: String,
       size: String,
       sku: String,
@@ -213,7 +221,11 @@ const orderSchema = new Schema<Order>(
 
 const categorySchema = new Schema<Category>(
   {
-    name: { type: String, required: true },
+    nameAr: { type: String, required: true },
+    nameEn: { type: String, required: true },
+    descriptionAr: String,
+    descriptionEn: String,
+    name: String,
     slug: { type: String, required: true, unique: true },
     description: String,
     image: String,

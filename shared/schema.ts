@@ -154,8 +154,10 @@ export type Review = InsertReview & { _id: string; id: string; createdAt: Date }
 
 // Product Schema
 export const insertProductSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().min(1),
+  nameAr: z.string().min(1, "اسم المنتج مطلوب"),
+  nameEn: z.string().min(1, "Product name is required"),
+  descriptionAr: z.string().min(1, "وصف المنتج مطلوب"),
+  descriptionEn: z.string().min(1, "Product description is required"),
   price: z.string(),
   cost: z.string(),
   images: z.array(z.string()),
@@ -169,12 +171,18 @@ export const insertProductSchema = z.object({
   categoryId: z.string().optional(),
   colors: z.array(z.string()).default([]),
   customizations: z.array(z.object({
-    name: z.string(),
-    options: z.array(z.string())
+    nameAr: z.string(),
+    nameEn: z.string(),
+    options: z.array(z.object({
+      nameAr: z.string(),
+      nameEn: z.string(),
+    }))
   })).default([]),
   variants: z.array(z.object({
-    color: z.string().optional(),
-    size: z.string().optional(),
+    colorAr: z.string().optional(),
+    colorEn: z.string().optional(),
+    sizeAr: z.string().optional(),
+    sizeEn: z.string().optional(),
     sku: z.string(),
     stock: z.number().default(0),
     price: z.string().optional(), // Price override for this variant
@@ -182,6 +190,8 @@ export const insertProductSchema = z.object({
     image: z.string().optional(),
     allowBackorder: z.boolean().default(false), // Sell even if out of stock
   })).default([]),
+  name: z.string().optional(), // Legacy support
+  description: z.string().optional(), // Legacy support
   reviews: z.array(z.object({
     id: z.string(),
     userId: z.string(),
@@ -205,11 +215,14 @@ export type Product = InsertProduct & { _id: string; id: string; createdAt: Date
 
 // Category Schema
 export const insertCategorySchema = z.object({
-  name: z.string().min(1),
+  nameAr: z.string().min(1, "اسم القسم مطلوب"),
+  nameEn: z.string().min(1, "Category name is required"),
   slug: z.string().min(1),
-  description: z.string().optional(),
+  descriptionAr: z.string().optional(),
+  descriptionEn: z.string().optional(),
   image: z.string().optional(),
   isActive: z.boolean().default(true),
+  name: z.string().optional(), // Legacy support
 });
 
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
