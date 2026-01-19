@@ -85,123 +85,43 @@ export function setupAuth(app: Express) {
   passport.use(
     new LocalStrategy({ usernameField: 'username', passwordField: 'password', passReqToCallback: false }, async (username, password, done) => {
       try {
-        // Allow login by email if input contains @
-        if (username && username.includes('@')) {
-          const userResult = await UserModel.findOne({ email: username.toLowerCase().trim() }).lean();
-          if (userResult) {
-            const user = { ...userResult, id: (userResult as any)._id.toString() };
-            return validatePassword(user, password, done);
+        // Allow login by email or phone
+        const isEmail = username && username.includes('@');
+        let query;
+
+        if (isEmail) {
+          query = { email: username.toLowerCase().trim() };
+        } else {
+          let cleanInput = (username || "").toString().trim().replace(/\D/g, "");
+          // Handle 966 prefix
+          if (cleanInput.startsWith("966")) {
+            cleanInput = cleanInput.substring(3);
           }
+          // Handle leading zero
+          if (cleanInput.startsWith("0")) {
+            cleanInput = cleanInput.substring(1);
+          }
+          // Remove spaces
+          cleanInput = cleanInput.replace(/\s/g, "");
+          
+          query = {
+            $or: [
+              { phone: cleanInput },
+              { username: cleanInput },
+              { phone: "0" + cleanInput },
+              { username: "0" + cleanInput }
+            ]
+          };
         }
 
-        let cleanInput = (username || "").toString().trim().replace(/\D/g, "");
-        
-        // Handle 966 prefix
-        if (cleanInput.startsWith("966")) {
-          cleanInput = cleanInput.substring(3);
-        }
-        // Handle leading zero
-        if (cleanInput.startsWith("0")) {
-          cleanInput = cleanInput.substring(1);
-        }
-        
-        // Remove spaces if any somehow remained
-        cleanInput = cleanInput.replace(/\s/g, "");
-        
-        console.log(`[AUTH] Login attempt for cleaned input: "${cleanInput}"`);
-        
-        // Find user by phone, username, or name (case-insensitive)
-        const userResult = await UserModel.findOne({ 
-          $or: [
-            { phone: cleanInput },
-            { username: cleanInput },
-            { phone: "0" + cleanInput },
-            { username: "0" + cleanInput }
-          ]
-        }).lean();
-        
+        const userResult = await UserModel.findOne(query).lean();
         const user = userResult ? { ...userResult, id: (userResult as any)._id.toString() } : null;
         
-        console.log(`[AUTH] User search result: ${user ? 'Found' : 'Not Found'}`);
-        if (user) {
-          console.log(`[AUTH] User details: ID=${user.id}, Username=${user.username}, Role=${user.role}, HasPassword=${!!user.password}, IsActive=${(user as any).isActive}`);
-        }
-
-        if (user && (user as any).isActive === false) {
-          return done(null, false, { message: "هذا الحساب معطل حالياً" });
-        }
-        
-        // Check if user is staff/admin
-        const isStaffOrAdmin = user ? ["admin", "employee", "support", "cashier", "accountant"].includes(user.role) : false;
-        console.log(`[AUTH] Is staff/admin: ${isStaffOrAdmin}, Role: ${user?.role}`);
-        
-        // 1. If it's staff/admin, we require strict password check
-        if (isStaffOrAdmin) {
-          if (!user || (user as any).isActive === false) {
-            console.log(`[AUTH] User not found or not active: ${cleanInput}`);
-            return done(null, false, { message: "الحساب غير مفعل أو البيانات غير صحيحة" });
-          }
-
-          if (!password || password === "undefined" || password === "") {
-            console.log(`[AUTH] Password missing for staff user: ${user.username}`);
-            return done(null, false, { message: "كلمة المرور مطلوبة لهذا الحساب" });
-          }
-
-          if (user.password && user.password !== "") {
-            const parts = user.password.split(".");
-            if (parts.length === 2) {
-              const [hashedPassword, salt] = parts;
-              const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
-              if (timingSafeEqual(Buffer.from(hashedPassword, "hex"), buffer)) {
-                console.log(`[AUTH] Staff login success: ${user.username}`);
-                return done(null, user);
-              }
-            } else if (user.password === password || (password === "20262030" && (user.role === "admin" || user.phone === "567326086" || user.phone === "567891011"))) {
-              // Emergency/Legacy support for plain text passwords
-              console.log(`[AUTH] Staff login success (legacy/emergency): ${user.username}`);
-              return done(null, user);
-            }
-            console.log(`[AUTH] Password mismatch for staff user: ${user.username}. Input: ${password}, Expected: ${user.password}`);
-            return done(null, false, { message: "كلمة المرور غير صحيحة" });
-          }
-          
-          console.log(`[AUTH] Staff user has no password set: ${user.username}`);
-          return done(null, false, { message: "لم يتم تعيين كلمة مرور لهذا الحساب" });
-        }
-
-        // 2. For regular customers
         if (!user) {
-          console.log(`[AUTH] User not found for clean input: ${cleanInput}`);
-          return done(null, false, { message: "الحساب غير موجود، يرجى إنشاء حساب جديد" });
+          return done(null, false, { message: isEmail ? "البريد الإلكتروني غير مسجل" : "الحساب غير موجود، يرجى إنشاء حساب جديد" });
         }
 
-        console.log(`[AUTH] Checking customer password for: ${user.phone}, input password: ${password ? 'PROVIDED' : 'MISSING'}`);
-
-        // 3. Existing customer login - strictly check password if it exists
-        if (user.password && user.password !== "") {
-          const parts = user.password.split(".");
-          if (parts.length === 2) {
-            const [hashedPassword, salt] = parts;
-            const buffer = (await scryptAsync(password, salt, 64)) as Buffer;
-            if (!timingSafeEqual(Buffer.from(hashedPassword, "hex"), buffer)) {
-              console.log(`[AUTH] Customer password mismatch for ${user.phone}`);
-              // Fallback: check if password matches phone (auto-password legacy)
-              if (password !== user.phone && password !== ("0" + user.phone)) {
-                return done(null, false, { message: "بيانات الدخول غير صحيحة" });
-              }
-            }
-          } else if (user.password !== password && password !== user.phone && password !== ("0" + user.phone)) {
-            return done(null, false, { message: "بيانات الدخول غير صحيحة" });
-          }
-        } else {
-           // If no password set, allow phone as password fallback
-           if (password !== user.phone && password !== ("0" + user.phone)) {
-             return done(null, false, { message: "بيانات الدخول غير صحيحة" });
-           }
-        }
-
-        console.log(`[AUTH] Success: Customer login for ${user.phone}`);
-        return done(null, user);
+        return validatePassword(user, password, done);
       } catch (err) {
         console.error(`[AUTH] Error:`, err);
         return done(err);
@@ -299,8 +219,9 @@ export function setupAuth(app: Express) {
       passport.authenticate("google", { failureRedirect: "/login" }),
       (req, res) => {
         const user = req.user as any;
-        if (user.phone.startsWith("TEMP_")) {
-          res.redirect("/profile?complete=true");
+        // If the user was just created (has TEMP_ phone), redirect to complete profile
+        if (user && user.phone && user.phone.startsWith("TEMP_")) {
+          res.redirect("/profile?complete_profile=true");
         } else {
           res.redirect("/");
         }
