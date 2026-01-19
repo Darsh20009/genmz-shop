@@ -29,7 +29,8 @@ export default function AdminBanners() {
 
   const form = useForm<InsertBanner>({
     defaultValues: {
-      title: "",
+      titleAr: "",
+      titleEn: "",
       image: "",
       link: "",
       type: "banner",
@@ -94,7 +95,8 @@ export default function AdminBanners() {
   const handleEdit = (banner: Banner) => {
     setEditingId(banner.id);
     form.reset({
-      title: banner.title,
+      titleAr: banner.titleAr,
+      titleEn: banner.titleEn,
       image: banner.image,
       link: banner.link,
       type: banner.type,
@@ -155,19 +157,34 @@ export default function AdminBanners() {
               </DialogHeader>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit((data) => createMutation.mutate(data))} className="space-y-8">
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem className="text-right">
-                        <FormLabel className="font-black text-sm pr-2 text-slate-500">عنوان الإعلان</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="أدخل عنواناً جذاباً" className="rounded-2xl h-14 bg-slate-50 dark:bg-slate-800 border-none px-6 font-bold focus-visible:ring-primary/20" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="titleAr"
+                      render={({ field }) => (
+                        <FormItem className="text-right">
+                          <FormLabel className="font-black text-sm pr-2 text-slate-500">عنوان الإعلان (العربية)</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="أدخل عنواناً جذاباً" className="rounded-2xl h-14 bg-slate-50 dark:bg-slate-800 border-none px-6 font-bold focus-visible:ring-primary/20" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="titleEn"
+                      render={({ field }) => (
+                        <FormItem className="text-left">
+                          <FormLabel className="font-black text-sm pl-2 text-slate-500">Banner Title (English)</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Enter catchy title" className="rounded-2xl h-14 bg-slate-50 dark:bg-slate-800 border-none px-6 font-bold focus-visible:ring-primary/20" dir="ltr" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   <div className="space-y-4">
                     <FormLabel className="font-black text-sm pr-2 text-slate-500 block text-right">صورة الإعلان</FormLabel>
@@ -305,7 +322,7 @@ export default function AdminBanners() {
                   <CardContent className="p-8">
                     <div className="flex justify-between items-start gap-4">
                       <div className="space-y-2 flex-1">
-                        <h3 className="font-black text-2xl text-slate-900 dark:text-white line-clamp-1">{banner.title}</h3>
+                        <h3 className="font-black text-2xl text-slate-900 dark:text-white line-clamp-1">{banner.titleAr} / {banner.titleEn}</h3>
                         {banner.link && (
                           <div className="flex items-center gap-2 text-primary font-bold text-sm">
                             <LinkIcon className="h-4 w-4" />

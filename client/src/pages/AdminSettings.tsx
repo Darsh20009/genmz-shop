@@ -34,7 +34,8 @@ export default function AdminSettings() {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     mutation.mutate({
-      name: formData.get("name"),
+      nameAr: formData.get("nameAr"),
+      nameEn: formData.get("nameEn"),
       currency: formData.get("currency"),
       taxNumber: formData.get("taxNumber"),
       taxPercentage: Number(formData.get("taxPercentage")),
@@ -47,7 +48,8 @@ export default function AdminSettings() {
     mutation.mutate({
       primaryColor: formData.get("primaryColor"),
       secondaryColor: formData.get("secondaryColor"),
-      copyrightText: formData.get("copyrightText"),
+      copyrightTextAr: formData.get("copyrightTextAr"),
+      copyrightTextEn: formData.get("copyrightTextEn"),
     });
   };
 
@@ -122,19 +124,25 @@ export default function AdminSettings() {
                 <CardContent className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="grid gap-3">
-                      <Label className="font-bold pr-2">اسم المتجر</Label>
-                      <Input name="name" defaultValue={settings?.name} className="h-12 rounded-xl" />
+                      <Label className="font-bold pr-2">اسم المتجر (بالعربية)</Label>
+                      <Input name="nameAr" defaultValue={settings?.nameAr} className="h-12 rounded-xl" />
                     </div>
                     <div className="grid gap-3">
-                      <Label className="font-bold pr-2">العملة الافتراضية</Label>
-                      <Input name="currency" defaultValue={settings?.currency || "SAR"} className="h-12 rounded-xl" />
+                      <Label className="font-bold pl-2">Store Name (English)</Label>
+                      <Input name="nameEn" defaultValue={settings?.nameEn} className="h-12 rounded-xl" dir="ltr" />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="grid gap-3">
+                      <Label className="font-bold pr-2">العملة الافتراضية</Label>
+                      <Input name="currency" defaultValue={settings?.currency || "SAR"} className="h-12 rounded-xl" />
+                    </div>
+                    <div className="grid gap-3">
                       <Label className="font-bold pr-2">الرقم الضريبي</Label>
                       <Input name="taxNumber" defaultValue={settings?.taxNumber} className="h-12 rounded-xl" placeholder="مثال: 300000000000003" />
                     </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="grid gap-3">
                       <Label className="font-bold pr-2">نسبة الضريبة (%)</Label>
                       <Input name="taxPercentage" type="number" defaultValue={settings?.taxPercentage || 15} className="h-12 rounded-xl" />
@@ -178,9 +186,15 @@ export default function AdminSettings() {
                       </div>
                     </div>
                   </div>
-                  <div className="space-y-4">
-                    <Label className="font-bold text-sm pr-1">نص حقوق المتجر</Label>
-                    <Input name="copyrightText" defaultValue={settings?.copyrightText} className="h-14 rounded-xl" placeholder="© 2024 جميع الحقوق محفوظة" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <Label className="font-bold text-sm pr-1">نص حقوق المتجر (بالعربية)</Label>
+                      <Input name="copyrightTextAr" defaultValue={settings?.copyrightTextAr} className="h-14 rounded-xl" placeholder="© 2024 جميع الحقوق محفوظة" />
+                    </div>
+                    <div className="space-y-4">
+                      <Label className="font-bold text-sm pl-1">Copyright Text (English)</Label>
+                      <Input name="copyrightTextEn" defaultValue={settings?.copyrightTextEn} className="h-14 rounded-xl" placeholder="© 2024 All Rights Reserved" dir="ltr" />
+                    </div>
                   </div>
                   <div className="flex justify-end pt-4 border-t border-slate-50 dark:border-slate-800">
                     <Button 

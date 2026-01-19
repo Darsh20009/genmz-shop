@@ -34,8 +34,16 @@ export default function AdminBranding() {
   });
 
   const handleUpdate = () => {
-    mutation.mutate({ primaryColor, secondaryColor });
+    mutation.mutate({ 
+      primaryColor, 
+      secondaryColor,
+      copyrightTextAr,
+      copyrightTextEn 
+    });
   };
+
+  const [copyrightTextAr, setCopyrightTextAr] = useState("جميع الحقوق محفوظة لدى متجري | ©");
+  const [copyrightTextEn, setCopyrightTextEn] = useState("All rights reserved to my store | ©");
 
   return (
     <Layout>
@@ -125,11 +133,29 @@ export default function AdminBranding() {
             <CardTitle>نص الحقوق والنشر</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Input
-              defaultValue="جميع الحقوق محفوظة لدى متجري | ©"
-              placeholder="نص حقوق الطبع والنشر"
-            />
-            <Button className="w-full">حفظ</Button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>نص الحقوق (بالعربية)</Label>
+                <Input
+                  value={copyrightTextAr}
+                  onChange={(e) => setCopyrightTextAr(e.target.value)}
+                  placeholder="نص حقوق الطبع والنشر بالعربية"
+                />
+              </div>
+              <div className="space-y-2 text-left">
+                <Label>Copyright Text (English)</Label>
+                <Input
+                  value={copyrightTextEn}
+                  onChange={(e) => setCopyrightTextEn(e.target.value)}
+                  placeholder="Copyright text in English"
+                  dir="ltr"
+                />
+              </div>
+            </div>
+            <Button className="w-full" onClick={handleUpdate} disabled={mutation.isPending}>
+              {mutation.isPending ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <Save className="w-4 h-4 ml-2" />}
+              حفظ نص الحقوق
+            </Button>
           </CardContent>
         </Card>
       </div>

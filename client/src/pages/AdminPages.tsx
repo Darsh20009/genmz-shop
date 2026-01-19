@@ -36,8 +36,10 @@ export default function AdminPages() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/pages"] });
       setIsCreateOpen(false);
-      setPageName("");
-      setPageContent("");
+      setPageNameAr("");
+      setPageNameEn("");
+      setPageContentAr("");
+      setPageContentEn("");
       toast({ title: "تم إضافة الصفحة بنجاح" });
     },
   });
@@ -76,10 +78,17 @@ export default function AdminPages() {
   });
 
   const filteredPages = (pages as any[]).filter((p: any) =>
-    p.title?.toLowerCase().includes(searchTerm.toLowerCase())
+    p.titleAr?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    p.titleEn?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const predefinedPages = ["الأسئلة الشائعة", "من نحن", "اتصل بنا", "سياسة الخصوصية", "شروط الاستخدام"];
+  const predefinedPages = [
+    { ar: "الأسئلة الشائعة", en: "FAQs" },
+    { ar: "من نحن", en: "About Us" },
+    { ar: "اتصل بنا", en: "Contact Us" },
+    { ar: "سياسة الخصوصية", en: "Privacy Policy" },
+    { ar: "شروط الاستخدام", en: "Terms of Use" }
+  ];
 
   const getStatusBadge = (page: any) => {
     if (page.status === "draft") {
@@ -87,6 +96,11 @@ export default function AdminPages() {
     }
     return <Badge variant="default">منشورة</Badge>;
   };
+
+  const [pageNameAr, setPageNameAr] = useState("");
+  const [pageNameEn, setPageNameEn] = useState("");
+  const [pageContentAr, setPageContentAr] = useState("");
+  const [pageContentEn, setPageContentEn] = useState("");
 
   return (
     <Layout>
@@ -100,27 +114,41 @@ export default function AdminPages() {
             <DialogTrigger asChild>
               <Button><Plus className="w-4 h-4 ml-2" />إضافة صفحة</Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[700px]">
               <DialogHeader>
                 <DialogTitle>إضافة صفحة جديدة</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <div>
-                  <Label>اسم الصفحة</Label>
-                  <Input value={pageName} onChange={(e) => setPageName(e.target.value)} placeholder="اسم الصفحة" />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>اسم الصفحة (بالعربية)</Label>
+                    <Input value={pageNameAr} onChange={(e) => setPageNameAr(e.target.value)} placeholder="مثال: من نحن" />
+                  </div>
+                  <div>
+                    <Label>Page Name (English)</Label>
+                    <Input value={pageNameEn} onChange={(e) => setPageNameEn(e.target.value)} placeholder="Example: About Us" dir="ltr" />
+                  </div>
                 </div>
-                <div>
-                  <Label>المحتوى</Label>
-                  <Textarea value={pageContent} onChange={(e) => setPageContent(e.target.value)} placeholder="محتوى الصفحة" rows={6} />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>المحتوى (بالعربية)</Label>
+                    <Textarea value={pageContentAr} onChange={(e) => setPageContentAr(e.target.value)} placeholder="محتوى الصفحة بالعربية" rows={6} />
+                  </div>
+                  <div>
+                    <Label>Content (English)</Label>
+                    <Textarea value={pageContentEn} onChange={(e) => setPageContentEn(e.target.value)} placeholder="English content" rows={6} dir="ltr" />
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <Button
                     variant="secondary"
                     className="flex-1"
                     onClick={() => createPageMutation.mutate({ 
-                      title: pageName, 
-                      content: pageContent, 
-                      slug: pageName.toLowerCase().replace(/ /g, '-'),
+                      titleAr: pageNameAr,
+                      titleEn: pageNameEn,
+                      contentAr: pageContentAr,
+                      contentEn: pageContentEn,
+                      slug: pageNameEn.toLowerCase().replace(/ /g, '-'),
                       status: "draft" 
                     })}
                   >
@@ -129,9 +157,11 @@ export default function AdminPages() {
                   <Button
                     className="flex-1"
                     onClick={() => createPageMutation.mutate({ 
-                      title: pageName, 
-                      content: pageContent, 
-                      slug: pageName.toLowerCase().replace(/ /g, '-'),
+                      titleAr: pageNameAr,
+                      titleEn: pageNameEn,
+                      contentAr: pageContentAr,
+                      contentEn: pageContentEn,
+                      slug: pageNameEn.toLowerCase().replace(/ /g, '-'),
                       status: "published" 
                     })}
                   >
@@ -149,10 +179,14 @@ export default function AdminPages() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {predefinedPages.map(pageName => (
-                <Button key={pageName} variant="outline" className="h-auto py-3 px-4 justify-start">
+              {predefinedPages.map(page => (
+                <Button key={page.en} variant="outline" className="h-auto py-3 px-4 justify-start" onClick={() => {
+                  setPageNameAr(page.ar);
+                  setPageNameEn(page.en);
+                  setIsCreateOpen(true);
+                }}>
                   <Plus className="w-4 h-4 ml-2" />
-                  {pageName}
+                  {page.ar} / {page.en}
                 </Button>
               ))}
             </div>
@@ -181,8 +215,8 @@ export default function AdminPages() {
                 <TableBody>
                   {filteredPages.map((page: any) => (
                     <TableRow key={page.id}>
-                      <TableCell className="font-medium">{page.title}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{page.content?.substring(0, 50)}</TableCell>
+                      <TableCell className="font-medium">{page.titleAr} / {page.titleEn}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{page.contentAr?.substring(0, 50)}...</TableCell>
                       <TableCell>
                         {getStatusBadge(page)}
                       </TableCell>
@@ -207,27 +241,44 @@ export default function AdminPages() {
                           <DialogTrigger asChild>
                             <Button variant="ghost" size="sm"><Edit className="w-4 h-4" /></Button>
                           </DialogTrigger>
-                          <DialogContent>
+                          <DialogContent className="sm:max-w-[700px]">
                             <DialogHeader>
                               <DialogTitle>تعديل الصفحة</DialogTitle>
                             </DialogHeader>
                             <div className="space-y-4">
-                              <div>
-                                <Label>اسم الصفحة</Label>
-                                <Input defaultValue={page.title} id={`edit-title-${page.id}`} />
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <Label>اسم الصفحة (بالعربية)</Label>
+                                  <Input defaultValue={page.titleAr} id={`edit-title-ar-${page.id}`} />
+                                </div>
+                                <div>
+                                  <Label>Page Name (English)</Label>
+                                  <Input defaultValue={page.titleEn} id={`edit-title-en-${page.id}`} dir="ltr" />
+                                </div>
                               </div>
-                              <div>
-                                <Label>المحتوى (المسودة)</Label>
-                                <Textarea defaultValue={page.draftContent || page.content} id={`edit-content-${page.id}`} rows={6} />
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <Label>المحتوى (المسودة بالعربية)</Label>
+                                  <Textarea defaultValue={page.draftContentAr || page.contentAr} id={`edit-content-ar-${page.id}`} rows={6} />
+                                </div>
+                                <div>
+                                  <Label>Content (English Draft)</Label>
+                                  <Textarea defaultValue={page.draftContentEn || page.contentEn} id={`edit-content-en-${page.id}`} rows={6} dir="ltr" />
+                                </div>
                               </div>
                               <div className="flex gap-2">
                                 <Button
                                   variant="secondary"
                                   className="flex-1"
                                   onClick={() => {
-                                    const title = (document.getElementById(`edit-title-${page.id}`) as HTMLInputElement).value;
-                                    const content = (document.getElementById(`edit-content-${page.id}`) as HTMLTextAreaElement).value;
-                                    updatePageMutation.mutate({ id: page.id, data: { title, draftContent: content, publish: false } });
+                                    const titleAr = (document.getElementById(`edit-title-ar-${page.id}`) as HTMLInputElement).value;
+                                    const titleEn = (document.getElementById(`edit-title-en-${page.id}`) as HTMLInputElement).value;
+                                    const contentAr = (document.getElementById(`edit-content-ar-${page.id}`) as HTMLTextAreaElement).value;
+                                    const contentEn = (document.getElementById(`edit-content-en-${page.id}`) as HTMLTextAreaElement).value;
+                                    updatePageMutation.mutate({ 
+                                      id: page.id, 
+                                      data: { titleAr, titleEn, draftContentAr: contentAr, draftContentEn: contentEn, publish: false } 
+                                    });
                                   }}
                                 >
                                   حفظ كمسودة
@@ -235,9 +286,14 @@ export default function AdminPages() {
                                 <Button
                                   className="flex-1"
                                   onClick={() => {
-                                    const title = (document.getElementById(`edit-title-${page.id}`) as HTMLInputElement).value;
-                                    const content = (document.getElementById(`edit-content-${page.id}`) as HTMLTextAreaElement).value;
-                                    updatePageMutation.mutate({ id: page.id, data: { title, draftContent: content, publish: true } });
+                                    const titleAr = (document.getElementById(`edit-title-ar-${page.id}`) as HTMLInputElement).value;
+                                    const titleEn = (document.getElementById(`edit-title-en-${page.id}`) as HTMLInputElement).value;
+                                    const contentAr = (document.getElementById(`edit-content-ar-${page.id}`) as HTMLTextAreaElement).value;
+                                    const contentEn = (document.getElementById(`edit-content-en-${page.id}`) as HTMLTextAreaElement).value;
+                                    updatePageMutation.mutate({ 
+                                      id: page.id, 
+                                      data: { titleAr, titleEn, draftContentAr: contentAr, draftContentEn: contentEn, publish: true } 
+                                    });
                                   }}
                                 >
                                   حفظ ونشر
