@@ -15,8 +15,10 @@ import { Textarea } from "@/components/ui/textarea";
 export default function AdminCategories() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [categoryName, setCategoryName] = useState("");
-  const [categoryDesc, setCategoryDesc] = useState("");
+  const [categoryNameAr, setCategoryNameAr] = useState("");
+  const [categoryNameEn, setCategoryNameEn] = useState("");
+  const [categoryDescAr, setCategoryDescAr] = useState("");
+  const [categoryDescEn, setCategoryDescEn] = useState("");
   const { toast } = useToast();
 
   const { data: categories = [] } = useQuery({
@@ -35,8 +37,10 @@ export default function AdminCategories() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
       setIsCreateOpen(false);
-      setCategoryName("");
-      setCategoryDesc("");
+      setCategoryNameAr("");
+      setCategoryNameEn("");
+      setCategoryDescAr("");
+      setCategoryDescEn("");
       toast({ title: "تم إضافة التصنيف بنجاح" });
     },
   });
@@ -76,17 +80,35 @@ export default function AdminCategories() {
                 <DialogTitle>إضافة تصنيف جديد</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <div>
-                  <Label>اسم التصنيف</Label>
-                  <Input value={categoryName} onChange={(e) => setCategoryName(e.target.value)} placeholder="اسم التصنيف" />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>اسم التصنيف (عربي)</Label>
+                    <Input value={categoryNameAr} onChange={(e) => setCategoryNameAr(e.target.value)} placeholder="اسم التصنيف بالعربي" />
+                  </div>
+                  <div>
+                    <Label>Category Name (English)</Label>
+                    <Input value={categoryNameEn} onChange={(e) => setCategoryNameEn(e.target.value)} placeholder="Category name in English" />
+                  </div>
                 </div>
-                <div>
-                  <Label>الوصف</Label>
-                  <Textarea value={categoryDesc} onChange={(e) => setCategoryDesc(e.target.value)} placeholder="وصف التصنيف" />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>الوصف (عربي)</Label>
+                    <Textarea value={categoryDescAr} onChange={(e) => setCategoryDescAr(e.target.value)} placeholder="وصف التصنيف بالعربي" />
+                  </div>
+                  <div>
+                    <Label>Description (English)</Label>
+                    <Textarea value={categoryDescEn} onChange={(e) => setCategoryDescEn(e.target.value)} placeholder="English description" />
+                  </div>
                 </div>
                 <Button
                   className="w-full"
-                  onClick={() => createCategoryMutation.mutate({ name: categoryName, description: categoryDesc })}
+                  onClick={() => createCategoryMutation.mutate({ 
+                    nameAr: categoryNameAr, 
+                    nameEn: categoryNameEn,
+                    descriptionAr: categoryDescAr,
+                    descriptionEn: categoryDescEn,
+                    slug: (categoryNameEn || categoryNameAr).toLowerCase().replace(/ /g, '-')
+                  })}
                 >
                   إضافة التصنيف
                 </Button>

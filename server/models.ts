@@ -227,7 +227,6 @@ const categorySchema = new Schema<Category>(
     descriptionEn: String,
     name: String,
     slug: { type: String, required: true, unique: true },
-    description: String,
     image: String,
     isActive: { type: Boolean, default: true }
   },

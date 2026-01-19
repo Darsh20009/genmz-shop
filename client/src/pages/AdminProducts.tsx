@@ -49,8 +49,10 @@ export default function AdminProducts() {
   const form = useForm({
     resolver: zodResolver(insertProductSchema),
     defaultValues: { 
-      name: "", 
-      description: "", 
+      nameAr: "",
+      nameEn: "",
+      descriptionAr: "",
+      descriptionEn: "",
       price: "0", 
       cost: "0",
       isActive: true,
@@ -67,8 +69,10 @@ export default function AdminProducts() {
       // Flatten variants
       const flatVariants = variants.flatMap(v =>
         v.sizes.map(s => ({
-          color: v.color,
-          size: s.size,
+          colorAr: v.colorAr,
+          colorEn: v.colorEn,
+          sizeAr: s.sizeAr,
+          sizeEn: s.sizeEn,
           sku: s.sku,
           stock: s.stock,
           cost: s.cost,
@@ -104,8 +108,8 @@ export default function AdminProducts() {
       form.reset();
       setProductImages([]);
       setVariants([]);
-      setCurrentVariant({ color: "", sizes: [], image: "" });
-      setCurrentSize({ size: "", sku: "", stock: 0, cost: 0 });
+      setCurrentVariant({ colorAr: "", colorEn: "", sizes: [], image: "" });
+      setCurrentSize({ sizeAr: "", sizeEn: "", sku: "", stock: 0, cost: 0 });
       toast({ title: "تم إضافة المنتج بنجاح" });
     },
     onError: (error: any) => {
@@ -121,8 +125,10 @@ export default function AdminProducts() {
     mutationFn: async (data: any) => {
       const flatVariants = variants.flatMap(v =>
         v.sizes.map(s => ({
-          color: v.color,
-          size: s.size,
+          colorAr: v.colorAr,
+          colorEn: v.colorEn,
+          sizeAr: s.sizeAr,
+          sizeEn: s.sizeEn,
           sku: s.sku,
           stock: s.stock,
           cost: s.cost,
@@ -155,8 +161,8 @@ export default function AdminProducts() {
       setEditingProduct(null);
       setProductImages([]);
       setVariants([]);
-      setCurrentVariant({ color: "", sizes: [], image: "" });
-      setCurrentSize({ size: "", sku: "", stock: 0, cost: 0 });
+      setCurrentVariant({ colorAr: "", colorEn: "", sizes: [], image: "" });
+      setCurrentSize({ sizeAr: "", sizeEn: "", sku: "", stock: 0, cost: 0 });
       toast({ title: "تم تحديث المنتج بنجاح" });
     },
     onError: (error: any) => {
@@ -445,13 +451,25 @@ export default function AdminProducts() {
                             </div>
                           </div>
                         </div>
-                        <div>
-                          <Label className="font-bold">اسم المنتج</Label>
-                          <Input {...form.register("name")} placeholder="اسم المنتج" className="rounded-xl h-11" />
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label className="font-bold">اسم المنتج (عربي)</Label>
+                            <Input {...form.register("nameAr")} placeholder="اسم المنتج بالعربي" className="rounded-xl h-11" />
+                          </div>
+                          <div>
+                            <Label className="font-bold">اسم المنتج (English)</Label>
+                            <Input {...form.register("nameEn")} placeholder="Product Name in English" className="rounded-xl h-11" />
+                          </div>
                         </div>
-                        <div>
-                          <Label className="font-bold">وصف المنتج</Label>
-                          <Textarea {...form.register("description")} placeholder="وصف تفصيلي للمنتج" className="rounded-xl" />
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label className="font-bold">وصف المنتج (عربي)</Label>
+                            <Textarea {...form.register("descriptionAr")} placeholder="وصف تفصيلي بالعربي" className="rounded-xl" />
+                          </div>
+                          <div>
+                            <Label className="font-bold">وصف المنتج (English)</Label>
+                            <Textarea {...form.register("descriptionEn")} placeholder="Detailed English description" className="rounded-xl" />
+                          </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
@@ -702,13 +720,25 @@ export default function AdminProducts() {
                     <div className="border-b pb-6">
                       <h3 className="font-bold text-lg mb-4">البيانات الأساسية</h3>
                       <div className="space-y-4">
-                        <div>
-                          <Label className="font-bold">اسم المنتج</Label>
-                          <Input {...form.register("name")} placeholder="اسم المنتج" className="rounded-xl h-11" />
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label className="font-bold">اسم المنتج (عربي)</Label>
+                            <Input {...form.register("nameAr")} placeholder="اسم المنتج بالعربي" className="rounded-xl h-11" />
+                          </div>
+                          <div>
+                            <Label className="font-bold">اسم المنتج (English)</Label>
+                            <Input {...form.register("nameEn")} placeholder="Product Name in English" className="rounded-xl h-11" />
+                          </div>
                         </div>
-                        <div>
-                          <Label className="font-bold">وصف المنتج</Label>
-                          <Textarea {...form.register("description")} placeholder="وصف تفصيلي للمنتج" className="rounded-xl" />
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label className="font-bold">وصف المنتج (عربي)</Label>
+                            <Textarea {...form.register("descriptionAr")} placeholder="وصف تفصيلي بالعربي" className="rounded-xl" />
+                          </div>
+                          <div>
+                            <Label className="font-bold">وصف المنتج (English)</Label>
+                            <Textarea {...form.register("descriptionEn")} placeholder="Detailed English description" className="rounded-xl" />
+                          </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
