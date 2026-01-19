@@ -88,6 +88,7 @@ import AdminInventory from "@/pages/AdminInventory";
 import AdminReviews from "@/pages/AdminReviews";
 import AdminBranding from "@/pages/AdminBranding";
 import AdminPages from "@/pages/AdminPages";
+import AdminFAQs from "@/pages/AdminFAQs";
 import AdminPageEditor from "@/pages/AdminPageEditor";
 import PageDetail from "@/pages/PageDetail";
 import AdminTransferRequests from "@/pages/AdminTransferRequests";
@@ -228,6 +229,9 @@ function Router() {
       </Route>
       <Route path="/admin/pages">
         <ProtectedRoute component={AdminPages} permission="settings.manage" />
+      </Route>
+      <Route path="/admin/faqs">
+        <ProtectedRoute component={AdminFAQs} permission="settings.manage" />
       </Route>
       <Route path="/admin/pages/:id">
         <ProtectedRoute component={AdminPageEditor} permission="settings.manage" />
