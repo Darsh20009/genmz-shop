@@ -250,7 +250,7 @@ export default function AdminProducts() {
   };
 
   const handleAddSize = () => {
-    if (!currentSize.size || !currentSize.sku) {
+    if (!currentSize.sizeAr || !currentSize.sku) {
       toast({
         title: "خطأ",
         description: "يرجى ملء جميع حقول الحجم",
@@ -262,7 +262,7 @@ export default function AdminProducts() {
       ...currentVariant,
       sizes: [...currentVariant.sizes, currentSize]
     });
-    setCurrentSize({ size: "", sku: "", stock: 0, cost: 0 });
+    setCurrentSize({ sizeAr: "", sizeEn: "", sku: "", stock: 0, cost: 0 });
   };
 
   const handleRemoveSize = (index: number) => {
@@ -272,7 +272,7 @@ export default function AdminProducts() {
   };
 
   const handleAddVariant = () => {
-    if (!currentVariant.color || currentVariant.sizes.length === 0) {
+    if (!currentVariant.colorAr || currentVariant.sizes.length === 0) {
       toast({
         title: "خطأ",
         description: "يرجى تحديد اللون وإضافة أحجام واحدة على الأقل",
@@ -281,7 +281,7 @@ export default function AdminProducts() {
       return;
     }
     setVariants([...variants, currentVariant]);
-    setCurrentVariant({ color: "", sizes: [], image: "" });
+    setCurrentVariant({ colorAr: "", colorEn: "", sizes: [], image: "" });
   };
 
   const handleRemoveVariant = (index: number) => {
@@ -528,14 +528,25 @@ export default function AdminProducts() {
                       {/* إضافة لون جديد */}
                       <div className="space-y-4 p-4 border rounded-2xl bg-muted/30 mb-4">
                         <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label className="font-bold">لون المنتج</Label>
-                            <Input
-                              value={currentVariant.color}
-                              onChange={(e) => setCurrentVariant({ ...currentVariant, color: e.target.value })}
-                              placeholder="مثال: أحمر، أزرق، أسود"
-                              className="rounded-xl h-11"
-                            />
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label className="font-bold">لون المنتج (عربي)</Label>
+                              <Input
+                                value={currentVariant.colorAr}
+                                onChange={(e) => setCurrentVariant({ ...currentVariant, colorAr: e.target.value })}
+                                placeholder="مثال: أحمر"
+                                className="rounded-xl h-11"
+                              />
+                            </div>
+                            <div>
+                              <Label className="font-bold">Color (English)</Label>
+                              <Input
+                                value={currentVariant.colorEn}
+                                onChange={(e) => setCurrentVariant({ ...currentVariant, colorEn: e.target.value })}
+                                placeholder="Example: Red"
+                                className="rounded-xl h-11"
+                              />
+                            </div>
                           </div>
                           <div>
                             <Label className="font-bold">صورة اللون</Label>
@@ -563,15 +574,26 @@ export default function AdminProducts() {
                           <Label className="font-bold block mb-3">الأحجام المتاحة</Label>
                           <div className="space-y-3">
                             <div className="grid grid-cols-5 gap-3">
+                            <div className="grid grid-cols-2 gap-4">
                               <div>
-                                <Label className="text-xs font-bold text-muted-foreground block mb-1">الحجم</Label>
+                                <Label className="text-xs font-bold text-muted-foreground block mb-1">الحجم (عربي)</Label>
                                 <Input
-                                  value={currentSize.size}
-                                  onChange={(e) => setCurrentSize({ ...currentSize, size: e.target.value })}
-                                  placeholder="S, M, L"
+                                  value={currentSize.sizeAr}
+                                  onChange={(e) => setCurrentSize({ ...currentSize, sizeAr: e.target.value })}
+                                  placeholder="مثال: كبير"
                                   className="rounded-lg h-10"
                                 />
                               </div>
+                              <div>
+                                <Label className="text-xs font-bold text-muted-foreground block mb-1">Size (English)</Label>
+                                <Input
+                                  value={currentSize.sizeEn}
+                                  onChange={(e) => setCurrentSize({ ...currentSize, sizeEn: e.target.value })}
+                                  placeholder="Example: Large"
+                                  className="rounded-lg h-10"
+                                />
+                              </div>
+                            </div>
                               <div>
                                 <Label className="text-xs font-bold text-muted-foreground block mb-1">SKU</Label>
                                 <Input
@@ -624,7 +646,7 @@ export default function AdminProducts() {
                               {currentVariant.sizes.map((size, idx) => (
                                 <div key={idx} className="flex items-center justify-between p-2 bg-white rounded-lg border">
                                   <div className="flex flex-col">
-                                    <span className="text-sm font-bold">{size.size} - {size.sku}</span>
+                                    <span className="text-sm font-bold">{size.sizeAr} / {size.sizeEn} - {size.sku}</span>
                                     <span className="text-xs text-muted-foreground">
                                       المخزون: {size.stock} | 
                                       {size.price ? ` السعر الخاص: ${size.price} ر.س | ` : ""}
@@ -679,7 +701,7 @@ export default function AdminProducts() {
                                 <img src={variant.image} alt={variant.color} className="w-10 h-10 rounded object-cover" />
                               )}
                               <div className="flex-1">
-                                <p className="font-bold">{variant.color}</p>
+                                <p className="font-bold">{variant.colorAr} / {variant.colorEn}</p>
                                 <p className="text-xs text-muted-foreground">{variant.sizes.length} أحجام متاحة</p>
                               </div>
                               <button
@@ -786,14 +808,25 @@ export default function AdminProducts() {
                       <h3 className="font-bold text-lg mb-4">الألوان والأحجام والمخزون</h3>
                       <div className="space-y-4 p-4 border rounded-2xl bg-muted/30 mb-4">
                         <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label className="font-bold">لون المنتج</Label>
-                            <Input
-                              value={currentVariant.color}
-                              onChange={(e) => setCurrentVariant({ ...currentVariant, color: e.target.value })}
-                              placeholder="مثال: أحمر، أزرق، أسود"
-                              className="rounded-xl h-11"
-                            />
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label className="font-bold">لون المنتج (عربي)</Label>
+                              <Input
+                                value={currentVariant.colorAr}
+                                onChange={(e) => setCurrentVariant({ ...currentVariant, colorAr: e.target.value })}
+                                placeholder="مثال: أحمر"
+                                className="rounded-xl h-11"
+                              />
+                            </div>
+                            <div>
+                              <Label className="font-bold">Color (English)</Label>
+                              <Input
+                                value={currentVariant.colorEn}
+                                onChange={(e) => setCurrentVariant({ ...currentVariant, colorEn: e.target.value })}
+                                placeholder="Example: Red"
+                                className="rounded-xl h-11"
+                              />
+                            </div>
                           </div>
                           <div>
                             <Label className="font-bold">صورة اللون</Label>
@@ -864,7 +897,7 @@ export default function AdminProducts() {
                                 <img src={variant.image} alt={variant.color} className="w-10 h-10 rounded object-cover" />
                               )}
                               <div className="flex-1">
-                                <p className="font-bold">{variant.color}</p>
+                                <p className="font-bold">{variant.colorAr} / {variant.colorEn}</p>
                                 <p className="text-xs text-muted-foreground">{variant.sizes.length} أحجام متاحة</p>
                               </div>
                               <button type="button" onClick={() => handleRemoveVariant(idx)} className="text-destructive hover:bg-destructive/10 p-2 rounded">

@@ -137,8 +137,8 @@ export default function AdminCategories() {
                 <TableBody>
                   {filteredCategories.map((category: any) => (
                     <TableRow key={category.id}>
-                      <TableCell className="font-medium">{category.name}</TableCell>
-                      <TableCell className="text-muted-foreground text-sm">{category.description?.substring(0, 50)}</TableCell>
+                      <TableCell className="font-medium">{category.nameAr} / {category.nameEn}</TableCell>
+                      <TableCell className="text-muted-foreground text-sm">{category.descriptionAr?.substring(0, 50)}</TableCell>
                       <TableCell>
                         <Button variant="ghost" size="sm"><Edit className="w-4 h-4" /></Button>
                         <Button variant="ghost" size="sm" onClick={() => deleteCategoryMutation.mutate(category.id)}>
