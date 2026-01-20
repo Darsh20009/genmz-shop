@@ -528,11 +528,44 @@ export class MongoStorage implements IStorage {
   async getDashboardSummary(): Promise<any> {
     const orders = await OrderModel.find().lean();
     const customers = await UserModel.countDocuments({ role: "customer" });
+    
+    // Calculate total revenue, excluding cancelled orders
+    const totalRevenue = orders
+      .filter(o => o.status !== "cancelled")
+      .reduce((sum, o) => sum + parseFloat(o.total || "0"), 0);
+
+    // Calculate revenue for different time periods, excluding cancelled
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const todayRevenue = orders
+      .filter(o => o.status !== "cancelled" && new Date(o.createdAt) >= startOfToday)
+      .reduce((sum, o) => sum + parseFloat(o.total || "0"), 0);
+
+    const monthRevenue = orders
+      .filter(o => o.status !== "cancelled" && new Date(o.createdAt) >= startOfMonth)
+      .reduce((sum, o) => sum + parseFloat(o.total || "0"), 0);
+
+    // Status counts
+    const completedOrdersCount = orders.filter(o => o.status === "completed").length;
+    const processingOrdersCount = orders.filter(o => o.status === "processing" || o.status === "new").length;
+    const cancelledOrdersCount = orders.filter(o => o.status === "cancelled").length;
+
     return {
-      totalRevenue: orders.reduce((sum, o) => sum + parseFloat(o.total || "0"), 0),
+      totalRevenue,
       totalOrders: orders.length,
       totalCustomers: customers,
-      recentOrders: orders.slice(-5)
+      recentOrders: orders.slice(-5).map(o => ({ ...o, id: o._id.toString() })),
+      allTime: { totalRevenue },
+      today: { totalRevenue: todayRevenue },
+      thisMonth: { totalRevenue: monthRevenue },
+      completedOrdersCount,
+      processingOrdersCount,
+      cancelledOrdersCount,
+      totalOrdersCount: orders.length,
+      dailyOrders: orders.filter(o => new Date(o.createdAt) >= startOfToday).length,
+      netProfit: totalRevenue * 0.67 // Mock net profit for now
     };
   }
 
