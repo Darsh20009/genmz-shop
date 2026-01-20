@@ -71,9 +71,9 @@ export default function AdminDashboard() {
   const formattedDate = currentDate.toLocaleDateString('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' });
 
   const displayStats = {
-    allTime: { totalRevenue: stats?.allTime?.totalRevenue || 0 },
-    today: { totalRevenue: stats?.today?.totalRevenue || 0 },
-    thisMonth: { totalRevenue: stats?.thisMonth?.totalRevenue || 0 },
+    allTime: { totalRevenue: stats?.totalRevenue || 0 },
+    today: { totalRevenue: stats?.todayRevenue || 0 },
+    thisMonth: { totalRevenue: stats?.thisMonthRevenue || 0 },
     totalOrders: stats?.totalOrders || 0,
     dailyOrders: stats?.dailyOrders || 0,
     netProfit: stats?.netProfit || 0,
@@ -84,8 +84,20 @@ export default function AdminDashboard() {
     cancelledOrders: stats?.cancelledOrders || 0,
     pendingPayments: stats?.pendingPayments || 0,
     recentOrders: stats?.recentOrders || [],
-    topProducts: stats?.topProducts || []
+    topProducts: stats?.topProducts || [],
+    completedOrdersCount: stats?.completedOrdersCount || stats?.completedOrders || 0,
+    processingOrdersCount: stats?.processingOrdersCount || stats?.processingOrders || 0,
+    cancelledOrdersCount: stats?.cancelledOrdersCount || stats?.cancelledOrders || 0,
+    totalOrdersCount: stats?.totalOrdersCount || stats?.totalOrders || 0
   };
+
+  const statusData = [
+    { name: 'مكتمل', value: displayStats.completedOrdersCount },
+    { name: 'معالجة', value: displayStats.processingOrdersCount },
+    { name: 'ملغي', value: displayStats.cancelledOrdersCount }
+  ];
+
+  const hasStatusData = displayStats.totalOrdersCount > 0;
 
   return (
     <Layout>
@@ -165,18 +177,18 @@ export default function AdminDashboard() {
               </div>
               <div className="space-y-1">
                 <div className="text-5xl sm:text-6xl font-black tracking-tighter">
-                  {displayStats.allTime.totalRevenue.toLocaleString()} 
+                  {Number(displayStats.allTime.totalRevenue).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} 
                 </div>
                 <div className="text-emerald-400 font-bold text-sm">ريال سعودي</div>
               </div>
               <div className="grid grid-cols-2 gap-6 w-full max-w-md mt-6">
                 <div className="bg-white/5 backdrop-blur-xl p-4 rounded-[1.5rem] border border-white/10 text-center hover:bg-white/10 transition-colors">
                   <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">اليوم</p>
-                  <p className="text-xl font-black">{displayStats.today.totalRevenue.toLocaleString()} <span className="text-xs font-medium text-slate-400">ر.س</span></p>
+                  <p className="text-xl font-black">{Number(displayStats.today.totalRevenue).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs font-medium text-slate-400">ر.س</span></p>
                 </div>
                 <div className="bg-white/5 backdrop-blur-xl p-4 rounded-[1.5rem] border border-white/10 text-center hover:bg-white/10 transition-colors">
                   <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">الشهر</p>
-                  <p className="text-xl font-black">{displayStats.thisMonth.totalRevenue.toLocaleString()} <span className="text-xs font-medium text-slate-400">ر.س</span></p>
+                  <p className="text-xl font-black">{Number(displayStats.thisMonth.totalRevenue).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs font-medium text-slate-400">ر.س</span></p>
                 </div>
               </div>
             </div>
@@ -279,36 +291,38 @@ export default function AdminDashboard() {
               <ResponsiveContainer width="100%" height="100%">
                 <RePieChart>
                   <Pie
-                    data={[
-                      { name: 'مكتمل', value: 25 },
-                      { name: 'معالجة', value: 0 },
-                      { name: 'ملغي', value: 0 }
-                    ]}
+                    data={hasStatusData ? statusData : [{ name: 'لا يوجد', value: 1 }]}
                     cx="50%" cy="50%" innerRadius={65} outerRadius={85} paddingAngle={5} dataKey="value"
                   >
-                    <Cell fill="#f39c12" />
-                    <Cell fill="#00a878" />
-                    <Cell fill="#ef4444" />
+                    {hasStatusData ? (
+                      statusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))
+                    ) : (
+                      <Cell fill="#e2e8f0" />
+                    )}
                   </Pie>
                   <Tooltip />
                 </RePieChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-3xl font-black text-slate-800">25</span>
+                <span className="text-3xl font-black text-slate-800 dark:text-white">
+                  {displayStats.totalOrdersCount}
+                </span>
                 <span className="text-[10px] font-bold text-muted-foreground">إجمالي</span>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-8 mt-6 w-full max-w-xs">
-              <div className="text-center">
-                <div className="text-xl font-black text-[#f39c12]">25</div>
+              <div className={`text-center ${displayStats.completedOrdersCount === 0 ? 'opacity-30' : ''}`}>
+                <div className="text-xl font-black text-[#f39c12]">{displayStats.completedOrdersCount}</div>
                 <div className="text-[10px] font-bold text-muted-foreground">مكتمل</div>
               </div>
-              <div className="text-center opacity-30">
-                <div className="text-xl font-black">0</div>
+              <div className={`text-center ${displayStats.processingOrdersCount === 0 ? 'opacity-30' : ''}`}>
+                <div className="text-xl font-black text-[#00a878]">{displayStats.processingOrdersCount}</div>
                 <div className="text-[10px] font-bold text-muted-foreground">معالجة</div>
               </div>
-              <div className="text-center opacity-30">
-                <div className="text-xl font-black">0</div>
+              <div className={`text-center ${displayStats.cancelledOrdersCount === 0 ? 'opacity-30' : ''}`}>
+                <div className="text-xl font-black text-[#ef4444]">{displayStats.cancelledOrdersCount}</div>
                 <div className="text-[10px] font-bold text-muted-foreground">ملغي</div>
               </div>
             </div>
