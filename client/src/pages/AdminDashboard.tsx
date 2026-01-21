@@ -71,9 +71,9 @@ export default function AdminDashboard() {
   const formattedDate = currentDate.toLocaleDateString('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' });
 
   const displayStats = {
-    allTime: { totalRevenue: stats?.totalRevenue || 0 },
-    today: { totalRevenue: stats?.todayRevenue || 0 },
-    thisMonth: { totalRevenue: stats?.thisMonthRevenue || 0 },
+    allTime: { totalRevenue: stats?.allTime?.totalRevenue || stats?.totalRevenue || 0 },
+    today: { totalRevenue: stats?.today?.totalRevenue || stats?.todayRevenue || 0 },
+    thisMonth: { totalRevenue: stats?.thisMonth?.totalRevenue || stats?.monthRevenue || 0 },
     totalOrders: stats?.totalOrders || 0,
     dailyOrders: stats?.dailyOrders || 0,
     netProfit: stats?.netProfit || 0,

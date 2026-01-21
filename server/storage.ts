@@ -554,6 +554,8 @@ export class MongoStorage implements IStorage {
 
     return {
       totalRevenue,
+      todayRevenue,
+      monthRevenue,
       totalOrders: orders.length,
       totalCustomers: customers,
       recentOrders: orders.slice(-5).map(o => ({ ...o, id: o._id.toString() })),
@@ -565,7 +567,8 @@ export class MongoStorage implements IStorage {
       cancelledOrdersCount,
       totalOrdersCount: orders.length,
       dailyOrders: orders.filter(o => new Date(o.createdAt) >= startOfToday).length,
-      netProfit: totalRevenue * 0.67 // Mock net profit for now
+      netProfit: totalRevenue * 0.67, // Mock net profit for now
+      pendingPayments: orders.filter(o => o.paymentStatus === "pending").length
     };
   }
 
