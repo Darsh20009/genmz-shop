@@ -145,21 +145,29 @@
   .dark body {
     background-color: hsl(var(--background));
     background-image: 
-      radial-gradient(circle at top right, hsl(var(--primary) / 0.08), transparent 600px),
-      radial-gradient(circle at bottom left, hsl(var(--primary) / 0.05), transparent 600px),
-      linear-gradient(to bottom, transparent, hsl(var(--background) / 0.8));
+      radial-gradient(circle at top right, hsl(var(--primary) / 0.12), transparent 800px),
+      radial-gradient(circle at bottom left, hsl(var(--primary) / 0.08), transparent 800px),
+      linear-gradient(to bottom, hsl(var(--background) / 0.9), hsl(var(--background)));
     background-attachment: fixed;
   }
 
   .dark .card, .dark [role="dialog"], .dark .popover {
-    background: linear-gradient(145deg, hsl(var(--card) / 0.9), hsl(var(--card) / 0.7));
-    backdrop-filter: blur(12px);
-    border: 1px solid hsl(var(--border) / 0.5);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    background: linear-gradient(145deg, hsl(var(--card) / 0.95), hsl(var(--card) / 0.85));
+    backdrop-filter: blur(16px);
+    border: 1px solid hsl(var(--border) / 0.3);
+    box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.5);
   }
 
   .dark .luxury-glass {
-    @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-2xl;
+    @apply bg-black/60 backdrop-blur-2xl border border-white/10 shadow-2xl;
+  }
+
+  .dark input, .dark textarea, .dark select {
+    @apply bg-slate-900/50 border-slate-800 focus:border-primary/50 transition-all;
+  }
+
+  .dark .sidebar, .dark [data-sidebar="sidebar"] {
+    @apply bg-[#020617] border-slate-800/50;
   }
   
   /* Fluid Typography System */
