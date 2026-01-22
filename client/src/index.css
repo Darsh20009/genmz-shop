@@ -163,7 +163,28 @@
   }
 
   .dark input, .dark textarea, .dark select {
-    @apply bg-slate-900/50 border-slate-800 focus:border-primary/50 transition-all;
+    @apply bg-slate-900/50 border-slate-800 focus:border-primary/50 transition-all text-white !important;
+  }
+
+  /* Fix for specific white backgrounds in dark mode */
+  .dark .bg-white {
+    @apply bg-slate-900 !important;
+  }
+
+  .dark .text-black {
+    @apply text-white !important;
+  }
+
+  .dark .border-slate-200 {
+    @apply border-slate-800 !important;
+  }
+
+  .dark img[src*="logo"] {
+    filter: invert(1) brightness(2);
+  }
+
+  .dark .login-card {
+    @apply bg-slate-900 border-slate-800 shadow-2xl !important;
   }
 
   .dark .sidebar, .dark [data-sidebar="sidebar"] {

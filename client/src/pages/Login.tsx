@@ -190,7 +190,7 @@ export default function Login() {
           <p className="text-muted-foreground">سجل دخولك برقم الهاتف للمتابعة</p>
         </div>
 
-        <div className="bg-white border border-black/5 p-10 rounded-none shadow-2xl">
+        <div className="login-card bg-white border border-black/5 p-10 rounded-none shadow-2xl">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
@@ -198,13 +198,13 @@ export default function Login() {
                 name="phone"
                 render={({ field }) => (
                   <FormItem className="text-right">
-                    <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">رقم الهاتف</FormLabel>
+                    <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40 dark:text-white/40">رقم الهاتف</FormLabel>
                     <FormControl>
-                      <div dir="ltr" className="flex items-center gap-2 h-14 bg-white border border-black/10 px-4">
-                        <span className="text-sm font-bold text-black/40 border-r border-black/10 pr-2">+966</span>
+                      <div dir="ltr" className="flex items-center gap-2 h-14 bg-white dark:bg-slate-900 border border-black/10 dark:border-slate-800 px-4">
+                        <span className="text-sm font-bold text-black/40 dark:text-white/40 border-r border-black/10 dark:border-slate-800 pr-2">+966</span>
                           <input
                             type="text"
-                            className="flex-1 h-full bg-transparent border-none focus:outline-none text-sm font-bold tracking-widest"
+                            className="flex-1 h-full bg-transparent border-none focus:outline-none text-sm font-bold tracking-widest text-black dark:text-white"
                             placeholder="5x xxx xxxx"
                             maxLength={11}
                             value={field.value.replace(/(\d{2})(\d{3})(\d{4})/, "$1 $2 $3").trim()}
@@ -236,17 +236,17 @@ export default function Login() {
                   render={({ field }) => (
                     <FormItem className="text-right">
                       <div className="flex justify-between items-center mb-1">
-                        <Link href="/forgot-password" className="text-[10px] font-bold uppercase tracking-widest text-black/40 hover:text-black">نسيت كلمة المرور؟</Link>
-                        <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">كلمة المرور</FormLabel>
+                        <Link href="/forgot-password" className="text-[10px] font-bold uppercase tracking-widest text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white">نسيت كلمة المرور؟</Link>
+                        <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40 dark:text-white/40">كلمة المرور</FormLabel>
                       </div>
                       <FormControl>
                         <div className="relative">
-                          <Input type={showPassword ? "text" : "password"} placeholder="••••••••" {...field} className="h-14 bg-white border-black/10 rounded-none focus-visible:ring-black pr-12" />
+                          <Input type={showPassword ? "text" : "password"} placeholder="••••••••" {...field} className="h-14 bg-white dark:bg-slate-900 border-black/10 dark:border-slate-800 rounded-none focus-visible:ring-black dark:focus-visible:ring-primary pr-12 text-black dark:text-white" />
                           <Button
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 text-black/40 hover:text-black no-default-hover-elevate"
+                            className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white no-default-hover-elevate"
                             onClick={() => setShowPassword(!showPassword)}
                           >
                             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -259,23 +259,23 @@ export default function Login() {
                 />
               )}
 
-              <Button type="submit" className="w-full h-16 font-bold uppercase tracking-[0.3em] text-xs rounded-none bg-black text-white hover-elevate active-elevate-2 border-none" disabled={isLoggingIn}>
+              <Button type="submit" className="w-full h-16 font-bold uppercase tracking-[0.3em] text-xs rounded-none bg-black dark:bg-primary text-white dark:text-primary-foreground hover-elevate active-elevate-2 border-none" disabled={isLoggingIn}>
                 {isLoggingIn ? <Loader2 className="animate-spin" /> : "تسجيل الدخول"}
               </Button>
 
               <div className="relative py-4">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-black/5"></div>
+                  <div className="w-full border-t border-black/5 dark:border-white/5"></div>
                 </div>
                 <div className="relative flex justify-center text-[10px] font-bold uppercase tracking-widest">
-                  <span className="bg-white px-4 text-black/40">أو</span>
+                  <span className="bg-white dark:bg-slate-900 px-4 text-black/40 dark:text-white/40">أو</span>
                 </div>
               </div>
 
               <Button
                 type="button"
                 variant="outline"
-                className="w-full h-14 font-bold uppercase tracking-[0.1em] text-xs rounded-lg border-slate-200 hover:bg-slate-50 transition-all duration-200 flex items-center justify-center gap-3 shadow-sm"
+                className="w-full h-14 font-bold uppercase tracking-[0.1em] text-xs rounded-lg border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200 flex items-center justify-center gap-3 shadow-sm text-slate-700 dark:text-slate-300"
                 onClick={() => window.location.href = "/api/auth/google"}
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -301,20 +301,20 @@ export default function Login() {
             </form>
           </Form>
 
-          <div className="mt-10 text-center text-[10px] font-bold uppercase tracking-widest text-black/40">
+          <div className="mt-10 text-center text-[10px] font-bold uppercase tracking-widest text-black/40 dark:text-white/40">
             ليس لديك حساب؟{" "}
-            <Link href="/register" className="text-black hover:underline ml-1">
+            <Link href="/register" className="text-black dark:text-white hover:underline ml-1">
               أنشئ حساب جديد
             </Link>
           </div>
           
           <div className="mt-6">
-            <Link href="/" className="text-[10px] font-bold uppercase tracking-widest text-black/40 hover:text-black flex items-center justify-center gap-2">
+            <Link href="/" className="text-[10px] font-bold uppercase tracking-widest text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white flex items-center justify-center gap-2">
               <span>العودة للرئيسية</span>
             </Link>
           </div>
-          <div className="mt-8 pt-8 border-t border-black/5 text-center">
-            <a href="https://api.whatsapp.com/send/?phone=966567326086" target="_blank" rel="noreferrer" className="text-[10px] font-bold uppercase tracking-widest text-black/40 hover:text-black transition-colors">
+          <div className="mt-8 pt-8 border-t border-black/5 dark:border-white/5 text-center">
+            <a href="https://api.whatsapp.com/send/?phone=966567326086" target="_blank" rel="noreferrer" className="text-[10px] font-bold uppercase tracking-widest text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-colors">
               هل تواجه مشكلة؟ تواصل مع الدعم الفني
             </a>
           </div>
