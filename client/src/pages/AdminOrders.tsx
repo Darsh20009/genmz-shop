@@ -181,12 +181,7 @@ export default function AdminOrders() {
         </tr>
       `).join("");
 
-      const receiptHtml = (order as any).bankTransferReceipt ? `
-        <div style="margin-top: 40px; page-break-before: always;">
-          <h2 style="text-align: center; color: #6366f1; margin-bottom: 20px;">إيصال التحويل البنكي</h2>
-          <img src="${(order as any).bankTransferReceipt}" style="max-width: 100%; height: auto; border: 1px solid #eee; border-radius: 8px;" />
-        </div>
-      ` : '';
+      const receiptHtml = '';
 
       const htmlContent = `
         <html dir="rtl">
@@ -416,9 +411,6 @@ export default function AdminOrders() {
     let matchesStatus = true;
     if (statusFilter === "all") {
       matchesStatus = true;
-    } else if (statusFilter === "bank_transfer_pending") {
-      // Show orders with bank_transfer method and pending payment status
-      matchesStatus = (order as any).paymentMethod === "bank_transfer" && ((order as any).paymentStatus === "pending" || !(order as any).paymentStatus);
     } else {
       matchesStatus = order.status === statusFilter;
     }
@@ -654,7 +646,6 @@ export default function AdminOrders() {
                   <SelectContent className="rounded-2xl border-2">
                     <SelectItem value="all">الكل</SelectItem>
                     <SelectItem value="new">جديد</SelectItem>
-                    <SelectItem value="bank_transfer_pending">انتظار التحويل</SelectItem>
                     <SelectItem value="processing">قيد التنفيذ</SelectItem>
                     <SelectItem value="shipped">تم الشحن</SelectItem>
                     <SelectItem value="completed">مكتمل</SelectItem>
@@ -885,76 +876,6 @@ export default function AdminOrders() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-6">
-                      {selectedOrder.paymentMethod === "bank_transfer" && (
-                        <div className="p-4 border-2 border-primary/20 rounded-2xl bg-primary/5">
-                          <h4 className="font-bold mb-2 flex items-center gap-2 text-primary">
-                            <CreditCard className="w-4 h-4" />
-                            إيصال التحويل البنكي
-                          </h4>
-                          <div className="space-y-4">
-                            {(selectedOrder as any).bankTransferReceipt || (selectedOrder as any).paymentTransferReceipt || (selectedOrder as any).paymentTransferNote ? (
-                              <div className="space-y-2">
-                                {((selectedOrder as any).bankTransferReceipt || (selectedOrder as any).paymentTransferReceipt) ? (
-                                  <div className="relative group">
-                                    <img 
-                                      src={(selectedOrder as any).bankTransferReceipt || (selectedOrder as any).paymentTransferReceipt} 
-                                      alt="إيصال التحويل" 
-                                      className="w-full max-h-[400px] object-contain rounded-xl border-2 shadow-sm cursor-zoom-in hover:opacity-95 transition-all group-hover:shadow-md"
-                                      onClick={() => window.open((selectedOrder as any).bankTransferReceipt || (selectedOrder as any).paymentTransferReceipt, '_blank')}
-                                    />
-                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                      <div className="bg-black/50 text-white px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-sm">
-                                        انقر للتكبير
-                                      </div>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <div className="p-4 bg-muted/50 rounded-xl border-2 border-dashed">
-                                    <p className="text-sm font-bold text-muted-foreground mb-2">ملاحظة التحويل:</p>
-                                    <p className="text-sm">{(selectedOrder as any).paymentTransferNote}</p>
-                                  </div>
-                                )}
-                                {((selectedOrder as any).bankTransferReceipt || (selectedOrder as any).paymentTransferReceipt) && (
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm" 
-                                    className="w-full gap-2 text-xs h-9 rounded-xl hover-elevate"
-                                    onClick={() => window.open((selectedOrder as any).bankTransferReceipt || (selectedOrder as any).paymentTransferReceipt, '_blank')}
-                                  >
-                                    <Globe className="w-4 h-4" />
-                                    عرض الإيصال بالحجم الكامل
-                                  </Button>
-                                )}
-                              </div>
-                            ) : (
-                              <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed rounded-2xl bg-muted/20 text-muted-foreground border-muted-foreground/20">
-                                <Package className="w-10 h-10 mb-3 opacity-10" />
-                                <p className="text-sm font-bold opacity-60">لا يوجد إيصال مرفق لهذا الطلب</p>
-                              </div>
-                            )}
-                            
-                            {selectedOrder.paymentStatus === "pending" && ((selectedOrder as any).bankTransferReceipt || (selectedOrder as any).paymentTransferReceipt) && (
-                              <Button 
-                                className="w-full h-11 rounded-xl font-bold gap-2 shadow-lg shadow-green-500/20 bg-green-600 hover:bg-green-700 mt-2"
-                                onClick={() => {
-                                  updateStatusMutation.mutate({ 
-                                    orderId: selectedOrder.id, 
-                                    status: "processing",
-                                    paymentStatus: "paid",
-                                    note: "تم تأكيد الدفع عبر التحويل البنكي"
-                                  });
-                                  setSelectedOrder(null);
-                                }}
-                                disabled={updateStatusMutation.isPending}
-                              >
-                                <CheckCircle2 className="w-5 h-5" />
-                                تأكيد استلام المبلغ
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                      
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label className="font-bold">حالة الطلب</Label>

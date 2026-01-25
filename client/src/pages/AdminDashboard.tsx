@@ -102,31 +102,6 @@ export default function AdminDashboard() {
   return (
     <Layout>
       <div className="min-h-screen bg-[#f1f5f9] dark:bg-[#020617] p-4 sm:p-6 lg:p-8 space-y-8 overflow-x-hidden" dir="rtl">
-        {displayStats.pendingPayments > 0 && (
-          <motion.div 
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm"
-          >
-            <div className="flex items-center gap-3 w-full">
-              <div className="p-2 bg-amber-100 rounded-xl text-amber-600 shrink-0">
-                <Calendar className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="font-bold text-amber-900 text-sm">مراجعة دفع معلقة</h4>
-                <p className="text-amber-700 text-xs font-medium">يوجد {displayStats.pendingPayments} طلبات بانتظار تأكيد التحويل</p>
-              </div>
-            </div>
-            <Button 
-              size="sm" 
-              variant="outline"
-              className="w-full sm:w-auto border-amber-200 text-amber-700 hover:bg-amber-100 rounded-xl font-bold text-xs h-9"
-              onClick={() => setLocation("/admin/orders?status=bank_transfer_pending")}
-            >
-              عرض الطلبات
-            </Button>
-          </motion.div>
-        )}
         {/* Top Header */}
         <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
           <div className="text-right w-full lg:w-auto">
