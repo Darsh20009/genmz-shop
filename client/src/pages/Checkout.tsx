@@ -27,7 +27,7 @@ export default function Checkout() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
-  const [paymentMethod, setPaymentMethod] = useState<"wallet" | "apple_pay" | "tabby" | "tamara" | "moyasar">("moyasar");
+  const [paymentMethod, setPaymentMethod] = useState<"wallet" | "apple_pay" | "tabby" | "tamara" | "moyasar">("apple_pay");
   const { data: settings } = useQuery<any>({ queryKey: ["/api/settings"] });
   const [isAppleDevice, setIsAppleDevice] = useState(false);
 
@@ -36,6 +36,8 @@ export default function Checkout() {
                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ||
                    /Macintosh/.test(navigator.userAgent);
     setIsAppleDevice(isApple);
+    // Force Apple Pay as default if on Apple device, otherwise moyasar (which handles cards)
+    setPaymentMethod(isApple ? "apple_pay" : "moyasar");
   }, []);
   const [showMoyasarForm, setShowMoyasarForm] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);

@@ -16,13 +16,13 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 const statusConfig: Record<string, { icon: any, color: string, label: string, bg: string, border: string }> = {
-  new: { icon: Clock, color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100", label: "طلب جديد" },
-  pending: { icon: Clock, color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100", label: "قيد الانتظار" },
-  processing: { icon: Package, color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100", label: "قيد المعالجة" },
-  shipped: { icon: Truck, color: "text-purple-600", bg: "bg-purple-50", border: "border-purple-100", label: "تم الشحن" },
-  completed: { icon: CheckCircle, color: "text-green-600", bg: "bg-green-50", border: "border-green-100", label: "مكتمل" },
-  delivered: { icon: CheckCircle, color: "text-green-600", bg: "bg-green-50", border: "border-green-100", label: "تم التوصيل" },
-  cancelled: { icon: ShoppingBag, color: "text-red-600", bg: "bg-red-50", border: "border-red-100", label: "ملغي" },
+  new: { icon: Clock, color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", label: "طلب جديد" },
+  pending: { icon: Clock, color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", label: "قيد الانتظار" },
+  processing: { icon: Package, color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", label: "قيد المعالجة" },
+  shipped: { icon: Truck, color: "text-purple-500", bg: "bg-purple-500/10", border: "border-purple-500/20", label: "تم الشحن" },
+  completed: { icon: CheckCircle, color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", label: "مكتمل" },
+  delivered: { icon: CheckCircle, color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", label: "تم التوصيل" },
+  cancelled: { icon: ShoppingBag, color: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20", label: "ملغي" },
 };
 
 const ReviewDialog = ({ productId, productName }: { productId: string, productName: string }) => {
@@ -256,14 +256,14 @@ const OrderCard = ({ order }: { order: any }) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-      <Card className="overflow-hidden border-black/5 hover:border-black/10 transition-all group rounded-[2.5rem] shadow-sm hover:shadow-2xl bg-white mb-8 border">
+      <Card className="overflow-hidden border-border/50 hover:border-emerald-500/30 transition-all group rounded-[2.5rem] shadow-sm hover:shadow-2xl bg-card mb-8 border luxury-glass">
         <CardContent className="p-0">
           <div className="flex flex-col lg:flex-row">
             {/* Status Side Panel */}
             <div className={`lg:w-56 ${status.bg} p-8 flex flex-col items-center justify-center text-center gap-4 border-b lg:border-b-0 lg:border-l ${status.border}`}>
               <motion.div 
                 whileHover={{ scale: 1.1, rotate: 5 }}
-                className={`w-20 h-20 rounded-3xl bg-white shadow-xl flex items-center justify-center ${status.color} border-2 ${status.border}`}
+                className={`w-20 h-20 rounded-3xl bg-background shadow-xl flex items-center justify-center ${status.color} border-2 ${status.border}`}
               >
                 <StatusIcon className="h-10 w-10" />
               </motion.div>
@@ -277,38 +277,38 @@ const OrderCard = ({ order }: { order: any }) => {
             <div className="flex-1 p-8 lg:p-10 space-y-8">
               <div className="flex flex-wrap items-start justify-between gap-6">
                 <div className="flex items-center gap-5">
-                  <div className="bg-black/5 p-4 rounded-3xl group-hover:bg-black/10 transition-colors">
-                    <Hash className="h-6 w-6 text-black/30" />
+                  <div className="bg-background p-4 rounded-3xl group-hover:bg-emerald-500/10 transition-colors">
+                    <Hash className="h-6 w-6 text-foreground/30" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30">رقم المرجع</span>
-                    <p className="font-black text-xl tracking-tight">#{order.id.slice(-6).toUpperCase()}</p>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/30">رقم المرجع</span>
+                    <p className="font-black text-xl tracking-tight text-foreground">#{order.id.slice(-6).toUpperCase()}</p>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-5">
-                  <div className="bg-black/5 p-4 rounded-3xl">
-                    <Calendar className="h-6 w-6 text-black/30" />
+                  <div className="bg-background p-4 rounded-3xl">
+                    <Calendar className="h-6 w-6 text-foreground/30" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30">تاريخ الطلب</span>
-                    <p className="font-bold text-base text-black/70">
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/30">تاريخ الطلب</span>
+                    <p className="font-bold text-base text-foreground/70">
                       {new Date(order.createdAt).toLocaleDateString("ar-SA", { day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-black/5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-border/50">
                 <div className="flex items-center gap-5">
-                  <div className="bg-primary/5 p-4 rounded-3xl">
-                    <Wallet className="h-6 w-6 text-primary" />
+                  <div className="bg-emerald-500/5 p-4 rounded-3xl">
+                    <Wallet className="h-6 w-6 text-emerald-500" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30">إجمالي المبلغ</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/30">إجمالي المبلغ</span>
                     <div className="flex items-baseline gap-1">
-                      <p className="font-black text-3xl text-primary">{order.total}</p>
-                      <span className="text-xs font-black text-black/20 uppercase">ر.س</span>
+                      <p className="font-black text-3xl text-emerald-500">{order.total}</p>
+                      <span className="text-xs font-black text-foreground/20 uppercase">ر.س</span>
                     </div>
                   </div>
                 </div>
@@ -317,7 +317,7 @@ const OrderCard = ({ order }: { order: any }) => {
                   <Button 
                     variant="outline" 
                     onClick={handlePrintInvoice}
-                    className="rounded-full px-8 h-14 font-black uppercase tracking-widest text-[11px] border-black/5 hover:bg-black hover:text-white transition-all shadow-sm active:scale-95 ml-2"
+                    className="rounded-full px-8 h-14 font-black uppercase tracking-widest text-[11px] border-border/50 hover:bg-foreground hover:text-background transition-all shadow-sm active:scale-95 ml-2 text-foreground"
                   >
                     تحميل الفاتورة
                     <ShoppingBag className="mr-2 h-4 w-4" />
@@ -325,7 +325,7 @@ const OrderCard = ({ order }: { order: any }) => {
                   <Button 
                     variant="outline" 
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="rounded-full px-8 h-14 font-black uppercase tracking-widest text-[11px] border-black/5 hover:bg-black hover:text-white transition-all shadow-sm active:scale-95"
+                    className="rounded-full px-8 h-14 font-black uppercase tracking-widest text-[11px] border-border/50 hover:bg-foreground hover:text-background transition-all shadow-sm active:scale-95 text-foreground"
                   >
                     {isExpanded ? "إخفاء التفاصيل" : "عرض المحتويات"}
                     <ChevronRight className={`mr-2 h-4 w-4 transition-transform duration-500 ${isExpanded ? 'rotate-90' : 'group-hover:translate-x-1'}`} />
@@ -335,7 +335,7 @@ const OrderCard = ({ order }: { order: any }) => {
 
               {/* Progressive Tracking Timeline */}
               <div className="relative pt-12 pb-8">
-                <div className="absolute top-[3.25rem] left-0 right-0 h-[2px] bg-black/5" />
+                <div className="absolute top-[3.25rem] left-0 right-0 h-[2px] bg-border/50" />
                 <div className="relative flex justify-between items-start gap-2">
                   {[
                     { id: 'new', label: 'طلب جديد', icon: Clock },
@@ -354,13 +354,13 @@ const OrderCard = ({ order }: { order: any }) => {
                           initial={false}
                           animate={{ 
                             scale: isActive ? 1.1 : 1,
-                            backgroundColor: isActive ? 'var(--primary)' : 'white'
+                            backgroundColor: isActive ? 'rgb(16 185 129)' : 'hsl(var(--background))'
                           }}
-                          className={`w-12 h-12 rounded-2xl shadow-lg flex items-center justify-center border-2 transition-colors ${isActive ? 'border-primary text-white' : 'border-black/5 text-black/20'}`}
+                          className={`w-12 h-12 rounded-2xl shadow-lg flex items-center justify-center border-2 transition-colors ${isActive ? 'border-emerald-500 text-white' : 'border-border/50 text-foreground/20'}`}
                         >
                           <step.icon className="w-5 h-5" />
                         </motion.div>
-                        <span className={`text-[10px] font-black uppercase tracking-widest text-center ${isActive ? 'text-black' : 'text-black/20'}`}>
+                        <span className={`text-[10px] font-black uppercase tracking-widest text-center ${isActive ? 'text-foreground' : 'text-foreground/20'}`}>
                           {step.label}
                         </span>
                       </div>
@@ -378,11 +378,11 @@ const OrderCard = ({ order }: { order: any }) => {
                         إلغاء الطلب
                       </Button>
                     </DialogTrigger>
-                    <DialogContent dir="rtl">
+                    <DialogContent dir="rtl" className="bg-card border-border/50 rounded-[2rem]">
                       <DialogHeader>
-                        <DialogTitle>تأكيد الإلغاء</DialogTitle>
+                        <DialogTitle className="text-foreground">تأكيد الإلغاء</DialogTitle>
                       </DialogHeader>
-                      <p className="py-4 font-bold text-black/60">هل أنت متأكد من رغبتك في إلغاء الطلب؟ لا يمكن التراجع عن هذا الإجراء.</p>
+                      <p className="py-4 font-bold text-foreground/60">هل أنت متأكد من رغبتك في إلغاء الطلب؟ لا يمكن التراجع عن هذا الإجراء.</p>
                       <Button 
                         variant="destructive" 
                         onClick={() => cancelMutation.mutate()} 
@@ -397,27 +397,27 @@ const OrderCard = ({ order }: { order: any }) => {
                 {canReturn && (
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button variant="secondary" className="rounded-full px-8 font-black text-xs uppercase tracking-widest bg-black text-white hover:bg-black/80">
+                      <Button variant="secondary" className="rounded-full px-8 font-black text-xs uppercase tracking-widest bg-foreground text-background hover:bg-foreground/80">
                         طلب استرجاع
                       </Button>
                     </DialogTrigger>
-                    <DialogContent dir="rtl">
+                    <DialogContent dir="rtl" className="bg-card border-border/50 rounded-[2rem]">
                       <DialogHeader>
-                        <DialogTitle>طلب استرجاع المنتج</DialogTitle>
+                        <DialogTitle className="text-foreground">طلب استرجاع المنتج</DialogTitle>
                       </DialogHeader>
                       <div className="space-y-4 py-4 text-right">
-                        <Label className="font-black text-xs uppercase tracking-widest">سبب الاسترجاع</Label>
+                        <Label className="font-black text-xs uppercase tracking-widest text-foreground/40">سبب الاسترجاع</Label>
                         <Textarea 
                           value={returnReason}
                           onChange={(e) => setReturnReason(e.target.value)}
                           placeholder="يرجى ذكر سبب الاسترجاع..."
-                          className="rounded-2xl h-32 resize-none"
+                          className="rounded-2xl h-32 resize-none bg-background border-border/50 text-foreground"
                         />
                       </div>
                       <Button 
                         onClick={() => returnMutation.mutate(returnReason)} 
                         disabled={returnMutation.isPending || !returnReason.trim()}
-                        className="w-full h-14 rounded-2xl font-black text-lg"
+                        className="w-full h-14 rounded-2xl font-black text-lg bg-emerald-500 hover:bg-emerald-600 text-white"
                       >
                         {returnMutation.isPending ? <Loader2 className="animate-spin" /> : "إرسال طلب الاسترجاع"}
                       </Button>
@@ -436,20 +436,20 @@ const OrderCard = ({ order }: { order: any }) => {
                   >
                     <div className="pt-8 space-y-6">
                       <div className="flex items-center gap-3 mb-4">
-                        <div className="h-[2px] w-8 bg-black/10" />
-                        <h4 className="text-[11px] font-black uppercase tracking-[0.3em] text-black/30">محتويات الشحنة</h4>
+                        <div className="h-[2px] w-8 bg-border/50" />
+                        <h4 className="text-[11px] font-black uppercase tracking-[0.3em] text-foreground/30">محتويات الشحنة</h4>
                       </div>
                       
                       <div className="grid gap-4">
                         {order.items.map((item: any, idx: number) => (
-                          <div key={idx} className="flex justify-between items-center p-5 bg-black/[0.02] rounded-[1.5rem] border border-black/[0.03] hover:bg-black/[0.04] transition-colors">
+                          <div key={idx} className="flex justify-between items-center p-5 bg-background/50 rounded-[1.5rem] border border-border/50 hover:bg-background/80 transition-colors">
                             <div className="flex items-center gap-5">
-                              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center font-black text-sm shadow-sm border border-black/5">
-                                <span className="text-black/30 ml-1">x</span>{item.quantity}
+                              <div className="w-14 h-14 bg-card rounded-2xl flex items-center justify-center font-black text-sm shadow-sm border border-border/50 text-foreground">
+                                <span className="text-foreground/30 ml-1">x</span>{item.quantity}
                               </div>
                               <div>
-                                <p className="font-black text-base text-black/80">{item.title}</p>
-                                <p className="text-[10px] font-bold text-black/30 tracking-widest uppercase">SKU: {item.variantSku}</p>
+                                <p className="font-black text-base text-foreground/80">{item.title}</p>
+                                <p className="text-[10px] font-bold text-foreground/30 tracking-widest uppercase">SKU: {item.variantSku}</p>
                                 {item.isActive === false && (
                                   <Badge variant="destructive" className="mt-1 text-[8px] h-4">غير متوفر حالياً</Badge>
                                 )}
@@ -460,20 +460,20 @@ const OrderCard = ({ order }: { order: any }) => {
                                 )}
                               </div>
                             </div>
-                            <div className="text-right">
-                              <p className="font-black text-lg">{item.price * item.quantity} <span className="text-[10px] text-black/20">ر.س</span></p>
+                            <div className="text-right text-foreground">
+                              <p className="font-black text-lg">{item.price * item.quantity} <span className="text-[10px] text-foreground/20">ر.س</span></p>
                             </div>
                           </div>
                         ))}
                       </div>
 
                       {order.shippingAddress && (
-                        <div className="mt-8 p-6 bg-primary/[0.03] rounded-[2rem] border border-primary/10 flex items-start gap-5">
-                          <div className="bg-white p-3 rounded-2xl shadow-sm text-primary">
+                        <div className="mt-8 p-6 bg-emerald-500/5 rounded-[2rem] border border-emerald-500/10 flex items-start gap-5">
+                          <div className="bg-background p-3 rounded-2xl shadow-sm text-emerald-500">
                             <MapPin className="h-5 w-5" />
                           </div>
                           <div>
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">عنوان التوصيل</h4>
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1">عنوان التوصيل</h4>
                             <p className="font-bold text-sm text-black/70 leading-relaxed">
                               {order.shippingAddress.city}, {order.shippingAddress.street}
                             </p>
