@@ -185,7 +185,7 @@ export default function Checkout() {
   };
 
   const handleFinalCheckout = async () => {
-    if (!confirmPassword && paymentMethod !== "tamara" && paymentMethod !== "tabby" && paymentMethod !== "moyasar") {
+    if (!confirmPassword && paymentMethod !== "tamara" && paymentMethod !== "tabby" && paymentMethod !== "moyasar" && paymentMethod !== "apple_pay") {
       toast({
         title: "خطأ",
         description: "يرجى إدخال كلمة المرور للتأكيد",
@@ -197,7 +197,7 @@ export default function Checkout() {
     setIsSubmitting(true);
     try {
       // First verify password (skip for Tamara/Tabby initial checkout)
-      if (paymentMethod !== "tamara" && paymentMethod !== "tabby" && paymentMethod !== "moyasar") {
+      if (paymentMethod !== "tamara" && paymentMethod !== "tabby" && paymentMethod !== "moyasar" && paymentMethod !== "apple_pay") {
         const verifyRes = await fetch("/api/auth/verify-password", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -255,7 +255,7 @@ export default function Checkout() {
           shippingMethod: "delivery",
           paymentMethod,
           status: "new",
-          paymentStatus: paymentMethod === "wallet" ? "paid" : "pending",
+          paymentStatus: (paymentMethod === "wallet" || paymentMethod === "apple_pay") ? "paid" : "pending",
           branchId: "main",
           type: "online"
         });
@@ -266,6 +266,12 @@ export default function Checkout() {
         }
         
         const order = data.data;
+
+        // Handle Apple Pay (Mock)
+        if (paymentMethod === "apple_pay") {
+          // Simulate Apple Pay processing
+          await new Promise(resolve => setTimeout(resolve, 1500));
+        }
 
         // Handle Tamara Payment
         if (paymentMethod === "tamara") {
