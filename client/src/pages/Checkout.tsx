@@ -27,7 +27,7 @@ export default function Checkout() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
-  const [paymentMethod, setPaymentMethod] = useState<"wallet" | "bank_transfer" | "tabby" | "tamara" | "moyasar">("moyasar");
+  const [paymentMethod, setPaymentMethod] = useState<"wallet" | "apple_pay" | "tabby" | "tamara" | "moyasar">("moyasar");
   const { data: settings } = useQuery<any>({ queryKey: ["/api/settings"] });
   const [isAppleDevice, setIsAppleDevice] = useState(false);
 
@@ -424,8 +424,8 @@ export default function Checkout() {
         clearCart();
         
         let toastMessage = "تم استلام طلبك بنجاح. سيتم التوصيل عبر Storage Station قريباً";
-        if (paymentMethod === "bank_transfer") {
-          toastMessage = "تم استلام طلبك بنجاح. يرجى انتظار تأكيد التحويل البنكي من قبل الإدارة.";
+        if (paymentMethod === "apple_pay") {
+          toastMessage = "تم استلام طلبك بنجاح عبر Apple Pay.";
         }
         if (cashbackAmount > 0) {
           toastMessage = `تم إضافة ${cashbackAmount.toLocaleString()} ر.س كاش باك إلى محفظتك! ${toastMessage}`;
