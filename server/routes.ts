@@ -719,6 +719,227 @@ export async function registerRoutes(
     }
   });
 
+  // Sizes
+  app.get("/api/sizes", async (_req, res, next) => {
+    try {
+      const sizes = await storage.getSizes();
+      res.json(sizes);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.get("/api/admin/sizes/:id", protectAdmin, async (req, res, next) => {
+    try {
+      const size = await storage.getSize(req.params.id);
+      res.json(size);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.post("/api/admin/sizes", protectAdmin, async (req, res, next) => {
+    try {
+      const size = await storage.createSize(req.body);
+      res.status(201).json(size);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.patch("/api/admin/sizes/:id", protectAdmin, async (req, res, next) => {
+    try {
+      const size = await storage.updateSize(req.params.id, req.body);
+      res.json(size);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.delete("/api/admin/sizes/:id", protectAdmin, async (req, res, next) => {
+    try {
+      await storage.deleteSize(req.params.id);
+      res.sendStatus(200);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Size Groups
+  app.get("/api/size-groups", async (_req, res, next) => {
+    try {
+      const groups = await storage.getSizeGroups();
+      res.json(groups);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.post("/api/admin/size-groups", protectAdmin, async (req, res, next) => {
+    try {
+      const group = await storage.createSizeGroup(req.body);
+      res.status(201).json(group);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.patch("/api/admin/size-groups/:id", protectAdmin, async (req, res, next) => {
+    try {
+      const group = await storage.updateSizeGroup(req.params.id, req.body);
+      res.json(group);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.delete("/api/admin/size-groups/:id", protectAdmin, async (req, res, next) => {
+    try {
+      await storage.deleteSizeGroup(req.params.id);
+      res.sendStatus(200);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Colors
+  app.get("/api/colors", async (_req, res, next) => {
+    try {
+      const colors = await storage.getColors();
+      res.json(colors);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.get("/api/admin/colors/:id", protectAdmin, async (req, res, next) => {
+    try {
+      const color = await storage.getColor(req.params.id);
+      res.json(color);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.post("/api/admin/colors", protectAdmin, async (req, res, next) => {
+    try {
+      const color = await storage.createColor(req.body);
+      res.status(201).json(color);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.patch("/api/admin/colors/:id", protectAdmin, async (req, res, next) => {
+    try {
+      const color = await storage.updateColor(req.params.id, req.body);
+      res.json(color);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.delete("/api/admin/colors/:id", protectAdmin, async (req, res, next) => {
+    try {
+      await storage.deleteColor(req.params.id);
+      res.sendStatus(200);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Brands
+  app.get("/api/brands", async (_req, res, next) => {
+    try {
+      const brands = await storage.getBrands();
+      res.json(brands);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.get("/api/admin/brands/:id", protectAdmin, async (req, res, next) => {
+    try {
+      const brand = await storage.getBrand(req.params.id);
+      res.json(brand);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.post("/api/admin/brands", protectAdmin, async (req, res, next) => {
+    try {
+      const brand = await storage.createBrand(req.body);
+      res.status(201).json(brand);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.patch("/api/admin/brands/:id", protectAdmin, async (req, res, next) => {
+    try {
+      const brand = await storage.updateBrand(req.params.id, req.body);
+      res.json(brand);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.delete("/api/admin/brands/:id", protectAdmin, async (req, res, next) => {
+    try {
+      await storage.deleteBrand(req.params.id);
+      res.sendStatus(200);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Product Attributes
+  app.get("/api/attributes", async (_req, res, next) => {
+    try {
+      const attrs = await storage.getAttributes();
+      res.json(attrs);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.get("/api/admin/attributes/:id", protectAdmin, async (req, res, next) => {
+    try {
+      const attr = await storage.getAttribute(req.params.id);
+      res.json(attr);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.post("/api/admin/attributes", protectAdmin, async (req, res, next) => {
+    try {
+      const attr = await storage.createAttribute(req.body);
+      res.status(201).json(attr);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.patch("/api/admin/attributes/:id", protectAdmin, async (req, res, next) => {
+    try {
+      const attr = await storage.updateAttribute(req.params.id, req.body);
+      res.json(attr);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.delete("/api/admin/attributes/:id", protectAdmin, async (req, res, next) => {
+    try {
+      await storage.deleteAttribute(req.params.id);
+      res.sendStatus(200);
+    } catch (err) {
+      next(err);
+    }
+  });
+
   // Customer Groups
   app.get("/api/admin/customer-groups", protectAdmin, async (_req, res, next) => {
     try {

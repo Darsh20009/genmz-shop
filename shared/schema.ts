@@ -160,6 +160,7 @@ export const insertProductSchema = z.object({
   descriptionEn: z.string().min(1, "Product description is required"),
   price: z.string(),
   cost: z.string(),
+  compareAtPrice: z.string().optional(),
   images: z.array(z.string()),
   isFeatured: z.boolean().default(false),
   isActive: z.boolean().default(true),
@@ -169,7 +170,14 @@ export const insertProductSchema = z.object({
   barcode: z.string().optional(),
   printBarcode: z.boolean().default(true),
   categoryId: z.string().optional(),
+  subcategoryId: z.string().optional(),
+  brandId: z.string().optional(),
+  tags: z.array(z.string()).default([]),
   colors: z.array(z.string()).default([]),
+  attributes: z.array(z.object({
+    attributeId: z.string(),
+    value: z.string(),
+  })).default([]),
   customizations: z.array(z.object({
     nameAr: z.string(),
     nameEn: z.string(),
@@ -179,19 +187,26 @@ export const insertProductSchema = z.object({
     }))
   })).default([]),
   variants: z.array(z.object({
+    colorId: z.string().optional(),
     colorAr: z.string().optional(),
     colorEn: z.string().optional(),
+    sizeId: z.string().optional(),
     sizeAr: z.string().optional(),
     sizeEn: z.string().optional(),
     sku: z.string(),
     stock: z.number().default(0),
-    price: z.string().optional(), // Price override for this variant
+    price: z.string().optional(),
     cost: z.number().default(0),
     image: z.string().optional(),
-    allowBackorder: z.boolean().default(false), // Sell even if out of stock
+    allowBackorder: z.boolean().default(false),
+    weight: z.number().optional(),
+    barcode: z.string().optional(),
   })).default([]),
-  name: z.string().optional(), // Legacy support
-  description: z.string().optional(), // Legacy support
+  weight: z.number().optional(),
+  seoTitle: z.string().optional(),
+  seoDescription: z.string().optional(),
+  name: z.string().optional(),
+  description: z.string().optional(),
   reviews: z.array(z.object({
     id: z.string(),
     userId: z.string(),
@@ -213,7 +228,7 @@ export const insertProductSchema = z.object({
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Product = InsertProduct & { _id: string; id: string; createdAt: Date };
 
-// Category Schema
+// Category Schema (Enhanced with subcategories support)
 export const insertCategorySchema = z.object({
   nameAr: z.string().min(1, "اسم القسم مطلوب"),
   nameEn: z.string().min(1, "Category name is required"),
@@ -221,12 +236,88 @@ export const insertCategorySchema = z.object({
   descriptionAr: z.string().optional(),
   descriptionEn: z.string().optional(),
   image: z.string().optional(),
+  icon: z.string().optional(),
+  parentId: z.string().optional(),
+  order: z.number().default(0),
   isActive: z.boolean().default(true),
-  name: z.string().optional(), // Legacy support
+  name: z.string().optional(),
 });
 
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
-export type Category = InsertCategory & { _id: string; id: string };
+export type Category = InsertCategory & { _id: string; id: string; createdAt: Date };
+
+// Size Schema
+export const insertSizeSchema = z.object({
+  nameAr: z.string().min(1, "اسم المقاس مطلوب"),
+  nameEn: z.string().min(1, "Size name is required"),
+  code: z.string().min(1, "رمز المقاس مطلوب"),
+  groupId: z.string().optional(),
+  order: z.number().default(0),
+  isActive: z.boolean().default(true),
+});
+
+export type InsertSize = z.infer<typeof insertSizeSchema>;
+export type Size = InsertSize & { _id: string; id: string };
+
+// Size Group Schema (e.g., Clothing Sizes, Shoe Sizes)
+export const insertSizeGroupSchema = z.object({
+  nameAr: z.string().min(1, "اسم مجموعة المقاسات مطلوب"),
+  nameEn: z.string().min(1, "Size group name is required"),
+  type: z.enum(["clothing", "shoes", "accessories", "custom"]).default("clothing"),
+  isActive: z.boolean().default(true),
+});
+
+export type InsertSizeGroup = z.infer<typeof insertSizeGroupSchema>;
+export type SizeGroup = InsertSizeGroup & { _id: string; id: string };
+
+// Color Schema
+export const insertColorSchema = z.object({
+  nameAr: z.string().min(1, "اسم اللون مطلوب"),
+  nameEn: z.string().min(1, "Color name is required"),
+  code: z.string().min(1, "رمز اللون مطلوب"),
+  hexCode: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "كود اللون غير صحيح").optional(),
+  image: z.string().optional(),
+  order: z.number().default(0),
+  isActive: z.boolean().default(true),
+});
+
+export type InsertColor = z.infer<typeof insertColorSchema>;
+export type Color = InsertColor & { _id: string; id: string };
+
+// Brand Schema
+export const insertBrandSchema = z.object({
+  nameAr: z.string().min(1, "اسم العلامة التجارية مطلوب"),
+  nameEn: z.string().min(1, "Brand name is required"),
+  slug: z.string().min(1),
+  descriptionAr: z.string().optional(),
+  descriptionEn: z.string().optional(),
+  logo: z.string().optional(),
+  website: z.string().optional(),
+  order: z.number().default(0),
+  isFeatured: z.boolean().default(false),
+  isActive: z.boolean().default(true),
+});
+
+export type InsertBrand = z.infer<typeof insertBrandSchema>;
+export type Brand = InsertBrand & { _id: string; id: string; createdAt: Date };
+
+// Product Attribute Schema (e.g., Material, Warranty, etc.)
+export const insertAttributeSchema = z.object({
+  nameAr: z.string().min(1, "اسم السمة مطلوب"),
+  nameEn: z.string().min(1, "Attribute name is required"),
+  type: z.enum(["text", "number", "select", "multiselect", "boolean"]).default("text"),
+  options: z.array(z.object({
+    valueAr: z.string(),
+    valueEn: z.string(),
+  })).default([]),
+  isFilterable: z.boolean().default(false),
+  isRequired: z.boolean().default(false),
+  order: z.number().default(0),
+  isActive: z.boolean().default(true),
+});
+
+export type InsertAttribute = z.infer<typeof insertAttributeSchema>;
+export type Attribute = InsertAttribute & { _id: string; id: string };
 
 // FAQ Schema
 export const insertFAQSchema = z.object({

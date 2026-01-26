@@ -1,5 +1,5 @@
-import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, ActivityLog, InsertActivityLog, Coupon, InsertCoupon, Branch, InsertBranch, Banner, InsertBanner, CashShift, InsertCashShift, ShippingCompany, InsertShippingCompany, AuditLog, InsertAuditLog, Role, InsertRole, StockTransfer, InsertStockTransfer, Invoice, InsertInvoice, BankTransfer, InsertBankTransfer, Shipment, InsertShipment, AbandonedCart, InsertAbandonedCart, Review, InsertReview, StoreSettings, InsertStoreSettings, Page, InsertPage, FAQ, InsertFAQ, CustomerGroup, InsertCustomerGroup, Theme, ContentBlock, InsertContentBlock, Revision, InsertRevision } from "@shared/schema";
-import { UserModel, ProductModel, OrderModel, CategoryModel, WalletTransactionModel, ActivityLogModel, CouponModel, BranchModel, BannerModel, CashShiftModel, ShippingCompanyModel, AuditLogModel, RoleModel, StockTransferModel, InvoiceModel, BankTransferModel, ShipmentModel, CartModel, AbandonedCartModel, ReviewModel, StoreSettingsModel, PageModel, RevisionModel, FAQModel, CustomerGroupModel, ThemeModel, ContentBlockModel } from "./models";
+import type { User, InsertUser, Product, InsertProduct, Order, InsertOrder, Category, InsertCategory, WalletTransaction, InsertWalletTransaction, ActivityLog, InsertActivityLog, Coupon, InsertCoupon, Branch, InsertBranch, Banner, InsertBanner, CashShift, InsertCashShift, ShippingCompany, InsertShippingCompany, AuditLog, InsertAuditLog, Role, InsertRole, StockTransfer, InsertStockTransfer, Invoice, InsertInvoice, BankTransfer, InsertBankTransfer, Shipment, InsertShipment, AbandonedCart, InsertAbandonedCart, Review, InsertReview, StoreSettings, InsertStoreSettings, Page, InsertPage, FAQ, InsertFAQ, CustomerGroup, InsertCustomerGroup, Theme, ContentBlock, InsertContentBlock, Revision, InsertRevision, Size, InsertSize, SizeGroup, InsertSizeGroup, Color, InsertColor, Brand, InsertBrand, Attribute, InsertAttribute } from "@shared/schema";
+import { UserModel, ProductModel, OrderModel, CategoryModel, WalletTransactionModel, ActivityLogModel, CouponModel, BranchModel, BannerModel, CashShiftModel, ShippingCompanyModel, AuditLogModel, RoleModel, StockTransferModel, InvoiceModel, BankTransferModel, ShipmentModel, CartModel, AbandonedCartModel, ReviewModel, StoreSettingsModel, PageModel, RevisionModel, FAQModel, CustomerGroupModel, ThemeModel, ContentBlockModel, SizeModel, SizeGroupModel, ColorModel, BrandModel, AttributeModel } from "./models";
 
 export interface IStorage {
   // Users
@@ -150,6 +150,41 @@ export interface IStorage {
 
   // Orders by user
   getOrdersByUser(userId: string): Promise<Order[]>;
+
+  // Sizes
+  getSizes(): Promise<Size[]>;
+  getSize(id: string): Promise<Size | undefined>;
+  createSize(size: InsertSize): Promise<Size>;
+  updateSize(id: string, size: Partial<InsertSize>): Promise<Size>;
+  deleteSize(id: string): Promise<void>;
+
+  // Size Groups
+  getSizeGroups(): Promise<SizeGroup[]>;
+  getSizeGroup(id: string): Promise<SizeGroup | undefined>;
+  createSizeGroup(group: InsertSizeGroup): Promise<SizeGroup>;
+  updateSizeGroup(id: string, group: Partial<InsertSizeGroup>): Promise<SizeGroup>;
+  deleteSizeGroup(id: string): Promise<void>;
+
+  // Colors
+  getColors(): Promise<Color[]>;
+  getColor(id: string): Promise<Color | undefined>;
+  createColor(color: InsertColor): Promise<Color>;
+  updateColor(id: string, color: Partial<InsertColor>): Promise<Color>;
+  deleteColor(id: string): Promise<void>;
+
+  // Brands
+  getBrands(): Promise<Brand[]>;
+  getBrand(id: string): Promise<Brand | undefined>;
+  createBrand(brand: InsertBrand): Promise<Brand>;
+  updateBrand(id: string, brand: Partial<InsertBrand>): Promise<Brand>;
+  deleteBrand(id: string): Promise<void>;
+
+  // Attributes
+  getAttributes(): Promise<Attribute[]>;
+  getAttribute(id: string): Promise<Attribute | undefined>;
+  createAttribute(attribute: InsertAttribute): Promise<Attribute>;
+  updateAttribute(id: string, attribute: Partial<InsertAttribute>): Promise<Attribute>;
+  deleteAttribute(id: string): Promise<void>;
 }
 
 export class MongoStorage implements IStorage {
@@ -612,6 +647,116 @@ export class MongoStorage implements IStorage {
   async getOrdersByUser(userId: string): Promise<Order[]> {
     const orders = await OrderModel.find({ userId }).sort({ createdAt: -1 }).lean();
     return orders.map(o => ({ ...o, id: o._id.toString() } as any));
+  }
+
+  // Sizes
+  async getSizes(): Promise<Size[]> {
+    const sizes = await SizeModel.find().sort({ order: 1 }).lean();
+    return sizes.map(s => ({ ...s, id: s._id.toString() } as any));
+  }
+  async getSize(id: string): Promise<Size | undefined> {
+    const size = await SizeModel.findById(id).lean();
+    return size ? { ...size, id: size._id.toString() } as any : undefined;
+  }
+  async createSize(insertSize: InsertSize): Promise<Size> {
+    const size = await SizeModel.create(insertSize);
+    return { ...size.toObject(), id: size._id.toString() } as any;
+  }
+  async updateSize(id: string, data: Partial<InsertSize>): Promise<Size> {
+    const updated = await SizeModel.findByIdAndUpdate(id, data, { new: true }).lean();
+    if (!updated) throw new Error("Size not found");
+    return { ...updated, id: updated._id.toString() } as any;
+  }
+  async deleteSize(id: string): Promise<void> {
+    await SizeModel.findByIdAndDelete(id);
+  }
+
+  // Size Groups
+  async getSizeGroups(): Promise<SizeGroup[]> {
+    const groups = await SizeGroupModel.find().lean();
+    return groups.map(g => ({ ...g, id: g._id.toString() } as any));
+  }
+  async getSizeGroup(id: string): Promise<SizeGroup | undefined> {
+    const group = await SizeGroupModel.findById(id).lean();
+    return group ? { ...group, id: group._id.toString() } as any : undefined;
+  }
+  async createSizeGroup(insertGroup: InsertSizeGroup): Promise<SizeGroup> {
+    const group = await SizeGroupModel.create(insertGroup);
+    return { ...group.toObject(), id: group._id.toString() } as any;
+  }
+  async updateSizeGroup(id: string, data: Partial<InsertSizeGroup>): Promise<SizeGroup> {
+    const updated = await SizeGroupModel.findByIdAndUpdate(id, data, { new: true }).lean();
+    if (!updated) throw new Error("Size group not found");
+    return { ...updated, id: updated._id.toString() } as any;
+  }
+  async deleteSizeGroup(id: string): Promise<void> {
+    await SizeGroupModel.findByIdAndDelete(id);
+  }
+
+  // Colors
+  async getColors(): Promise<Color[]> {
+    const colors = await ColorModel.find().sort({ order: 1 }).lean();
+    return colors.map(c => ({ ...c, id: c._id.toString() } as any));
+  }
+  async getColor(id: string): Promise<Color | undefined> {
+    const color = await ColorModel.findById(id).lean();
+    return color ? { ...color, id: color._id.toString() } as any : undefined;
+  }
+  async createColor(insertColor: InsertColor): Promise<Color> {
+    const color = await ColorModel.create(insertColor);
+    return { ...color.toObject(), id: color._id.toString() } as any;
+  }
+  async updateColor(id: string, data: Partial<InsertColor>): Promise<Color> {
+    const updated = await ColorModel.findByIdAndUpdate(id, data, { new: true }).lean();
+    if (!updated) throw new Error("Color not found");
+    return { ...updated, id: updated._id.toString() } as any;
+  }
+  async deleteColor(id: string): Promise<void> {
+    await ColorModel.findByIdAndDelete(id);
+  }
+
+  // Brands
+  async getBrands(): Promise<Brand[]> {
+    const brands = await BrandModel.find().sort({ order: 1 }).lean();
+    return brands.map(b => ({ ...b, id: b._id.toString() } as any));
+  }
+  async getBrand(id: string): Promise<Brand | undefined> {
+    const brand = await BrandModel.findById(id).lean();
+    return brand ? { ...brand, id: brand._id.toString() } as any : undefined;
+  }
+  async createBrand(insertBrand: InsertBrand): Promise<Brand> {
+    const brand = await BrandModel.create(insertBrand);
+    return { ...brand.toObject(), id: brand._id.toString() } as any;
+  }
+  async updateBrand(id: string, data: Partial<InsertBrand>): Promise<Brand> {
+    const updated = await BrandModel.findByIdAndUpdate(id, data, { new: true }).lean();
+    if (!updated) throw new Error("Brand not found");
+    return { ...updated, id: updated._id.toString() } as any;
+  }
+  async deleteBrand(id: string): Promise<void> {
+    await BrandModel.findByIdAndDelete(id);
+  }
+
+  // Attributes
+  async getAttributes(): Promise<Attribute[]> {
+    const attrs = await AttributeModel.find().sort({ order: 1 }).lean();
+    return attrs.map(a => ({ ...a, id: a._id.toString() } as any));
+  }
+  async getAttribute(id: string): Promise<Attribute | undefined> {
+    const attr = await AttributeModel.findById(id).lean();
+    return attr ? { ...attr, id: attr._id.toString() } as any : undefined;
+  }
+  async createAttribute(insertAttr: InsertAttribute): Promise<Attribute> {
+    const attr = await AttributeModel.create(insertAttr);
+    return { ...attr.toObject(), id: attr._id.toString() } as any;
+  }
+  async updateAttribute(id: string, data: Partial<InsertAttribute>): Promise<Attribute> {
+    const updated = await AttributeModel.findByIdAndUpdate(id, data, { new: true }).lean();
+    if (!updated) throw new Error("Attribute not found");
+    return { ...updated, id: updated._id.toString() } as any;
+  }
+  async deleteAttribute(id: string): Promise<void> {
+    await AttributeModel.findByIdAndDelete(id);
   }
 }
 

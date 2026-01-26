@@ -78,6 +78,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       { id: 'products', label: language === 'ar' ? 'المنتجات والمخزون' : 'Products & Inventory', path: '/admin/products', icon: Package, children: [
         { label: language === 'ar' ? 'المنتجات' : 'Products', path: '/admin/products' },
         { label: language === 'ar' ? 'التصنيفات' : 'Categories', path: '/admin/categories' },
+        { label: language === 'ar' ? 'خصائص المنتجات' : 'Product Attributes', path: '/admin/product-attributes' },
         { label: language === 'ar' ? 'المخزون' : 'Inventory', path: '/admin/inventory' },
         { label: language === 'ar' ? 'طلبات النقل' : 'Transfer Requests', path: '/admin/transfers' },
         { label: language === 'ar' ? 'التقييمات' : 'Reviews', path: '/admin/reviews' },

@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import type { User, Product, Order, Category, WalletTransaction, ActivityLog, Coupon, Branch, Banner, CashShift, ShippingCompany, AuditLog, Role, StockTransfer, Invoice, BankTransfer, Shipment, AbandonedCart, Review, StoreSettings, Page, FAQ, CustomerGroup, Theme, Revision, ContentBlock } from "@shared/schema";
+import type { User, Product, Order, Category, WalletTransaction, ActivityLog, Coupon, Branch, Banner, CashShift, ShippingCompany, AuditLog, Role, StockTransfer, Invoice, BankTransfer, Shipment, AbandonedCart, Review, StoreSettings, Page, FAQ, CustomerGroup, Theme, Revision, ContentBlock, Size, SizeGroup, Color, Brand, Attribute } from "@shared/schema";
 
 const abandonedCartSchema = new Schema<AbandonedCart>(
   {
@@ -142,13 +142,23 @@ const productSchema = new Schema<Product>(
     description: String,
     price: { type: String, required: true },
     cost: { type: String, required: true },
+    compareAtPrice: String,
     images: [String],
     categoryId: String,
+    subcategoryId: String,
+    brandId: String,
+    tags: [String],
     colors: [String],
+    attributes: [{
+      attributeId: String,
+      value: String,
+    }],
     customizations: [Schema.Types.Mixed],
     variants: [{
+      colorId: String,
       colorAr: String,
       colorEn: String,
+      sizeId: String,
       sizeAr: String,
       sizeEn: String,
       color: String,
@@ -159,7 +169,12 @@ const productSchema = new Schema<Product>(
       cost: { type: Number, default: 0 },
       image: String,
       allowBackorder: { type: Boolean, default: false },
+      weight: Number,
+      barcode: String,
     }],
+    weight: Number,
+    seoTitle: String,
+    seoDescription: String,
     isFeatured: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
     isNew: { type: Boolean, default: false },
@@ -236,7 +251,78 @@ const categorySchema = new Schema<Category>(
     name: String,
     slug: { type: String, required: true, unique: true },
     image: String,
+    icon: String,
+    parentId: String,
+    order: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true }
+  },
+  { timestamps: true }
+);
+
+const sizeGroupSchema = new Schema<SizeGroup>(
+  {
+    nameAr: { type: String, required: true },
+    nameEn: { type: String, required: true },
+    type: { type: String, enum: ["clothing", "shoes", "accessories", "custom"], default: "clothing" },
+    isActive: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
+
+const sizeSchema = new Schema<Size>(
+  {
+    nameAr: { type: String, required: true },
+    nameEn: { type: String, required: true },
+    code: { type: String, required: true },
+    groupId: String,
+    order: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
+
+const colorSchema = new Schema<Color>(
+  {
+    nameAr: { type: String, required: true },
+    nameEn: { type: String, required: true },
+    code: { type: String, required: true },
+    hexCode: String,
+    image: String,
+    order: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
+
+const brandSchema = new Schema<Brand>(
+  {
+    nameAr: { type: String, required: true },
+    nameEn: { type: String, required: true },
+    slug: { type: String, required: true, unique: true },
+    descriptionAr: String,
+    descriptionEn: String,
+    logo: String,
+    website: String,
+    order: { type: Number, default: 0 },
+    isFeatured: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
+
+const attributeSchema = new Schema<Attribute>(
+  {
+    nameAr: { type: String, required: true },
+    nameEn: { type: String, required: true },
+    type: { type: String, enum: ["text", "number", "select", "multiselect", "boolean"], default: "text" },
+    options: [{
+      valueAr: String,
+      valueEn: String,
+    }],
+    isFilterable: { type: Boolean, default: false },
+    isRequired: { type: Boolean, default: false },
+    order: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
@@ -433,7 +519,6 @@ const pageSchema = new Schema<Page>(
     content: String,
     draftContentAr: String,
     draftContentEn: String,
-    draftContent: String,
     status: { type: String, enum: ["draft", "published"], default: "draft" },
     blocks: [{
       id: String,
@@ -568,3 +653,8 @@ export const InvoiceModel = mongoose.model<Invoice>("Invoice", invoiceSchema);
 export const BankTransferModel = mongoose.model<BankTransfer>("BankTransfer", bankTransferSchema);
 export const ShipmentModel = mongoose.model<Shipment>("Shipment", shipmentSchema);
 export const CartModel = mongoose.model("Cart", cartSchema);
+export const SizeGroupModel = mongoose.model<SizeGroup>("SizeGroup", sizeGroupSchema);
+export const SizeModel = mongoose.model<Size>("Size", sizeSchema);
+export const ColorModel = mongoose.model<Color>("Color", colorSchema);
+export const BrandModel = mongoose.model<Brand>("Brand", brandSchema);
+export const AttributeModel = mongoose.model<Attribute>("Attribute", attributeSchema);

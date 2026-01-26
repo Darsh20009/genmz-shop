@@ -99,6 +99,7 @@ import AdminStockNotifications from "@/pages/AdminStockNotifications";
 import AdminCustomerGroups from "@/pages/AdminCustomerGroups";
 import AdminOrders from "@/pages/AdminOrders";
 import AdminManualOrder from "@/pages/AdminManualOrder";
+import AdminProductAttributes from "@/pages/AdminProductAttributes";
 
 import AdminInventoryOrder from "@/pages/AdminInventoryOrder";
 import AdminInventoryChanges from "@/pages/AdminInventoryChanges";
@@ -217,6 +218,9 @@ function Router() {
       </Route>
       <Route path="/admin/categories">
         <ProtectedRoute component={AdminCategories} permission="products.view" />
+      </Route>
+      <Route path="/admin/product-attributes">
+        <ProtectedRoute component={AdminProductAttributes} permission="products.view" />
       </Route>
       <Route path="/admin/inventory-management">
         <ProtectedRoute component={AdminInventory} permission="settings.manage" />
