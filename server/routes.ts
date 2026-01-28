@@ -2209,30 +2209,6 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/payments/tamara/checkout", async (req, res, next) => {
-    try {
-      const { orderId } = req.body;
-      const order = await storage.getOrder(orderId);
-      if (!order) return res.status(404).json({ success: false, message: "Order not found" });
-
-      const { paymentService } = await import("./payments");
-      const session = await (paymentService as any).createTamaraSession({
-        orderId: order.id,
-        amount: order.total,
-        currency: "SAR",
-        customer: {
-          name: "Customer",
-          email: "customer@example.com",
-          phone: "0500000000"
-        }
-      });
-      res.json(session);
-    } catch (err: any) {
-      console.error("[TAMARA] Checkout error:", err);
-      res.status(500).json({ success: false, message: err.message });
-    }
-  });
-
   app.get("/api/payments/tabby/callback", async (req, res) => {
     const { payment_id, status } = req.query;
     console.log(`[TABBY] Callback received for payment ${payment_id}: ${status}`);

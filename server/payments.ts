@@ -36,17 +36,18 @@ export class PaymentGateway {
 
   constructor() {
     this.tabbyConfig = {
-      publicKey: "pk_019ae3ec-731c-b78c-d098-00ef225c5a4c",
-      secretKey: "sk_019ae3ec-731c-b78c-d098-00efc3f0e60b",
-      merchantCode: "zid_sa",
-      apiUrl: "https://api.tabby.ai/api/v2",
+      publicKey: process.env.TABBY_PUBLIC_KEY || "pk_019ae3ec-731c-b78c-d098-00ef225c5a4c",
+      secretKey: process.env.TABBY_SECRET_KEY || "sk_019ae3ec-731c-b78c-d098-00efc3f0e60b",
+      merchantCode: process.env.TABBY_MERCHANT_CODE || "zid_sa",
+      apiUrl: process.env.TABBY_API_URL || "https://api.tabby.ai/api/v2",
     };
 
+    const useSandbox = process.env.TAMARA_USE_SANDBOX === "true" || process.env.NODE_ENV === "development";
     this.tamaraConfig = {
-      apiToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhY2NvdW50SWQiOiJkZWVmZDU4Yi04ZTIzLTRhODctODY5MS02ZTRiYWMzZTVmYmIiLCJ0eXBlIjoibWVyY2hhbnQiLCJzYWx0IjoiN2Q4ZjM3OGItNTQ3Ni00OGZjLTkzZWItOTExMzBmNWVkNjU4Iiwicm9sZXMiOlsiUk9MRV9NRVJDSEFOVCJdLCJpc010bHMiOmZhbHNlLCJpYXQiOjE3Njg2Mjg3NjgsImlzcyI6IlRhbWFyYSBQUCJ9.faF9q4pTvG_lRxVAeW6wkyU_uF5RLLYi_WKdp7wemZEdW0TQFj43FKEJQppOq-MwQxwocljaFVkacugQNq6vrqaS60g8Hej6odmbY8kCpO4BWdiG2h8C8u3YTwT1cefwFBGCfv7qgvT_Ateb3hHAvD2n2jGSk8v3W_6uW1Gyw5rpAeWluFpO2g0L3GSY5QzaubveeMvArdlTrFw7ymwznK7lFUvzY2yJyRuLxEd6QF1Xris5Yg9D_qI-HHjO124Ipm3f5Teyp7fVrqa8zLoObs1aTWcyvo2PSRO2FogyRHUE1igbAjRYTVLF3VnrIjHeAveskY_vy-gJmmX3nyBIjg",
-      publicKey: "e56d8ae9-bb47-408b-8451-959ba5ef25c7",
-      notificationKey: "8e28db53-d568-460a-a42d-ac51d546d501",
-      apiUrl: "https://api.tamara.co",
+      apiToken: process.env.TAMARA_API_TOKEN || "",
+      publicKey: process.env.TAMARA_PUBLIC_KEY || "",
+      notificationKey: process.env.TAMARA_NOTIFICATION_KEY || "",
+      apiUrl: useSandbox ? "https://api-sandbox.tamara.co" : "https://api.tamara.co",
     };
   }
 
