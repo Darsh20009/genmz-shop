@@ -54,3 +54,4 @@ VITE_MOYASAR_PUBLISHABLE_KEY = "pk_live_ixH23WBZonR9eLPvhwwJLQBgrDTuZo9863cF562S
 MOYASAR_API_KEY = "sk_live_jCywr8xWiXCa1rQm2p2exyXxEUtVyrkmPuAziVRE"
 GOOGLE_CLIENT_ID = "178105227401-ro3f2ug66as0r5ddo7qupfhrqfuqa85t.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET = "GOCSPX- 9xkldGlkOLvPF39tbBLkFool0o64"
+TAMARA_USE_SANDBOX = "false"
