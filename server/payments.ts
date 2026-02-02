@@ -258,7 +258,7 @@ export class PaymentGateway {
         const itemQty = parseInt(item?.quantity || 1);
         return {
           reference_id: item?.variantSku || item?.productId || item?.sku || "item",
-          type: "physical",
+          type: "Physical", // Capitalized "Physical" is standard for many APIs
           name: itemName,
           sku: item?.variantSku || item?.productId || item?.sku || "SKU",
           quantity: itemQty,
@@ -271,7 +271,7 @@ export class PaymentGateway {
       consumer: {
         first_name: firstName || "Customer",
         last_name: lastName || "Customer",
-        phone_number: (customer?.phone || "0500000000").replace(/\s+/g, ""),
+        phone_number: (customer?.phone || "500000000").replace(/\s+/g, "").replace(/^(\+966|966|0)/, ""), // Strip +966/966/0 prefix
         email: customer?.email || "customer@example.com",
       },
       shipping_address: {
@@ -280,6 +280,7 @@ export class PaymentGateway {
         line1: shipping?.street || "Address",
         city: shipping?.city || "Riyadh",
         country_code: "SA",
+        phone_number: (customer?.phone || "500000000").replace(/\s+/g, "").replace(/^(\+966|966|0)/, ""),
       },
       merchant_url: {
         success: orderData.successUrl,
