@@ -1,0 +1,37 @@
+[ShipHero] Syncing order ORD-0B9DCL to ShipHero...
+[ShipHero] Sending order to ShipHero: ORD-0B9DCL
+[ShipHero] Order Creation Error Details: { message: 'Bad token' }
+[ShipHero] Failed to sync order ORD-0B9DCL: { message: 'Bad token' }
+6:32:00 PM [express] POST /api/orders 201 in 380ms :: {"success":true,"data":{"userId":"694e50c5a7893075782d9d00","type":"online","branchId":"main","status":"new","total":"248.85","subtotal":"199.00","vatAmount":"29.85","shippingCost":"20.00","shippingCompany":"Storage Station","nationalAddress":"","tapCommission":"0","netProfit":"0","couponCode":"","discountAmount":"0.00","cashbackAmount":"0.00","items":[{"productId":"695cfe7abd86f8333a448b58","variantSku":"default-id","quantity":1,"price":199,"cost":0,"title":"هودي جيل زد | سنقل كاب","_id":"6980ed9fcbe17873ce263bac"}],"shippingMethod":"delivery","shippingAddress":{"city":"الرياض","street":"الإحداثيات: 24.6019, 46.6514","country":"SA"},"paymentMethod":"tamara","paymentStatus":"pending","pointsUsed":0,"pointsEarned":0,"walletAmountUsed":0,"orderNumber":"ORD-0B9DCL","_id":"6980ed9fcbe17873ce263bab","createdAt":"2026-02-02T18:31:59.882Z","updatedAt":"2026-02-02T18:31:59.882Z","__v":0,"id":"6980ed9fcbe17873ce263bab"}}
+[Tamara] Creating checkout session for order: 6980ed9fcbe17873ce263bab
+[Tamara] API Response: {
+  "message": "Merchant is not found",
+  "errors": [
+    {
+      "error_code": ""
+    }
+  ],
+  "data": {},
+  "title": null,
+  "screen_type": null
+}
+[Tamara] API Error: {
+  "message": "Merchant is not found",
+  "errors": [
+    {
+      "error_code": ""
+    }
+  ],
+  "data": {},
+  "title": null,
+  "screen_type": null
+}
+[Tamara] Error creating session: Error: Merchant is not found
+    at PaymentGateway.createTamaraSession (/home/runner/workspace/server/payments.ts:310:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1048:23)
+[TAMARA] Error: Error: Merchant is not found
+    at PaymentGateway.createTamaraSession (/home/runner/workspace/server/payments.ts:310:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1048:23)
+6:32:00 PM [express] POST /api/payments/tamara/checkout 500 in 572ms :: {"success":false,"message":"Merchant is not found"}

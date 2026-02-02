@@ -42,7 +42,7 @@ export class PaymentGateway {
       apiUrl: process.env.TABBY_API_URL || "https://api.tabby.ai/api/v2",
     };
 
-    const useSandbox = process.env.TAMARA_USE_SANDBOX === "true" || process.env.NODE_ENV === "development";
+    const useSandbox = process.env.TAMARA_USE_SANDBOX === "true";
     this.tamaraConfig = {
       apiToken: process.env.TAMARA_API_TOKEN || "",
       publicKey: process.env.TAMARA_PUBLIC_KEY || "",
