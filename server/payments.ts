@@ -257,9 +257,9 @@ export class PaymentGateway {
         const itemPrice = parseFloat(item?.price || 0);
         const itemQty = parseInt(item?.quantity || 1);
         return {
-          reference_id: item?.variantSku || item?.productId || item?.sku || "item",
+          reference_id: (item?.variantSku || item?.productId || item?.sku || "item").substring(0, 50),
           type: "Physical",
-          name: itemName.substring(0, 100), // Tamara has limit for name length
+          name: itemName.substring(0, 100),
           sku: (item?.variantSku || item?.productId || item?.sku || "SKU").substring(0, 50),
           quantity: itemQty,
           total_amount: {
@@ -271,8 +271,8 @@ export class PaymentGateway {
       consumer: {
         first_name: (firstName || "Customer").substring(0, 100),
         last_name: (lastName || "Customer").substring(0, 100),
-        phone_number: (customer?.phone || "500000000").replace(/\s+/g, "").replace(/^(\+966|966|0)/, ""), 
-        email: customer?.email || "customer@example.com",
+        phone_number: (customer?.phone || "500000000").replace(/\s+/g, "").replace(/^(\+966|966|0)/, "").substring(0, 15),
+        email: (customer?.email || "customer@example.com").substring(0, 100),
       },
       shipping_address: {
         first_name: (firstName || "Customer").substring(0, 100),
@@ -280,7 +280,7 @@ export class PaymentGateway {
         line1: (shipping?.street || "Address").substring(0, 255),
         city: (shipping?.city || "Riyadh").substring(0, 100),
         country_code: "SA",
-        phone_number: (customer?.phone || "500000000").replace(/\s+/g, "").replace(/^(\+966|966|0)/, ""),
+        phone_number: (customer?.phone || "500000000").replace(/\s+/g, "").replace(/^(\+966|966|0)/, "").substring(0, 15),
       },
       merchant_url: {
         success: orderData.successUrl,
@@ -297,7 +297,9 @@ export class PaymentGateway {
       }
     };
 
-    console.log("[Tamara] Final Request Payload:", JSON.stringify(payload, null, 2));
+    console.log("[Tamara] Request Body:", JSON.stringify(payload, null, 2));
+    console.log("[Tamara] Using API URL:", this.tamaraConfig.apiUrl);
+    console.log("[Tamara] Using Token (prefix):", this.tamaraConfig.apiToken.substring(0, 10) + "...");
 
     try {
       const response = await fetch(`${this.tamaraConfig.apiUrl}/checkout`, {
