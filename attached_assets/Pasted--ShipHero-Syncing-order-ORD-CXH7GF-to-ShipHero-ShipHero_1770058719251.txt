@@ -1,0 +1,86 @@
+[ShipHero] Syncing order ORD-CXH7GF to ShipHero...
+[ShipHero] Sending order to ShipHero: ORD-CXH7GF
+[ShipHero] Order Creation Error Details: { message: "Authorization header must start with 'Bearer'" }
+[ShipHero] Failed to sync order ORD-CXH7GF: { message: "Authorization header must start with 'Bearer'" }
+6:58:03 PM [express] POST /api/orders 201 in 402ms :: {"success":true,"data":{"userId":"694e50c5a7893075782d9d00","type":"online","branchId":"main","status":"new","total":"477.70","subtotal":"398.00","vatAmount":"59.70","shippingCost":"20.00","shippingCompany":"Storage Station","nationalAddress":"","tapCommission":"0","netProfit":"0","couponCode":"","discountAmount":"0.00","cashbackAmount":"0.00","items":[{"productId":"695cfe7abd86f8333a448b58","variantSku":"default-id","quantity":1,"price":199,"cost":0,"title":"هودي جيل زد | سنقل كاب","_id":"6980f3ba4e3414040eb12396"},{"productId":"695cfe7abd86f8333a448b58","variantSku":"GMZ-H-2-DARK-GRN-XL","quantity":1,"price":199,"cost":0,"title":"هودي جيل زد | سنقل كاب","_id":"6980f3ba4e3414040eb12397"}],"shippingMethod":"delivery","shippingAddress":{"city":"الرياض","street":"الإحداثيات: 24.6019, 46.6514","country":"SA"},"paymentMethod":"tamara","paymentStatus":"pending","pointsUsed":0,"pointsEarned":0,"walletAmountUsed":0,"orderNumber":"ORD-CXH7GF","_id":"6980f3ba4e3414040eb12395","createdAt":"2026-02-02T18:58:02.909Z","updatedAt":"2026-02-02T18:58:02.909Z","__v":0,"id":"6980f3ba4e3414040eb12395"}}
+[Tamara] Request Body: {
+  "order_reference_id": "6980f3ba4e3414040eb12395",
+  "order_number": "6980f3ba4e3414040eb12395",
+  "total_amount": {
+    "amount": 477.7,
+    "currency": "SAR"
+  },
+  "description": "Order 6980f3ba4e3414040eb12395",
+  "country_code": "SA",
+  "payment_type": "PAY_BY_INSTALMENTS",
+  "instalments": 4,
+  "locale": "ar_SA",
+  "items": [
+    {
+      "reference_id": "default-id",
+      "type": "Physical",
+      "name": "هودي جيل زد | سنقل كاب",
+      "sku": "default-id",
+      "quantity": 1,
+      "total_amount": {
+        "amount": 199,
+        "currency": "SAR"
+      }
+    },
+    {
+      "reference_id": "GMZ-H-2-DARK-GRN-XL",
+      "type": "Physical",
+      "name": "هودي جيل زد | سنقل كاب",
+      "sku": "GMZ-H-2-DARK-GRN-XL",
+      "quantity": 1,
+      "total_amount": {
+        "amount": 199,
+        "currency": "SAR"
+      }
+    }
+  ],
+  "consumer": {
+    "first_name": "9660532441566",
+    "last_name": "Customer",
+    "phone_number": "0532441566",
+    "email": "9660532441566@genmz.com"
+  },
+  "shipping_address": {
+    "first_name": "9660532441566",
+    "last_name": "Customer",
+    "line1": "الإحداثيات: 24.6019, 46.6514",
+    "city": "الرياض",
+    "country_code": "SA",
+    "phone_number": "0532441566"
+  },
+  "merchant_url": {
+    "success": "http://e432b995-c95e-41f4-b80b-7e5eaaf59323-00-6dg81bpwtytt.picard.replit.dev/checkout/success?orderId=6980f3ba4e3414040eb12395",
+    "failure": "http://e432b995-c95e-41f4-b80b-7e5eaaf59323-00-6dg81bpwtytt.picard.replit.dev/checkout/failure?orderId=6980f3ba4e3414040eb12395",
+    "cancel": "http://e432b995-c95e-41f4-b80b-7e5eaaf59323-00-6dg81bpwtytt.picard.replit.dev/cart",
+    "notification": "https://localhost:5000/api/payments/tamara/webhook"
+  },
+  "risk_assessment": {
+    "customer_dob": "1990-01-01",
+    "is_guest": true,
+    "account_creation_date": "2026-02-02",
+    "has_delivered_order": false,
+    "total_order_count": 1
+  }
+}
+[Tamara] Using API URL: https://api.tamara.co
+[Tamara] Using Token (prefix): eyJ0eXAiOi...
+[Tamara] API Response: {
+  "message": "Something went wrong with us. We are notified."
+}
+[Tamara] API Error: {
+  "message": "Something went wrong with us. We are notified."
+}
+[Tamara] Error creating session: Error: Something went wrong with us. We are notified.
+    at PaymentGateway.createTamaraSession (/home/runner/workspace/server/payments.ts:320:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1048:23)
+[TAMARA] Error: Error: Something went wrong with us. We are notified.
+    at PaymentGateway.createTamaraSession (/home/runner/workspace/server/payments.ts:320:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1048:23)
+6:58:04 PM [express] POST /api/payments/tamara/checkout 500 in 697ms :: {"success":false,"message":"Something went wrong with us. We are notified."}

@@ -68,7 +68,7 @@ export class ShipHeroService {
         { query },
         {
           headers: {
-            "Authorization": this.apiKey, // ShipHero uses the token directly or with x-api-key
+            "Authorization": `Bearer ${this.apiKey}`,
             "Content-Type": "application/json",
             "x-api-key": this.apiKey
           },

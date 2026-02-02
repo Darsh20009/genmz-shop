@@ -277,7 +277,7 @@ export class PaymentGateway {
       shipping_address: {
         first_name: (firstName || "Customer").substring(0, 100),
         last_name: (lastName || "Customer").substring(0, 100),
-        line1: (shipping?.street || "Address").substring(0, 255),
+        line1: (shipping?.street || "Address").replace(/الإحداثيات:.*$/, "").trim().substring(0, 255) || "Address",
         city: (shipping?.city || "Riyadh").substring(0, 100),
         country_code: "SA",
         phone_number: (customer?.phone || "500000000").replace(/\s+/g, "").replace(/^(\+966|966|0)/, "").substring(0, 15),
@@ -286,7 +286,7 @@ export class PaymentGateway {
         success: orderData.successUrl,
         failure: orderData.failureUrl,
         cancel: orderData.cancelUrl,
-        notification: `https://${process.env.DOMAIN || "localhost:5000"}/api/payments/tamara/webhook`,
+        notification: `https://${process.env.DOMAIN}/api/payments/tamara/webhook`,
       },
       risk_assessment: {
         customer_dob: "1990-01-01",
