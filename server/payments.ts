@@ -258,9 +258,9 @@ export class PaymentGateway {
         const itemQty = parseInt(item?.quantity || 1);
         return {
           reference_id: item?.variantSku || item?.productId || item?.sku || "item",
-          type: "Physical", // Capitalized "Physical" is standard for many APIs
-          name: itemName,
-          sku: item?.variantSku || item?.productId || item?.sku || "SKU",
+          type: "Physical",
+          name: itemName.substring(0, 100), // Tamara has limit for name length
+          sku: (item?.variantSku || item?.productId || item?.sku || "SKU").substring(0, 50),
           quantity: itemQty,
           total_amount: {
             amount: parseFloat((itemPrice * itemQty).toFixed(2)),
@@ -269,16 +269,16 @@ export class PaymentGateway {
         };
       }),
       consumer: {
-        first_name: firstName || "Customer",
-        last_name: lastName || "Customer",
-        phone_number: (customer?.phone || "500000000").replace(/\s+/g, "").replace(/^(\+966|966|0)/, ""), // Strip +966/966/0 prefix
+        first_name: (firstName || "Customer").substring(0, 100),
+        last_name: (lastName || "Customer").substring(0, 100),
+        phone_number: (customer?.phone || "500000000").replace(/\s+/g, "").replace(/^(\+966|966|0)/, ""), 
         email: customer?.email || "customer@example.com",
       },
       shipping_address: {
-        first_name: firstName || "Customer",
-        last_name: lastName || "Customer",
-        line1: shipping?.street || "Address",
-        city: shipping?.city || "Riyadh",
+        first_name: (firstName || "Customer").substring(0, 100),
+        last_name: (lastName || "Customer").substring(0, 100),
+        line1: (shipping?.street || "Address").substring(0, 255),
+        city: (shipping?.city || "Riyadh").substring(0, 100),
         country_code: "SA",
         phone_number: (customer?.phone || "500000000").replace(/\s+/g, "").replace(/^(\+966|966|0)/, ""),
       },
@@ -288,9 +288,16 @@ export class PaymentGateway {
         cancel: orderData.cancelUrl,
         notification: `https://${process.env.DOMAIN || "localhost:5000"}/api/payments/tamara/webhook`,
       },
+      risk_assessment: {
+        customer_dob: "1990-01-01",
+        is_guest: true,
+        account_creation_date: new Date().toISOString().split('T')[0],
+        has_delivered_order: false,
+        total_order_count: 1
+      }
     };
 
-    console.log("[Tamara] Creating checkout session for order:", orderData.orderId);
+    console.log("[Tamara] Final Request Payload:", JSON.stringify(payload, null, 2));
 
     try {
       const response = await fetch(`${this.tamaraConfig.apiUrl}/checkout`, {
