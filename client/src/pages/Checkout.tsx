@@ -708,27 +708,27 @@ export default function Checkout() {
                     </div>
                   </div>
 
-                  {/* Tamara - Professional */}
+                  {/* Tamara - Professional (Disabled) */}
                   <div 
-                    className={`group relative flex items-center justify-between p-5 border-2 rounded-xl cursor-pointer transition-all duration-300 ${paymentMethod === "tamara" ? "border-[#FFD500] bg-[#FFD500]/[0.02] shadow-md" : "border-gray-100 hover:border-gray-200"}`}
-                    onClick={() => setPaymentMethod("tamara")}
+                    className={`group relative flex items-center justify-between p-5 border-2 rounded-xl cursor-not-allowed transition-all duration-300 opacity-60 grayscale ${paymentMethod === "tamara" ? "border-gray-200 bg-gray-50" : "border-gray-100"}`}
                   >
                     <div className="flex items-center gap-4 w-full">
-                      <div className={`flex items-center justify-center w-6 h-6 rounded-full border-2 transition-colors ${paymentMethod === "tamara" ? "border-[#FFD500] bg-[#FFD500]" : "border-gray-300"}`}>
-                        {paymentMethod === "tamara" && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
+                      <div className={`flex items-center justify-center w-6 h-6 rounded-full border-2 border-gray-300`}>
                       </div>
                       <div className="flex flex-col flex-1">
                         <div className="flex items-center justify-between">
-                          <img 
-                            src="https://cdn.tamara.co/assets/svg/tamara-logo-badge-en.svg" 
-                            alt="Tamara" 
-                            className="h-6 w-auto object-contain"
-                          />
-                          <span className="font-bold text-gray-900">{(finalTotal / 4).toFixed(2)} ر.س / شهر</span>
+                          <div className="flex items-center gap-2">
+                            <img 
+                              src="https://cdn.tamara.co/assets/svg/tamara-logo-badge-en.svg" 
+                              alt="Tamara" 
+                              className="h-6 w-auto object-contain"
+                            />
+                            <Badge className="bg-black text-white text-[10px] font-bold rounded-none px-2 py-0">قريباً</Badge>
+                          </div>
+                          <span className="font-bold text-gray-400">{(finalTotal / 4).toFixed(2)} ر.س / شهر</span>
                         </div>
                         <div className="flex justify-between items-center mt-1">
-                          <p className="text-xs text-gray-500 font-medium">قسمها على 4 دفعات شهرية - متوافق مع الشريعة</p>
-                          <Badge variant="outline" className="text-[10px] font-bold border-[#FFD500] text-gray-700">شرعي</Badge>
+                          <p className="text-xs text-gray-400 font-medium">تمارا ستتوفر قريباً كخيار للدفع</p>
                         </div>
                       </div>
                     </div>

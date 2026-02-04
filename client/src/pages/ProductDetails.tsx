@@ -423,20 +423,25 @@ export default function ProductDetails() {
             {/* Installment Plans Section - Real Tamara & Tabby Widgets */}
             <div className="mb-8 sm:mb-12 space-y-4" data-testid="section-installment-plans">
               {/* Tamara Widget */}
-              <div 
-                className="w-full overflow-hidden"
-                dangerouslySetInnerHTML={{
-                  __html: `
-                    <tamara-widget 
-                      class="tamara-product-widget" 
-                      type="tamara-summary" 
-                      inline-type="2" 
-                      uuid="${generateUUID()}" 
-                      amount="${product.price || 0}"
-                    ></tamara-widget>
-                  `
-                }}
-              />
+              <div className="relative">
+                <div 
+                  className="w-full overflow-hidden opacity-50 grayscale pointer-events-none"
+                  dangerouslySetInnerHTML={{
+                    __html: `
+                      <tamara-widget 
+                        class="tamara-product-widget" 
+                        type="tamara-summary" 
+                        inline-type="2" 
+                        uuid="${generateUUID()}" 
+                        amount="${product.price || 0}"
+                      ></tamara-widget>
+                    `
+                  }}
+                />
+                <div className="absolute top-0 left-0 bg-black text-white text-[10px] font-bold px-2 py-1 z-10">
+                  قريباً
+                </div>
+              </div>
               
               {/* Tabby Product Widget */}
               <div 
