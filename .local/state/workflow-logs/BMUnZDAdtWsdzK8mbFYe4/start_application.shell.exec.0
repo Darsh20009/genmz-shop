@@ -1,0 +1,20 @@
+
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+[1G[0K(node:605) [MONGOOSE] Warning: `isNew` is a reserved schema pathname and may break some functionality. You are allowed to use it, but use at your own risk. To disable this warning pass `suppressReservedKeysWarning` as a schema option.
+(Use `node --trace-warnings ...` to show where the warning was created)
+/home/runner/workspace/server/db.ts:15
+    throw new Error("MONGODB_URI must be set.");
+          ^
+
+
+Error: MONGODB_URI must be set.
+    at connectDB [90m(/home/runner/workspace/[39mserver/db.ts:15:11[90m)[39m
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/db.ts:30:1[90m)[39m
+[90m    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)[39m
+[90m    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)[39m
+[90m    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)[39m
+
+Node.js v20.20.0
+[1G[0K⠙[1G[0K
