@@ -549,7 +549,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
           <div className="mt-12 pt-8 border-t">
             <p>© 2026 Gen M & Z. {t('allRightsReserved')}.</p>
-            <p className="mt-2 text-xs opacity-70">{t('madeWithLove')}</p>
+            <p className="mt-2 text-xs opacity-70">
+              <a href="https://qiroxstudio.online" target="_blank" rel="noopener noreferrer" className="hover:opacity-100 transition-opacity">
+                {t('madeWithLove')}
+              </a>
+            </p>
           </div>
         </div>
       </footer>
